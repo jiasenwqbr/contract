@@ -19,7 +19,7 @@ contract GenesisNode is ERC721Enumerable, ERC721Holder, AccessControl {
     Counters.Counter private idCounter;
 
     bool public transferSwitch;
-     constructor(address _operator) ERC721("Genesis NFT", "Genesis NFT") {
+     constructor(address _operator) ERC721("Genesis Node", "Genesis Node") {
         idCounter.initial(1);
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(MANAGE_ROLE, msg.sender);

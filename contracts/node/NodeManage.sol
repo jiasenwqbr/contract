@@ -55,7 +55,7 @@ contract NodeManage is
     address public usdt;
     mapping(address => Product) productInfo;
     bytes32 private constant PERMIT_BUYNODE_TYPEHASH = keccak256(
-        abi.encodePacked("Permit(address buyer,uint256 orderId,address tokenAddress,uint256 tokenAmount,address nodeAddress,uint256 buyAmountaddress,address recommender,uint256 collectRatio)")
+        abi.encodePacked("Permit(address buyer,uint256 orderId,address tokenAddress,uint256 tokenAmount,address nodeAddress,uint256 buyAmount,address recommender,uint256 collectRatio)")
     );
 
     function initialize( 
@@ -119,26 +119,26 @@ contract NodeManage is
         // 2.收取费用与mint
         IERC20 paymentToken = IERC20(order.tokenAddress);
         uint256 recomanderFee = order.tokenAmount.mul(order.collectRatio).div(1000);
-        uint256 fee1 = order.tokenAmount.mul(feeReceiverRatio[1]).div(1000);
-        uint256 fee2 = order.tokenAmount.mul(feeReceiverRatio[2]).div(1000);
+        uint256 fee1 = order.tokenAmount.mul(feeReceiverRatio[0]).div(1000);
+        uint256 fee2 = order.tokenAmount.mul(feeReceiverRatio[1]).div(1000);
         uint256 fee3 = order.tokenAmount.sub(recomanderFee).sub(fee1).sub(fee2);
 
         require(
             paymentToken.transferFrom(msg.sender, order.recommender, recomanderFee ),
-            "NFTSellManage:Payment transfer failed"
+            "NodeManage:Payment transfer failed"
         );
 
         require(
-            paymentToken.transferFrom(msg.sender, feeReceiver[0], order.tokenAmount.sub(fee1) ),
-            "NFTSellManage:Payment transfer failed"
+            paymentToken.transferFrom(msg.sender, feeReceiver[0], fee1),
+            "NodeManage:Payment transfer failed"
         );
         require(
-            paymentToken.transferFrom(msg.sender, feeReceiver[1], order.tokenAmount.sub(fee2) ),
-            "NFTSellManage:Payment transfer failed"
+            paymentToken.transferFrom(msg.sender, feeReceiver[1], fee2),
+            "NodeManage:Payment transfer failed"
         );
         require(
-            paymentToken.transferFrom(msg.sender, feeReceiver[2], order.tokenAmount.sub(fee3) ),
-            "NFTSellManage:Payment transfer failed"
+            paymentToken.transferFrom(msg.sender, feeReceiver[2], fee3 ),
+            "NodeManage:Payment transfer failed"
         );
         
         uint256 nodeId;
