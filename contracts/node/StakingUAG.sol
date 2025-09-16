@@ -147,7 +147,7 @@ contract StakingUAG is
         require(IERC20(uagAddress).allowance(msg.sender, address(this)) >= order.amount.add(order.burnAmount),"StakingUAG:erc20 allowance error");
 
         require(
-            IERC20(order.tokenAddress).transferFrom(msg.sender, feeAddress, order.amount),
+            IERC20(order.tokenAddress).transferFrom(msg.sender, address(this), order.amount),
             "StakingUAG:Payment transfer failed"
         );
         UAGToken(order.tokenAddress).burnFrom(order.userAddress,order.burnAmount);
@@ -231,8 +231,9 @@ contract StakingUAG is
     function unStake(bytes memory data) public nonReentrant{
         require(funcSwitch,"StakingUAG:Function is not enabled");
         WithdrawalOrder memory order = parseWithdrawalOrder(data);
+        require(userOrders[msg.sender][order.orderId].orderId != 0,"StakingUAG:The order is not exist");
         require(order.userAddress == msg.sender,"StakingUAG:Invalid msg sender");
-        require(userWithdrawalOrders[msg.sender][order.orderId].orderId == 0,"StakingUAG:The order is exist");
+        require(userWithdrawalOrders[msg.sender][order.orderId].orderId == 0,"StakingUAG:The unstake order is  exist");
         require(order.tokenAddress == uagAddress,"StakingUAG:Invalid token address");
         require(order.amount <= userStakeAmounts[msg.sender],"StakingUAG:withdrawal amount is bigger tha the stake amount");
         uint256 fee = userStakeAmounts[msg.sender].mul(withdrawalFeePersentage).div(1000);
@@ -300,6 +301,7 @@ contract StakingUAG is
             createTime: block.timestamp
         });
     }
+    
     // 提取收益
     function withdrawingProfits(bytes memory data) public nonReentrant{
         WithdrawingProfitsOrder memory order = parseWithdrawingProfitsOrder(data);
