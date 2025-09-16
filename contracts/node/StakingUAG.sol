@@ -131,10 +131,10 @@ contract StakingUAG is
     mapping(address => uint256[]) userWithdrawProfitsOrderIds;
 
     event StakeUAG(address caller,uint256 orderId,address tokenAddress,uint256 amount,uint256 burnAmount,uint256 energyValue,uint256 userStakeAmount,uint256 timestamp);
-    event WithdrawalStake(address caller,uint256 orderId,address tokenAddress,uint256 amount,uint256 timestamp);
+    event UnStake(address caller,uint256 orderId,address tokenAddress,uint256 amount,uint256 timestamp);
     event WithdrawingProfits(address caller,uint256 orderId,address tokenAddress,uint256 amount,address uacAddress,uint256 uacAmount,uint256 timestamp);
 
-
+    // 质押UAG
     function stakeUAG(bytes memory data)  public payable nonReentrant{
         require(funcSwitch,"StakingUAG:Function is not enabled");
         Order memory order = parseOrder(data);
@@ -227,8 +227,8 @@ contract StakingUAG is
         return (v, r, s);
     }
 
-
-    function withdrawalStake(bytes memory data) public nonReentrant{
+    // 撤出
+    function unStake(bytes memory data) public nonReentrant{
         require(funcSwitch,"StakingUAG:Function is not enabled");
         WithdrawalOrder memory order = parseWithdrawalOrder(data);
         require(order.userAddress == msg.sender,"StakingUAG:Invalid msg sender");
@@ -253,7 +253,7 @@ contract StakingUAG is
         userWithdrawalOrderIds[msg.sender].push(order.orderId);
         userStakeAmounts[msg.sender] = 0;
 
-        emit WithdrawalStake(msg.sender,order.orderId,order.tokenAddress,order.amount,block.timestamp);
+        emit UnStake(msg.sender,order.orderId,order.tokenAddress,order.amount,block.timestamp);
 
     }
 
@@ -300,7 +300,7 @@ contract StakingUAG is
             createTime: block.timestamp
         });
     }
-
+    // 提取收益
     function withdrawingProfits(bytes memory data) public nonReentrant{
         WithdrawingProfitsOrder memory order = parseWithdrawingProfitsOrder(data);
         require(funcSwitch,"StakingUAG:Function is not enabled");
@@ -392,6 +392,33 @@ contract StakingUAG is
     }
     function setFeeAddress(address _feeAddress)  public onlyRole(MANAGE_ROLE) {
         feeAddress = _feeAddress;
+    }
+
+    function getUserOrders(address userAddress) public view returns(Order[] memory) {
+        uint256[] memory orderIds =  userOrderIds[userAddress];
+        Order[] memory orders = new Order[](orderIds.length);
+        for (uint256 i = 0; i < orderIds.length;i++ ){
+            orders[i] = userOrders[userAddress][orderIds[i]];
+        }
+        return orders;
+    }
+
+    function getUserWithdrawalOrders(address userAddress) public view returns(WithdrawalOrder[] memory) {
+        uint256[] memory orderIds = userWithdrawalOrderIds[userAddress];
+        WithdrawalOrder[] memory orders = new  WithdrawalOrder[](orderIds.length);
+        for (uint256 i = 0;i<orderIds.length;i++){
+            orders[i] = userWithdrawalOrders[userAddress][orderIds[i]];
+        }
+        return orders;
+    }
+
+    function getUserWithdrawProfitsOrders(address userAddress) public view returns(WithdrawingProfitsOrder[] memory) {
+        uint256[] memory orderIds = userWithdrawProfitsOrderIds[userAddress];
+        WithdrawingProfitsOrder[] memory orders = new WithdrawingProfitsOrder[](orderIds.length);
+        for (uint256 i = 0;i<orderIds.length;i++){
+            orders[i] = userWithdrawProfitsOrders[userAddress][orderIds[i]];
+        }
+        return orders;
     }
 
 }

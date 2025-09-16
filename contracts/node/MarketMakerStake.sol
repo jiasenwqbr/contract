@@ -26,10 +26,11 @@ contract MarketMakerStake is  Initializable,
     address public uagAddress;
     address public usdtAddress;
     address private feeAddress;
+    mapping(uint => uint) public marketMakerStakeTypeNumber;
     
     event Stake(address caller,uint256 orderId,address tokenAddress,uint256 amount,uint256 startTimestamp,uint256 endTimestamp,uint256 stakeType,uint256 renewable,uint256 status,uint256 renewTime,uint256 timestamp);
     event UnStake(address caller,uint256 orderId,uint256 amount,uint256 timestamp);
-    event  ReStake(address caller,uint256 orderId,uint256 renewTime,uint256 timestamp);
+    event ReStake(address caller,uint256 orderId,uint256 renewTime,uint256 timestamp);
     
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -40,7 +41,7 @@ contract MarketMakerStake is  Initializable,
         address newImplementation
     ) internal override onlyRole(MANAGE_ROLE) {}
 
-    function initialize(address _uacAddress,address _uagAddress,address _usdtAddress,address _signer,address _feeAddress) public initializer {
+    function initialize(address _signer,address _uacAddress,address _uagAddress,address _usdtAddress,address _feeAddress) public initializer {
         __AccessControlEnumerable_init();
         __ReentrancyGuard_init();
         __UUPSUpgradeable_init();
@@ -70,6 +71,11 @@ contract MarketMakerStake is  Initializable,
                 address(this)
             )
         );
+
+        marketMakerStakeTypeNumber[30 days] = 1000;
+        marketMakerStakeTypeNumber[60 days] = 1000;
+        marketMakerStakeTypeNumber[90 days] = 1000;
+        marketMakerStakeTypeNumber[180 days] = 1000;
     }
     receive() external payable {}
 
@@ -110,6 +116,7 @@ contract MarketMakerStake is  Initializable,
         require(userOrders[msg.sender][order.orderId].orderId == 0,"MarketMakerStake:Order is exist");
         require(order.amount > 0,"MarketMakerStake:amount should > 0");
         require(order.endTimestamp > order.startTimestamp,"MarketMakerStake:endTimestamp should > startTimestamp");
+        require(marketMakerStakeTypeNumber[order.stakeType]!=0,"MarketMakerStake:staketype is error");
 
         userOrders[msg.sender][order.orderId] = order;
         userOrderIds[msg.sender].push(order.orderId);
