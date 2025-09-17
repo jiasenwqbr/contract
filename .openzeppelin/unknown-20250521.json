@@ -70,6 +70,41 @@
       "address": "0x037b9D7eebE5185D2e0399C5AC628606a4089009",
       "txHash": "0x352b0d05545c1b69a3435d5bf091ee5ba660467f3505b059e84d3fedacf18975",
       "kind": "uups"
+    },
+    {
+      "address": "0x635671DCFfc0d5ceD4fd105C99BB509F3c4702a3",
+      "txHash": "0x08f118692ce97a26e44b06d293fb9d498c0c0e3131e31d936fde07ec2ae6a5aa",
+      "kind": "uups"
+    },
+    {
+      "address": "0xbAC18865bbb8a5FbaEc19Edf91693fD6Fc2A9528",
+      "txHash": "0xb68dae93fa2bdc640e65d95e5af1987ec3bfd371ca01bdad2c2bc36997c57118",
+      "kind": "uups"
+    },
+    {
+      "address": "0xF535a6e2d655bFe7A56e759F6b0E93d9083236df",
+      "txHash": "0xb5a278a5753491e7f4fb827f9ca6a26eeec06e2b7b207c130b27f3e75b4e2a62",
+      "kind": "uups"
+    },
+    {
+      "address": "0xeb5B7C4b9F0ADB798ff9703558585FDbBDA23B69",
+      "txHash": "0xf6965e098e772475cd7ecb2860dca3b004249dfa3a2a4d27d1286a5f7fc526ff",
+      "kind": "uups"
+    },
+    {
+      "address": "0x43c9E6220cFbF697B4b0fb101fC0205cB5D01f65",
+      "txHash": "0x78eec5b4e721797457c73c1cdf8f586b0e88eedf7989a2c8a30dd44d268dfb8d",
+      "kind": "uups"
+    },
+    {
+      "address": "0x5f43D741f289eCe5eA25fBf3930fe50348d23153",
+      "txHash": "0x80fb8d3e0076e29810dd8b3a47ec9a700402ee7f0afb1c17eea5e7b8f0174bb3",
+      "kind": "uups"
+    },
+    {
+      "address": "0x21cf2B847841c91E4ED53BFaE8B0Ec3FEc70C1A5",
+      "txHash": "0xb47a0da30afd2e587040d5c7af20acde46b268508db9039c4f18ca9c2f359c77",
+      "kind": "uups"
     }
   ],
   "impls": {
@@ -4107,6 +4142,828 @@
               }
             ],
             "numberOfBytes": "224"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {}
+      }
+    },
+    "13231a47e83629e917637a85e2c5b3f74f48a345efd057e63e7f5a048dfbc8ef": {
+      "address": "0x85efCe1782262a090f3d105C1Caba2795e653Dc4",
+      "txHash": "0xb35dd605ecd6a390df52a552e287654b28193ccb4a7c4196b4da4da68e463781",
+      "layout": {
+        "solcVersion": "0.8.20",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:68"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:40"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ERC165Upgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol:41"
+          },
+          {
+            "label": "_roles",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_mapping(t_bytes32,t_struct(RoleData)169_storage)",
+            "contract": "AccessControlUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol:57"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "AccessControlUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol:260"
+          },
+          {
+            "label": "_roleMembers",
+            "offset": 0,
+            "slot": "151",
+            "type": "t_mapping(t_bytes32,t_struct(AddressSet)3901_storage)",
+            "contract": "AccessControlEnumerableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol:17"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "152",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "AccessControlEnumerableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol:76"
+          },
+          {
+            "label": "_status",
+            "offset": 0,
+            "slot": "201",
+            "type": "t_uint256",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:38"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "202",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:88"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "251",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ERC1967UpgradeUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol:169"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "301",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "UUPSUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol:111"
+          },
+          {
+            "label": "DOMAIN_SEPARATOR",
+            "offset": 0,
+            "slot": "351",
+            "type": "t_bytes32",
+            "contract": "MarketMakerStake",
+            "src": "contracts/node/MarketMakerStake.sol:20"
+          },
+          {
+            "label": "funcSwitch",
+            "offset": 0,
+            "slot": "352",
+            "type": "t_bool",
+            "contract": "MarketMakerStake",
+            "src": "contracts/node/MarketMakerStake.sol:22"
+          },
+          {
+            "label": "signer",
+            "offset": 1,
+            "slot": "352",
+            "type": "t_address",
+            "contract": "MarketMakerStake",
+            "src": "contracts/node/MarketMakerStake.sol:24"
+          },
+          {
+            "label": "uacAddress",
+            "offset": 0,
+            "slot": "353",
+            "type": "t_address",
+            "contract": "MarketMakerStake",
+            "src": "contracts/node/MarketMakerStake.sol:25"
+          },
+          {
+            "label": "uagAddress",
+            "offset": 0,
+            "slot": "354",
+            "type": "t_address",
+            "contract": "MarketMakerStake",
+            "src": "contracts/node/MarketMakerStake.sol:26"
+          },
+          {
+            "label": "usdtAddress",
+            "offset": 0,
+            "slot": "355",
+            "type": "t_address",
+            "contract": "MarketMakerStake",
+            "src": "contracts/node/MarketMakerStake.sol:27"
+          },
+          {
+            "label": "feeAddress",
+            "offset": 0,
+            "slot": "356",
+            "type": "t_address",
+            "contract": "MarketMakerStake",
+            "src": "contracts/node/MarketMakerStake.sol:28"
+          },
+          {
+            "label": "marketMakerStakeTypeNumber",
+            "offset": 0,
+            "slot": "357",
+            "type": "t_mapping(t_uint256,t_uint256)",
+            "contract": "MarketMakerStake",
+            "src": "contracts/node/MarketMakerStake.sol:29"
+          },
+          {
+            "label": "userOrders",
+            "offset": 0,
+            "slot": "358",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(Order)9070_storage))",
+            "contract": "MarketMakerStake",
+            "src": "contracts/node/MarketMakerStake.sol:106"
+          },
+          {
+            "label": "userOrderIds",
+            "offset": 0,
+            "slot": "359",
+            "type": "t_mapping(t_address,t_array(t_uint256)dyn_storage)",
+            "contract": "MarketMakerStake",
+            "src": "contracts/node/MarketMakerStake.sol:107"
+          },
+          {
+            "label": "userRenewOrders",
+            "offset": 0,
+            "slot": "360",
+            "type": "t_mapping(t_address,t_array(t_struct(RenewOrder)9077_storage)dyn_storage)",
+            "contract": "MarketMakerStake",
+            "src": "contracts/node/MarketMakerStake.sol:110"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_bytes32)dyn_storage": {
+            "label": "bytes32[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_struct(RenewOrder)9077_storage)dyn_storage": {
+            "label": "struct MarketMakerStake.RenewOrder[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_array(t_uint256)dyn_storage": {
+            "label": "uint256[]",
+            "numberOfBytes": "32"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_bytes32": {
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_array(t_struct(RenewOrder)9077_storage)dyn_storage)": {
+            "label": "mapping(address => struct MarketMakerStake.RenewOrder[])",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_array(t_uint256)dyn_storage)": {
+            "label": "mapping(address => uint256[])",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_mapping(t_uint256,t_struct(Order)9070_storage))": {
+            "label": "mapping(address => mapping(uint256 => struct MarketMakerStake.Order))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_struct(AddressSet)3901_storage)": {
+            "label": "mapping(bytes32 => struct EnumerableSetUpgradeable.AddressSet)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_struct(RoleData)169_storage)": {
+            "label": "mapping(bytes32 => struct AccessControlUpgradeable.RoleData)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_uint256)": {
+            "label": "mapping(bytes32 => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_struct(Order)9070_storage)": {
+            "label": "mapping(uint256 => struct MarketMakerStake.Order)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_uint256)": {
+            "label": "mapping(uint256 => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(AddressSet)3901_storage": {
+            "label": "struct EnumerableSetUpgradeable.AddressSet",
+            "members": [
+              {
+                "label": "_inner",
+                "type": "t_struct(Set)3586_storage",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(Order)9070_storage": {
+            "label": "struct MarketMakerStake.Order",
+            "members": [
+              {
+                "label": "orderId",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "caller",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "tokenAddress",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "amount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "startTimestamp",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "4"
+              },
+              {
+                "label": "endTimestamp",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "5"
+              },
+              {
+                "label": "stakeType",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "6"
+              },
+              {
+                "label": "renewable",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "7"
+              },
+              {
+                "label": "status",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "8"
+              },
+              {
+                "label": "renewTime",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "9"
+              }
+            ],
+            "numberOfBytes": "320"
+          },
+          "t_struct(RenewOrder)9077_storage": {
+            "label": "struct MarketMakerStake.RenewOrder",
+            "members": [
+              {
+                "label": "orderId",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "renewTime",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "blockTime",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_struct(RoleData)169_storage": {
+            "label": "struct AccessControlUpgradeable.RoleData",
+            "members": [
+              {
+                "label": "members",
+                "type": "t_mapping(t_address,t_bool)",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "adminRole",
+                "type": "t_bytes32",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(Set)3586_storage": {
+            "label": "struct EnumerableSetUpgradeable.Set",
+            "members": [
+              {
+                "label": "_values",
+                "type": "t_array(t_bytes32)dyn_storage",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_indexes",
+                "type": "t_mapping(t_bytes32,t_uint256)",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {}
+      }
+    },
+    "e93792fff5161a696be985abd26e7d337193148be7487b3efbd0aeb817d4f22d": {
+      "address": "0xCC03E3e67383bAD89319c5a5D0336f82F382e19B",
+      "txHash": "0x7ee502f8cddef80ea382a280aa0facd7d171c3ac3370a9c488583e70b88d9d46",
+      "layout": {
+        "solcVersion": "0.8.20",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:68"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:40"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ERC165Upgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol:41"
+          },
+          {
+            "label": "_roles",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_mapping(t_bytes32,t_struct(RoleData)169_storage)",
+            "contract": "AccessControlUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol:57"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "AccessControlUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol:260"
+          },
+          {
+            "label": "_roleMembers",
+            "offset": 0,
+            "slot": "151",
+            "type": "t_mapping(t_bytes32,t_struct(AddressSet)3901_storage)",
+            "contract": "AccessControlEnumerableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol:17"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "152",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "AccessControlEnumerableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol:76"
+          },
+          {
+            "label": "_status",
+            "offset": 0,
+            "slot": "201",
+            "type": "t_uint256",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:38"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "202",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:88"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "251",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ERC1967UpgradeUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol:169"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "301",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "UUPSUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol:111"
+          },
+          {
+            "label": "DOMAIN_SEPARATOR",
+            "offset": 0,
+            "slot": "351",
+            "type": "t_bytes32",
+            "contract": "MarketMakerStake",
+            "src": "contracts/node/MarketMakerStake.sol:20"
+          },
+          {
+            "label": "funcSwitch",
+            "offset": 0,
+            "slot": "352",
+            "type": "t_bool",
+            "contract": "MarketMakerStake",
+            "src": "contracts/node/MarketMakerStake.sol:22"
+          },
+          {
+            "label": "signer",
+            "offset": 1,
+            "slot": "352",
+            "type": "t_address",
+            "contract": "MarketMakerStake",
+            "src": "contracts/node/MarketMakerStake.sol:24"
+          },
+          {
+            "label": "uacAddress",
+            "offset": 0,
+            "slot": "353",
+            "type": "t_address",
+            "contract": "MarketMakerStake",
+            "src": "contracts/node/MarketMakerStake.sol:25"
+          },
+          {
+            "label": "uagAddress",
+            "offset": 0,
+            "slot": "354",
+            "type": "t_address",
+            "contract": "MarketMakerStake",
+            "src": "contracts/node/MarketMakerStake.sol:26"
+          },
+          {
+            "label": "usdtAddress",
+            "offset": 0,
+            "slot": "355",
+            "type": "t_address",
+            "contract": "MarketMakerStake",
+            "src": "contracts/node/MarketMakerStake.sol:27"
+          },
+          {
+            "label": "feeAddress",
+            "offset": 0,
+            "slot": "356",
+            "type": "t_address",
+            "contract": "MarketMakerStake",
+            "src": "contracts/node/MarketMakerStake.sol:28"
+          },
+          {
+            "label": "marketMakerStakeTypeNumber",
+            "offset": 0,
+            "slot": "357",
+            "type": "t_mapping(t_uint256,t_uint256)",
+            "contract": "MarketMakerStake",
+            "src": "contracts/node/MarketMakerStake.sol:29"
+          },
+          {
+            "label": "userOrders",
+            "offset": 0,
+            "slot": "358",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(Order)9070_storage))",
+            "contract": "MarketMakerStake",
+            "src": "contracts/node/MarketMakerStake.sol:106"
+          },
+          {
+            "label": "userOrderIds",
+            "offset": 0,
+            "slot": "359",
+            "type": "t_mapping(t_address,t_array(t_uint256)dyn_storage)",
+            "contract": "MarketMakerStake",
+            "src": "contracts/node/MarketMakerStake.sol:107"
+          },
+          {
+            "label": "userRenewOrders",
+            "offset": 0,
+            "slot": "360",
+            "type": "t_mapping(t_address,t_array(t_struct(RenewOrder)9077_storage)dyn_storage)",
+            "contract": "MarketMakerStake",
+            "src": "contracts/node/MarketMakerStake.sol:110"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_bytes32)dyn_storage": {
+            "label": "bytes32[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_struct(RenewOrder)9077_storage)dyn_storage": {
+            "label": "struct MarketMakerStake.RenewOrder[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_array(t_uint256)dyn_storage": {
+            "label": "uint256[]",
+            "numberOfBytes": "32"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_bytes32": {
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_array(t_struct(RenewOrder)9077_storage)dyn_storage)": {
+            "label": "mapping(address => struct MarketMakerStake.RenewOrder[])",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_array(t_uint256)dyn_storage)": {
+            "label": "mapping(address => uint256[])",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_mapping(t_uint256,t_struct(Order)9070_storage))": {
+            "label": "mapping(address => mapping(uint256 => struct MarketMakerStake.Order))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_struct(AddressSet)3901_storage)": {
+            "label": "mapping(bytes32 => struct EnumerableSetUpgradeable.AddressSet)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_struct(RoleData)169_storage)": {
+            "label": "mapping(bytes32 => struct AccessControlUpgradeable.RoleData)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_uint256)": {
+            "label": "mapping(bytes32 => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_struct(Order)9070_storage)": {
+            "label": "mapping(uint256 => struct MarketMakerStake.Order)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_uint256)": {
+            "label": "mapping(uint256 => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(AddressSet)3901_storage": {
+            "label": "struct EnumerableSetUpgradeable.AddressSet",
+            "members": [
+              {
+                "label": "_inner",
+                "type": "t_struct(Set)3586_storage",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(Order)9070_storage": {
+            "label": "struct MarketMakerStake.Order",
+            "members": [
+              {
+                "label": "orderId",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "caller",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "tokenAddress",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "amount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "startTimestamp",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "4"
+              },
+              {
+                "label": "endTimestamp",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "5"
+              },
+              {
+                "label": "stakeType",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "6"
+              },
+              {
+                "label": "renewable",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "7"
+              },
+              {
+                "label": "status",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "8"
+              },
+              {
+                "label": "renewTime",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "9"
+              }
+            ],
+            "numberOfBytes": "320"
+          },
+          "t_struct(RenewOrder)9077_storage": {
+            "label": "struct MarketMakerStake.RenewOrder",
+            "members": [
+              {
+                "label": "orderId",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "renewTime",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "blockTime",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_struct(RoleData)169_storage": {
+            "label": "struct AccessControlUpgradeable.RoleData",
+            "members": [
+              {
+                "label": "members",
+                "type": "t_mapping(t_address,t_bool)",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "adminRole",
+                "type": "t_bytes32",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(Set)3586_storage": {
+            "label": "struct EnumerableSetUpgradeable.Set",
+            "members": [
+              {
+                "label": "_values",
+                "type": "t_array(t_bytes32)dyn_storage",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_indexes",
+                "type": "t_mapping(t_bytes32,t_uint256)",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
           },
           "t_uint256": {
             "label": "uint256",

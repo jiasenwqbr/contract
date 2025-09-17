@@ -11,7 +11,7 @@ async function main(){
     const feeAddress = '0xBB5EAccCEB5CBCfBD73d8Fb6bBd122eACa47ae37';
     const args = [signer,uagAddress,uacAddress,usdtAddress,feeAddress];
     // const marketMakerStake =  (await upgrades.deployProxy(marketMakerStakeFactory,args,{kind:'uups'})) as MarketMakerStake;
-    const marketMakerStake = await upgrades.upgradeProxy('0xeE50Fae73fd72838F91e328390b524e4167f0F5E', marketMakerStakeFactory, { kind: 'uups' });
+    const marketMakerStake = await upgrades.upgradeProxy('0xeb5B7C4b9F0ADB798ff9703558585FDbBDA23B69', marketMakerStakeFactory, { kind: 'uups' });
     await marketMakerStake.deployed();
     console.log("MarketMakerStake address is:",marketMakerStake.address);
 
@@ -27,5 +27,5 @@ main().catch(
 
 /**
  npx hardhat run ./scripts/bridge/testnet/deployMarketMakerStake_on_testnet.ts --network pijstestnet
-MarketMakerStake address is: 0xeE50Fae73fd72838F91e328390b524e4167f0F5E
+MarketMakerStake address is: 0xeb5B7C4b9F0ADB798ff9703558585FDbBDA23B69
  */

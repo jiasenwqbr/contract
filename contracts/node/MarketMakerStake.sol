@@ -81,7 +81,7 @@ contract MarketMakerStake is  Initializable,
 
     bytes32 private constant PERMIT_STAKE_TYPEHASH = keccak256(
         abi.encodePacked(
-            "Permit(uint256 orderId,address caller,address tokenAddress,uint256 amount,uint256 amount,uint256 startTimestamp,uint256 endTimestamp,uint256 stakeType,uint256 renewable)"
+            "Permit(uint256 orderId,address caller,address tokenAddress,uint256 amount,uint256 startTimestamp,uint256 endTimestamp,uint256 stakeType,uint256 renewable)"
         )
     );
 
@@ -122,8 +122,8 @@ contract MarketMakerStake is  Initializable,
         userOrderIds[msg.sender].push(order.orderId);
 
         require(
-             IERC20(order.tokenAddress).transferFrom(msg.sender, address(this), order.amount),
-            "StakingUAG:Payment transfer failed"
+            IERC20(order.tokenAddress).transferFrom(msg.sender, address(this), order.amount),
+            "MarketMakerStake:Payment transfer failed"
         );
         emit Stake(msg.sender,order.orderId,order.tokenAddress,order.amount,order.startTimestamp,order.endTimestamp,order.stakeType,order.renewable,order.status,order.renewTime,block.timestamp);
 
