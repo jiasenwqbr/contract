@@ -13,6 +13,7 @@ const config: HardhatUserConfig = {
   networks: {
     hardhat: {
        blockGasLimit: 50_000_000,
+       allowUnlimitedContractSize: true,
        // timeout: 1200000 // 120秒
     },
     PIJSLOCAL: {
