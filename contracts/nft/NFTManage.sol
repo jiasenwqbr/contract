@@ -11,6 +11,7 @@ interface INFT {
     function mintTo(address user,string calldata imageData, string calldata name_, string calldata desc_) external returns(uint256);
     function tokenURI(uint256 tokenId) external view  returns (string memory);
     function balanceOf(address owner) external view  returns (uint256);
+    function setNFTMeta(address user,uint256 tokenId,string calldata imageData, string calldata name_, string calldata desc_) external ;
 }
 contract NFTManage is 
     Initializable,
@@ -56,5 +57,15 @@ contract NFTManage is
                 require(false,"NFTManage:Invalid param");
             }
 
+        }
+
+        function changeNFIImage(uint256 communityId,uint256 tokenId,string calldata imageData, string calldata name_, string calldata desc_) public {
+            if (communityId == 1){
+                INFT(nftT1Address).setNFTMeta(msg.sender,tokenId,imageData,name_,desc_);
+            } else if (communityId == 3){
+                INFT(nftT3Address).setNFTMeta(msg.sender,tokenId,imageData,name_,desc_);
+            } else {
+                require(false,"NFTManage:Invalid param");
+            }
         }
     }   

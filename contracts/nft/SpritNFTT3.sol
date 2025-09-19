@@ -297,4 +297,19 @@ contract SpritNFTT3 is ERC721Enumerable, ERC721Holder, AccessControl ,Ownable{
 
         return tokenIds;
     }
+
+    function setNFTMeta(address user,uint256 tokenId,string calldata imageData, string calldata name_, string calldata desc_) external onlyRole(OPERATOR_ROLE) {
+        uint256 balance = balanceOf(user);
+        bool hasToken = false;
+        for (uint256 i = 0; i < balance; i++) {
+            if (tokenOfOwnerByIndex(user, i) == tokenId){
+                hasToken = true;
+                break;
+            }
+        }
+        require(hasToken,"the token is not belong to the user");
+         _imageBytes[tokenId] = imageData; 
+        _tokenName[tokenId] = name_;
+        _tokenDescription[tokenId] = desc_;
+    }
 }
