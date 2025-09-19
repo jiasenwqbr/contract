@@ -59,8 +59,13 @@ describe("NFTManage",()=>{
         beforeEach(async () => {
             const ids = await nft1.getUserNFTs(owner.address);
             console.log("ids:",ids);
-            const mynft = await nft1.getNFTByTokenId(1);
-            console.log("mynft:",mynft);
+            console.log("ids:",ids[0].toString());
+            
+            const mynft = await nft1.getNFTByTokenId(10);
+            console.log("mynft :",mynft);
+            console.log("mynft name :",mynft.name);
+            console.log("mynft image:",mynft.image);
+            console.log("mynft description:",mynft.description);
         });
         it("balance of user",async () => {
             console.log("nft1",await nft1.balanceOf(owner.address));
