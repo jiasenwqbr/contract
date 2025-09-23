@@ -122,7 +122,7 @@ contract SourceBridge is
         address _operator,
         uint256 _feePercent
     ) public initializer {
-         __AccessControlEnumerable_init();
+        __AccessControlEnumerable_init();
         __ReentrancyGuard_init();
         __UUPSUpgradeable_init();
 
@@ -401,7 +401,7 @@ contract SourceBridge is
     function withdrawERC20(bytes calldata data) public nonReentrant onlyRole(OPERATE_ROLE) {
         WithDrawERC20Data memory withDrawERC20Data = parseWithDrawERC20Data(data);
         require(userWithdrawERC20Orders[withDrawERC20Data.orderId].orderId == 0,"SourceBridge:The order is withdrawed");
-        require(withDrawERC20Data.amount > 0,"SourceBridge:No ETH withdraw");
+        require(withDrawERC20Data.amount > 0,"SourceBridge:No erc20 withdraw");
         require(withDrawERC20Data.amount <= IERC20(withDrawERC20Data.tokenAddr).balanceOf(address(this)), "SourceBridge:Insufficient token balance");
         userWithdrawERC20Orders[withDrawERC20Data.orderId] = withDrawERC20Data;
         userWithdrawERC20OrderIds[msg.sender][withDrawERC20Data.tokenAddr].push(withDrawERC20Data.orderId);
@@ -414,9 +414,9 @@ contract SourceBridge is
         }
         uint256 feeAmount = (withDrawERC20Data.amount * _feePercent) / FEE_DENOMINATOR;
         uint256 userAmount = withDrawERC20Data.amount - feeAmount;
-        IERC20(withDrawERC20Data.tokenAddr).safeTransfer(feeReceiver, feeAmount);
-        IERC20(withDrawERC20Data.tokenAddr).safeTransfer(withDrawERC20Data.userAddr, userAmount);
-       
+        require(userAmount <= IERC20(withDrawERC20Data.tokenAddr).balanceOf(address(this)), "SourceBridge:Insufficient token balance");
+        IERC20Upgradeable(withDrawERC20Data.tokenAddr).safeTransfer(feeReceiver, feeAmount);
+        IERC20Upgradeable(withDrawERC20Data.tokenAddr).safeTransfer(withDrawERC20Data.userAddr, userAmount);
         emit WithdrawERC20(msg.sender,withDrawERC20Data.tokenAddr,feeReceiver,feeAmount,withDrawERC20Data.userAddr,userAmount,withDrawERC20Data.orderId,withDrawERC20Data.chainId,block.timestamp);
     }
 
