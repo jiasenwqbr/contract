@@ -117,7 +117,6 @@ contract SourceBridge is
 
 
      function initialize(
-        address _receiver,
         address _feeReceiver,
         address _signer,
         address _operator,
@@ -130,8 +129,6 @@ contract SourceBridge is
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(MANAGE_ROLE, msg.sender);
         _grantRole(OPERATE_ROLE, _operator);
-
-        receiver = _receiver;
         feeReceiver = _feeReceiver;
         signer = _signer;
         feePercent = _feePercent;
@@ -151,9 +148,6 @@ contract SourceBridge is
             )
         );
     }
-
-
-    
 
 
 /////////////////////////////////////////// depositeETH /////////////////////////
@@ -242,6 +236,7 @@ contract SourceBridge is
 
     /////////////////////////////////////////// withdrawETH /////////////////////////
     struct WithDrawETHData {
+        address caller;
         uint256 amount;
         address userAddr;
         uint256 orderId;
@@ -253,7 +248,7 @@ contract SourceBridge is
         require(withDrawData.amount <= address(this).balance,"SourceBridge:");
         require(userWithDrawETHOrder[withDrawData.orderId].orderId == 0,"SourceBridge: the order is withdrawed");
         // require(withDrawData.amount <= getUserDepositETH(msg.sender).sub(getUserWithDrawETH(msg.sender)) );
-
+      
         uint256 feeAmount = (withDrawData.amount * feePercent) / FEE_DENOMINATOR;
         uint256 userAmount = withDrawData.amount - feeAmount;
         (bool sentFee, ) = payable(feeReceiver).call{value: feeAmount}("");
@@ -308,6 +303,7 @@ contract SourceBridge is
             "SourceBridge: INVALID_REQUEST"
         );
         return WithDrawETHData({
+            caller:callerAddr,
             amount:amount,
             userAddr:userAddr,
             orderId:orderId,
@@ -380,6 +376,7 @@ contract SourceBridge is
                 )
             )
         );
+
         require(
             signer == ecrecover(signHash, v, r, s),
             "SourceBridge: INVALID_REQUEST"
@@ -409,8 +406,13 @@ contract SourceBridge is
         userWithdrawERC20Orders[withDrawERC20Data.orderId] = withDrawERC20Data;
         userWithdrawERC20OrderIds[msg.sender][withDrawERC20Data.tokenAddr].push(withDrawERC20Data.orderId);
         withdrawERC20Amount[withDrawERC20Data.tokenAddr] = withdrawERC20Amount[withDrawERC20Data.tokenAddr].add(withDrawERC20Data.amount);
-
-        uint256 feeAmount = (withDrawERC20Data.amount * feePercent) / FEE_DENOMINATOR;
+        uint256 _feePercent;
+        if (tokenFeePercentage[withDrawERC20Data.tokenAddr] != 0){
+            _feePercent = tokenFeePercentage[withDrawERC20Data.tokenAddr];
+        } else {
+            _feePercent = feePercent;
+        }
+        uint256 feeAmount = (withDrawERC20Data.amount * _feePercent) / FEE_DENOMINATOR;
         uint256 userAmount = withDrawERC20Data.amount - feeAmount;
         IERC20(withDrawERC20Data.tokenAddr).safeTransfer(feeReceiver, feeAmount);
         IERC20(withDrawERC20Data.tokenAddr).safeTransfer(withDrawERC20Data.userAddr, userAmount);
