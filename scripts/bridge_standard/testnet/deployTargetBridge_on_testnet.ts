@@ -10,7 +10,8 @@ async function main(){
     const feePercentage = 50;
     const args = [feeReceiver_address,operator_address,feePercentage,signer_address];
     const BridgeTargetContract = await ethers.getContractFactory('BridgeTarget');
-    const bridgeTargetDeploy =  await upgrades.deployProxy(BridgeTargetContract,args,{kind:'uups'});
+    // const bridgeTargetDeploy =  await upgrades.deployProxy(BridgeTargetContract,args,{kind:'uups'});
+    const bridgeTargetDeploy = await upgrades.upgradeProxy('0x7b29d757ba9Dd7eCaB4C24aE88F4E62eD2E86766', BridgeTargetContract, { kind: 'uups' });
     await bridgeTargetDeploy.deployed();
     console.log("BridgeTarget address is : ",bridgeTargetDeploy.address);
 }

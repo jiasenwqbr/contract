@@ -59,7 +59,7 @@ contract BridgeTarget is
     bytes32 public DOMAIN_SEPARATOR;
     bytes32 private constant  PERMIT_MINT_TYPEHASH = keccak256(
         abi.encodePacked(
-            "Permit(address caller,address to,uint256 amount, address token,uint256 orderId)"
+            "Permit(address caller,address to,uint256 amount,address token,uint256 orderId)"
         )
     );
 
