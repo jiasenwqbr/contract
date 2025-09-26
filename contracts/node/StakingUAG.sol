@@ -110,9 +110,11 @@ contract StakingUAG is
     );
     bytes32 private constant PERMIT_WITHDRAWPROFITS_TYPEHASH = keccak256(
         abi.encodePacked(
-            "Permit(uint256 orderId,address userAddress,address tokenAddress,uint256 amount,address uacAddress,uint256 uacAmount,uint256 withdrawType)"
+            "Permit(uint256 orderId,address userAddress,address tokenAddress,uint256 amount,address uacAddress,uint256 uacAmount,uint256 withdrawType,uint256 nonce)"
         )
     );
+
+    mapping(address => uint) public nonces;
 
 
     struct Order{
@@ -143,6 +145,7 @@ contract StakingUAG is
         uint256 uacAmount;
         uint256 withdrawType;
         uint256 createTime;
+        uint256 nonce;
     }
 
 
@@ -341,7 +344,7 @@ contract StakingUAG is
         require(order.uacAddress == uacAddress,"StakingUAG:Invalid uac token address");
         require(order.uacAmount>0,"StakingUAG:Invalid uac amount");
         require(IERC20(uacAddress).allowance(msg.sender, address(this)) >= order.uacAmount,"StakingUAG:erc20 allowance error");
-
+        require(order.nonce == nonces[msg.sender], "StakingUAG:INVALID_NONCE");
         // UAGToken(uagAddress).mint(msg.sender,order.amount);
 
         
@@ -375,7 +378,7 @@ contract StakingUAG is
 
         userWithdrawProfitsOrders[msg.sender][order.orderId] = order;
         userWithdrawProfitsOrderIds[msg.sender].push(order.orderId);
-
+        nonces[msg.sender]++;
         emit WithdrawingProfits(msg.sender,order.orderId,order.tokenAddress,order.amount,order.uacAddress,order.uacAmount,order.withdrawType,block.timestamp);
 
 
@@ -389,6 +392,7 @@ contract StakingUAG is
             address _uacAddress,
             uint256 uacAmount,
             uint256 withdrawType,
+            uint256 nonce,
             bytes memory signature
         ) = abi.decode(
             data,
@@ -398,6 +402,7 @@ contract StakingUAG is
                 address,
                 uint256,
                 address,
+                uint256,
                 uint256,
                 uint256,
                 bytes
@@ -416,7 +421,9 @@ contract StakingUAG is
                         tokenAddress,
                         amount,
                         _uacAddress,
-                        uacAmount
+                        uacAmount,
+                        withdrawType,
+                        nonce
                     )
                 )
             )
@@ -431,6 +438,7 @@ contract StakingUAG is
             uacAddress:_uacAddress,
             uacAmount: uacAmount,
             withdrawType:withdrawType,
+            nonce:nonce,
             createTime: block.timestamp
         });
     }

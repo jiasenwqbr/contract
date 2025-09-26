@@ -45,5 +45,5 @@ main().catch(
 
 /**
 npx hardhat run ./scripts/bridge/testnet/deployStakingUAG_on_testnet.ts --network pijstestnet
-StakingUAG address is: 0x70CF3De83a773fB0B7e7875BfDB8983b7B01F76e
+StakingUAG address is: 0xe59C1e736278f0F5b893217E07E44eedaa6C81E9
  */
