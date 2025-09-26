@@ -11,10 +11,26 @@ async function main(){
     const stakeAmountMin = ethers.utils.parseEther("10");
     const stakeAmountMax= ethers.utils.parseEther("1000");
     const withdrawalFeePersentage = 50;
-    const args = [signer,uagAddress,uacAddress,feeAddress,stakeAmountMin,stakeAmountMax,withdrawalFeePersentage];
 
-    // const stakingUAG =  (await upgrades.deployProxy(stakingUAGFactory,args,{kind:'uups'})) as StakingUAG;
-    const stakingUAG = await upgrades.upgradeProxy('0x327303DB1E5a36Bb34c656c40c50E5020F4B7B53', stakingUAGFactory, { kind: 'uups' });
+    const gensisNodeDistribute = feeAddress;
+    const ecoDevAddress = feeAddress;
+    const insuranceWarehouse = feeAddress;
+
+    const args = [
+        signer,
+        uagAddress,
+        uacAddress,
+        feeAddress,
+        stakeAmountMin,
+        stakeAmountMax,
+        withdrawalFeePersentage,
+        gensisNodeDistribute,
+        ecoDevAddress,
+        insuranceWarehouse
+    ];
+
+    const stakingUAG =  (await upgrades.deployProxy(stakingUAGFactory,args,{kind:'uups'})) as StakingUAG;
+    // const stakingUAG = await upgrades.upgradeProxy('0x70CF3De83a773fB0B7e7875BfDB8983b7B01F76e', stakingUAGFactory, { kind: 'uups' });
     await stakingUAG.deployed();
     console.log("StakingUAG address is:",stakingUAG.address);
 }
@@ -28,6 +44,6 @@ main().catch(
 
 
 /**
- npx hardhat run ./scripts/bridge/testnet/deployStakingUAG_on_testnet.ts --network pijstestnet
-StakingUAG address is: 0x327303DB1E5a36Bb34c656c40c50E5020F4B7B53
+npx hardhat run ./scripts/bridge/testnet/deployStakingUAG_on_testnet.ts --network pijstestnet
+StakingUAG address is: 0x70CF3De83a773fB0B7e7875BfDB8983b7B01F76e
  */

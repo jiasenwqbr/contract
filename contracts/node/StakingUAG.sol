@@ -7,7 +7,10 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
 import "../bridge/pijs/UAGToken.sol";
-
+interface BurnableERC20 {
+     function mint(address to, uint256 amount) external;
+     function burnFrom(address account, uint256 amount) external;
+}
 contract StakingUAG is 
     Initializable,
     AccessControlEnumerableUpgradeable,
@@ -37,8 +40,21 @@ contract StakingUAG is
     uint256 public stakeAmountMin;
     uint256 public stakeAmountMax;
     uint256 public withdrawalFeePersentage;
+    address[4] uacDistributeAddress;
+    uint256[4] uacdistributeRadio;
 
-    function initialize(address _signer,address _uagAddress,address _uacAddress,address _feeAddress,uint256 _stakeAmountMin,uint256 _stakeAmountMax,uint256 _withdrawalFeePersentage) public initializer {
+    function initialize(
+        address _signer,
+        address _uagAddress,
+        address _uacAddress,
+        address _feeAddress,
+        uint256 _stakeAmountMin,
+        uint256 _stakeAmountMax,
+        uint256 _withdrawalFeePersentage,
+        address gensisNodeDistribute,
+        address ecoDevAddress,
+        address insuranceWarehouse
+        ) public initializer {
         __AccessControlEnumerable_init();
         __ReentrancyGuard_init();
         __UUPSUpgradeable_init();
@@ -69,6 +85,15 @@ contract StakingUAG is
                 address(this)
             )
         );
+        uacDistributeAddress[0] = address(0);
+        uacDistributeAddress[1] = gensisNodeDistribute;
+        uacDistributeAddress[2] = ecoDevAddress;
+        uacDistributeAddress[3] = insuranceWarehouse;
+        uacdistributeRadio[0] = 3;
+        uacdistributeRadio[1] = 2;
+        uacdistributeRadio[2] = 5;
+        uacdistributeRadio[3] = 10;
+
 
     }
 
@@ -85,7 +110,7 @@ contract StakingUAG is
     );
     bytes32 private constant PERMIT_WITHDRAWPROFITS_TYPEHASH = keccak256(
         abi.encodePacked(
-            "Permit(uint256 orderId,address userAddress,address tokenAddress,uint256 amount,address uacAddress,uint256 uacAmount)"
+            "Permit(uint256 orderId,address userAddress,address tokenAddress,uint256 amount,address uacAddress,uint256 uacAmount,uint256 withdrawType)"
         )
     );
 
@@ -116,6 +141,7 @@ contract StakingUAG is
         uint256 amount; // 质押UAG数量
         address uacAddress;
         uint256 uacAmount;
+        uint256 withdrawType;
         uint256 createTime;
     }
 
@@ -132,7 +158,7 @@ contract StakingUAG is
 
     event StakeUAG(address caller,uint256 orderId,address tokenAddress,uint256 amount,uint256 burnAmount,uint256 energyValue,uint256 userStakeAmount,uint256 timestamp);
     event UnStake(address caller,uint256 orderId,address tokenAddress,uint256 amount,uint256 timestamp);
-    event WithdrawingProfits(address caller,uint256 orderId,address tokenAddress,uint256 amount,address uacAddress,uint256 uacAmount,uint256 timestamp);
+    event WithdrawingProfits(address caller,uint256 orderId,address tokenAddress,uint256 amount,address uacAddress,uint256 uacAmount,uint256 withdrawType,uint256 timestamp);
 
     // 质押UAG
     function stakeUAG(bytes memory data)  public payable nonReentrant{
@@ -301,6 +327,8 @@ contract StakingUAG is
             createTime: block.timestamp
         });
     }
+   
+
     
     // 提取收益
     function withdrawingProfits(bytes memory data) public nonReentrant{
@@ -316,11 +344,31 @@ contract StakingUAG is
 
         // UAGToken(uagAddress).mint(msg.sender,order.amount);
 
+        
+
+        uint256 allRatio =  uacdistributeRadio[0]+ uacdistributeRadio[1] + uacdistributeRadio[2] + uacdistributeRadio[3];
+        // burn
+        uint256 address0Amount = order.uacAmount.mul(uacdistributeRadio[0]).div(allRatio); 
+        BurnableERC20(uacAddress).burnFrom(msg.sender,address0Amount);
+        uint256 address1Amount = order.uacAmount.mul(uacdistributeRadio[1]).div(allRatio); 
         require(
-            IERC20(order.uacAddress).transferFrom(msg.sender, feeAddress, order.uacAmount),
-            "StakingUAG:Payment transfer failed"
+            IERC20(order.uacAddress).transferFrom(msg.sender, uacDistributeAddress[1], address1Amount),
+            "StakingUAG:Payment transfer uacDistributeAddress 1 failed"
         );
-         require(
+
+        uint256 address2Amount = order.uacAmount.mul(uacdistributeRadio[2]).div(allRatio); 
+        require(
+            IERC20(order.uacAddress).transferFrom(msg.sender, uacDistributeAddress[2], address2Amount),
+            "StakingUAG:Payment transfer uacDistributeAddress 2 failed"
+        );
+
+        uint256 address3Amount = order.uacAmount.mul(uacdistributeRadio[3]).div(allRatio); 
+        require(
+            IERC20(order.uacAddress).transferFrom(msg.sender, uacDistributeAddress[3], address3Amount),
+            "StakingUAG:Payment transfer uacDistributeAddress 3 failed"
+        );
+        
+        require(
            UAGToken(uagAddress).transferFrom(address(this), msg.sender, order.amount),
             "StakingUAG:Payment transfer failed"
         );
@@ -328,7 +376,7 @@ contract StakingUAG is
         userWithdrawProfitsOrders[msg.sender][order.orderId] = order;
         userWithdrawProfitsOrderIds[msg.sender].push(order.orderId);
 
-        emit WithdrawingProfits(msg.sender,order.orderId,order.tokenAddress,order.amount,order.uacAddress,order.uacAmount,block.timestamp);
+        emit WithdrawingProfits(msg.sender,order.orderId,order.tokenAddress,order.amount,order.uacAddress,order.uacAmount,order.withdrawType,block.timestamp);
 
 
     }
@@ -340,6 +388,7 @@ contract StakingUAG is
             uint256 amount,
             address _uacAddress,
             uint256 uacAmount,
+            uint256 withdrawType,
             bytes memory signature
         ) = abi.decode(
             data,
@@ -349,6 +398,7 @@ contract StakingUAG is
                 address,
                 uint256,
                 address,
+                uint256,
                 uint256,
                 bytes
             )
@@ -380,6 +430,7 @@ contract StakingUAG is
             amount: amount,
             uacAddress:_uacAddress,
             uacAmount: uacAmount,
+            withdrawType:withdrawType,
             createTime: block.timestamp
         });
     }
@@ -392,6 +443,7 @@ contract StakingUAG is
     function setWithdrawalFeePersentage(uint256 _withdrawalFeePersentage) public onlyRole(MANAGE_ROLE) {
         withdrawalFeePersentage = _withdrawalFeePersentage;
     }
+    
     function setFeeAddress(address _feeAddress)  public onlyRole(MANAGE_ROLE) {
         feeAddress = _feeAddress;
     }
@@ -421,6 +473,14 @@ contract StakingUAG is
             orders[i] = userWithdrawProfitsOrders[userAddress][orderIds[i]];
         }
         return orders;
+    }
+
+    function setUacDistributeAddress(address[4] memory distributeAddresses) public  onlyRole(MANAGE_ROLE) {
+        uacDistributeAddress = distributeAddresses;
+    }
+
+    function setUacdistributeRadio(uint256[4] memory ratio)  public onlyRole(MANAGE_ROLE) {
+        uacdistributeRadio = ratio;
     }
 
 }

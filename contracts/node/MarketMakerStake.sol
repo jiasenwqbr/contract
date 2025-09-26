@@ -9,7 +9,10 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgrad
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "../bridge/pijs/UAGToken.sol";
-
+interface BurnableERC20 {
+     function mint(address to, uint256 amount) external;
+     function burnFrom(address account, uint256 amount) external;
+}
 contract MarketMakerStake is  Initializable,
     AccessControlEnumerableUpgradeable,
     ReentrancyGuardUpgradeable,
@@ -26,11 +29,29 @@ contract MarketMakerStake is  Initializable,
     address public uagAddress;
     address public usdtAddress;
     address private feeAddress;
+
     mapping(uint => uint) public marketMakerStakeTypeNumber;
     
+    address[4] uacDistributeAddress;
+    uint256[4] uacdistributeRadio;
+    struct WithdrawingProfitsOrder{
+        uint256 orderId; // 订单号
+        address userAddress; // 用户地址
+        address tokenAddress; //UAG的地址
+        uint256 amount; // 质押UAG数量
+        address uacAddress;
+        uint256 uacAmount;
+        uint256 withdrawType;
+        uint256 createTime;
+    }
+    mapping(address => mapping(uint256 => WithdrawingProfitsOrder)) public userWithdrawProfitsOrders;
+    mapping(address => uint256[]) userWithdrawProfitsOrderIds;
+   
     event Stake(address caller,uint256 orderId,address tokenAddress,uint256 amount,uint256 startTimestamp,uint256 endTimestamp,uint256 stakeType,uint256 renewable,uint256 status,uint256 renewTime,uint256 timestamp);
     event UnStake(address caller,uint256 orderId,uint256 amount,uint256 timestamp);
     event ReStake(address caller,uint256 orderId,uint256 renewTime,uint256 timestamp);
+    event WithdrawingProfits(address caller,uint256 orderId,address tokenAddress,uint256 amount,address uacAddress,uint256 uacAmount,uint256 withdrawType,uint256 timestamp);
+
     
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -41,7 +62,15 @@ contract MarketMakerStake is  Initializable,
         address newImplementation
     ) internal override onlyRole(MANAGE_ROLE) {}
 
-    function initialize(address _signer,address _uacAddress,address _uagAddress,address _usdtAddress,address _feeAddress) public initializer {
+    function initialize(
+        address _signer,
+        address _uacAddress,
+        address _uagAddress,
+        address _usdtAddress,
+        address _feeAddress,
+        address gensisNodeDistribute,
+        address ecoDevAddress,
+        address insuranceWarehouse) public initializer {
         __AccessControlEnumerable_init();
         __ReentrancyGuard_init();
         __UUPSUpgradeable_init();
@@ -76,12 +105,26 @@ contract MarketMakerStake is  Initializable,
         marketMakerStakeTypeNumber[60 days] = 1000;
         marketMakerStakeTypeNumber[90 days] = 1000;
         marketMakerStakeTypeNumber[180 days] = 1000;
+
+        uacDistributeAddress[0] = address(0);
+        uacDistributeAddress[1] = gensisNodeDistribute;
+        uacDistributeAddress[2] = ecoDevAddress;
+        uacDistributeAddress[3] = insuranceWarehouse;
+        uacdistributeRadio[0] = 3;
+        uacdistributeRadio[1] = 2;
+        uacdistributeRadio[2] = 5;
+        uacdistributeRadio[3] = 10;
     }
     receive() external payable {}
 
     bytes32 private constant PERMIT_STAKE_TYPEHASH = keccak256(
         abi.encodePacked(
             "Permit(uint256 orderId,address caller,address tokenAddress,uint256 amount,uint256 startTimestamp,uint256 endTimestamp,uint256 stakeType,uint256 renewable)"
+        )
+    );
+    bytes32 private constant PERMIT_WITHDRAWPROFITS_TYPEHASH = keccak256(
+        abi.encodePacked(
+            "Permit(uint256 orderId,address userAddress,address tokenAddress,uint256 amount,address uacAddress,uint256 uacAmount,uint256 withdrawType)"
         )
     );
 
@@ -229,7 +272,7 @@ contract MarketMakerStake is  Initializable,
         } else {
              require(order.renewTime + order.stakeType >=  block.timestamp);
         }
-        userOrders[msg.sender][stakingId].renewTime = block.timestamp;
+        userOrders[msg.sender][stakingId].renewTime = block.timestamp.add(order.stakeType);
         RenewOrder memory renewOrder = RenewOrder({
             orderId:order.orderId,
             renewTime:block.timestamp,
@@ -247,6 +290,13 @@ contract MarketMakerStake is  Initializable,
     }
     function setFeeAddress(address _feeAddress)  public onlyRole(MANAGE_ROLE) {
         feeAddress = _feeAddress;
+    }
+
+    function setMarketMakerStakeTypeNumber(uint256 stakeType,uint256 num) public onlyRole(MANAGE_ROLE) {
+        marketMakerStakeTypeNumber[stakeType] = num;
+    }
+    function getMarketMakerStakeTypeNumber(uint256 stakeType) public view returns(uint256) {
+        return  marketMakerStakeTypeNumber[stakeType];
     }
 
     ////////////////////  getters
@@ -270,5 +320,110 @@ contract MarketMakerStake is  Initializable,
             orders[i] = userOrders[userAddress][renewOrders[i].orderId];
        }
        return orders;
+    }
+
+
+
+
+    // 提取收益
+    function withdrawingProfits(bytes memory data) public nonReentrant{
+        WithdrawingProfitsOrder memory order = parseWithdrawingProfitsOrder(data);
+        require(funcSwitch,"StakingUAG:Function is not enabled");
+        require(order.userAddress == msg.sender,"StakingUAG:Invalid msg sender");
+        require(userWithdrawProfitsOrders[msg.sender][order.orderId].orderId == 0,"StakingUAG:The order is exist");
+        require(order.tokenAddress == uagAddress,"StakingUAG:Invalid token address");
+        require(order.uacAddress == uacAddress,"StakingUAG:Invalid uac token address");
+        require(order.uacAmount>0,"StakingUAG:Invalid uac amount");
+        require(IERC20(uacAddress).allowance(msg.sender, address(this)) >= order.uacAmount,"StakingUAG:erc20 allowance error");
+
+        uint256 allRatio =  uacdistributeRadio[0]+ uacdistributeRadio[1] + uacdistributeRadio[2] + uacdistributeRadio[3];
+        // burn
+        uint256 address0Amount = order.uacAmount.mul(uacdistributeRadio[0]).div(allRatio); 
+        BurnableERC20(uacAddress).burnFrom(msg.sender,address0Amount);
+        uint256 address1Amount = order.uacAmount.mul(uacdistributeRadio[1]).div(allRatio); 
+        require(
+            IERC20(order.uacAddress).transferFrom(msg.sender, uacDistributeAddress[1], address1Amount),
+            "StakingUAG:Payment transfer uacDistributeAddress 1 failed"
+        );
+
+        uint256 address2Amount = order.uacAmount.mul(uacdistributeRadio[2]).div(allRatio); 
+        require(
+            IERC20(order.uacAddress).transferFrom(msg.sender, uacDistributeAddress[2], address2Amount),
+            "StakingUAG:Payment transfer uacDistributeAddress 2 failed"
+        );
+
+        uint256 address3Amount = order.uacAmount.mul(uacdistributeRadio[3]).div(allRatio); 
+        require(
+            IERC20(order.uacAddress).transferFrom(msg.sender, uacDistributeAddress[3], address3Amount),
+            "StakingUAG:Payment transfer uacDistributeAddress 3 failed"
+        );
+        
+        
+        require(
+           UAGToken(uagAddress).transferFrom(address(this), msg.sender, order.amount),
+            "StakingUAG:Payment transfer failed"
+        );
+
+        userWithdrawProfitsOrders[msg.sender][order.orderId] = order;
+        userWithdrawProfitsOrderIds[msg.sender].push(order.orderId);
+
+        emit WithdrawingProfits(msg.sender,order.orderId,order.tokenAddress,order.amount,order.uacAddress,order.uacAmount,order.withdrawType,block.timestamp);
+
+
+    }
+
+    function parseWithdrawingProfitsOrder(bytes memory data) internal view returns(WithdrawingProfitsOrder memory) {
+        (
+            uint256 orderId,
+            address userAddress,
+            address tokenAddress,
+            uint256 amount,
+            address _uacAddress,
+            uint256 uacAmount,
+            uint256 withdrawType,
+            bytes memory signature
+        ) = abi.decode(
+            data,
+            (
+                uint256,
+                address,
+                address,
+                uint256,
+                address,
+                uint256,
+                uint256,
+                bytes
+            )
+        );
+         (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
+          bytes32 signHash = keccak256(
+            abi.encodePacked(
+                "\x19\x01",
+                DOMAIN_SEPARATOR,
+                keccak256(
+                    abi.encode(
+                        PERMIT_WITHDRAWPROFITS_TYPEHASH,
+                        orderId,
+                        userAddress,
+                        tokenAddress,
+                        amount,
+                        _uacAddress,
+                        uacAmount
+                    )
+                )
+            )
+        );
+        require(signer == ecrecover(signHash, v, r, s),"StakingUAG:INVALID_REQUEST");
+
+        return WithdrawingProfitsOrder({
+            orderId:orderId,
+            userAddress: userAddress,
+            tokenAddress: tokenAddress,
+            amount: amount,
+            uacAddress:_uacAddress,
+            uacAmount: uacAmount,
+            withdrawType:withdrawType,
+            createTime: block.timestamp
+        });
     }
 }
