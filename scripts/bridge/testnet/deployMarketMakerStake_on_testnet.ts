@@ -57,7 +57,7 @@ async function main(){
     const tx3333 = await marketMakerStake.setReleaseTypeMap(20*60,100);
     await tx3333.wait();
     const tx4444 = await marketMakerStake.setReleaseTypeMap(30*60,50);
-    await tx44.wait();
+    await tx4444.wait();
 
 
 }

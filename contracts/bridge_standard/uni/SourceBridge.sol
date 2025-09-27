@@ -73,7 +73,7 @@ contract SourceBridge is
 
     bytes32 private constant PERMIT_DEPOSIT_TYPEHASH =keccak256(
         abi.encodePacked(
-            "Permit(address userAddr,address receiver,uint256 amount,uint256 orderId,uint256 chainId)"
+           "Permit(address userAddr,uint256 amount,uint256 feeAmount,uint256 orderId,uint256 chainId)"
         )
     );
     bytes32 private constant WITHDRAW_PERMIT_TYPEHASH =keccak256(
@@ -83,7 +83,7 @@ contract SourceBridge is
     );
     bytes32 private constant PERMIT_DEPOSIT_ERC20_TYPEHASH = keccak256(
         abi.encodePacked(
-             "Permit(address userAddr,address tokenAddr,address receiver,uint256 amount,uint256 orderId,uint256 chainId)"
+            "Permit(address userAddr,address tokenAddr,uint256 amount,uint256 feeAmount,uint256 orderId,uint256 chainId)"
         )
     );
     bytes32 private constant WITHDRAWERC20_PERMIT_TYPEHASH = keccak256(
@@ -109,14 +109,14 @@ contract SourceBridge is
     //////////////////////////////////////////////////////// Event
     event FeeUpdated(uint256 newFee,uint256 timestamp);
     event FeeReceiverUpdated(address newReceiver,uint256 timestamp);
-    event DepositeETH(address caller,uint256 amount, address receiver, uint256 order, uint256 chainId,uint256 timestamp);
+    event DepositeETH(address caller,uint256 amount, address receiver, uint256 order,address feeReceiver,uint256 feeAmount,uint256 chainId,uint256 timestamp);
     event WithDrawETH(address caller,address feeReceiver, uint256 feeAmount,address userAddr,uint256 userAmount,uint256 orderId,uint256 chainId,uint256 timestamp);
-    event DepositeERC20(address caller,address tokenAddr,address receiver,uint256 amount,uint256 orderId,uint256 chainId,uint256 timestamp);
+    event DepositeERC20(address caller,address tokenAddr,address receiver,uint256 amount,uint256 orderId,address feeReceiver,uint256 feeAmount,uint256 chainId,uint256 timestamp);
     event WithdrawERC20(address caller,address tokenAddr,address feeReceiver,uint256 feeAmount,address userAddr,uint256 userAmount,uint256 orderId,uint256 chainId,uint256 timestamp);
 
 
 
-     function initialize(
+    function initialize(
         address _feeReceiver,
         address _signer,
         address _operator,
@@ -152,8 +152,8 @@ contract SourceBridge is
 
 /////////////////////////////////////////// depositeETH /////////////////////////
     struct DepositeData {
-        address receiver;
         uint256 amount;
+        uint256 feeAmount;
         uint256 orderId;
         uint256 chainId;
     }
@@ -161,18 +161,23 @@ contract SourceBridge is
         require(msg.value > 0, "No ETH sent");
         DepositeData memory depositeData = parseDepositeData(data);
         require(userDepositeETHOrders[depositeData.orderId].orderId == 0,"SourceBridge:The order is exist");
-        require(depositeData.amount <= msg.value,"SourceBridge:Not enough ETH");
+        require(depositeData.amount.add(depositeData.feeAmount) <= msg.value,"SourceBridge:Not enough ETH");
         userDepositeETHOrders[depositeData.orderId] = depositeData;
         userDepositeETHOrderIds[msg.sender].push(depositeData.orderId);
         depositeETHAmount = depositeETHAmount + msg.value;
-        emit DepositeETH(msg.sender,depositeData.amount,depositeData.receiver,depositeData.orderId,depositeData.chainId,block.timestamp);
-    }
 
+        if (depositeData.feeAmount > 0) {
+            (bool success, ) = payable(feeReceiver).call{value: depositeData.feeAmount}("");
+            require(success, "Fee transfer failed");
+        }
+        emit DepositeETH(msg.sender,depositeData.amount,address(this),depositeData.orderId,feeReceiver,depositeData.feeAmount,depositeData.chainId,block.timestamp);
+    }
+    //  "Permit(address userAddr,uint256 amount,uint256 feeAmount,uint256 orderId,uint256 chainId)"
     function parseDepositeData(bytes calldata data) internal view returns (DepositeData memory) {
         (
             address userAddr,
-            address _receiver,
             uint256 amount,
+            uint256 feeAmount,
             uint256 orderId,
             uint256 chainId,
             bytes memory signature
@@ -180,7 +185,7 @@ contract SourceBridge is
             data,
             (
                 address,
-                address,
+                uint256,
                 uint256,
                 uint256,
                 uint256,
@@ -198,8 +203,8 @@ contract SourceBridge is
                     abi.encode(
                         PERMIT_DEPOSIT_TYPEHASH,
                         userAddr,
-                        _receiver,
                         amount,
+                        feeAmount,
                         orderId,
                         chainId
                     )
@@ -211,7 +216,7 @@ contract SourceBridge is
             "SourceBridge: INVALID_REQUEST"
         );
         return DepositeData({
-                receiver:_receiver,
+                feeAmount:feeAmount,
                 amount:amount,
                 orderId:orderId,
                 chainId:chainId
@@ -314,8 +319,8 @@ contract SourceBridge is
     /////////////////////////////////////////// depositeERC20 /////////////////////////
     struct DepositeERC20Data {
         address tokenAddr;
-        address receiver;
         uint256 amount;
+        uint256 feeAmount;
         uint256 orderId;
         uint256 chainId;
     }
@@ -328,19 +333,26 @@ contract SourceBridge is
             address(this),
             depositeERC20Data.amount
         );
+        if (depositeERC20Data.feeAmount > 0){
+            IERC20(depositeERC20Data.tokenAddr).safeTransferFrom(
+                msg.sender,
+                feeReceiver,
+                depositeERC20Data.amount
+            );
+        }
         userDepositeERC20Orders[depositeERC20Data.orderId] = depositeERC20Data;
         userDepositeERC20OrderIds[msg.sender][depositeERC20Data.tokenAddr].push(depositeERC20Data.orderId);
         depositeERC20Amount[depositeERC20Data.tokenAddr] =  depositeERC20Amount[depositeERC20Data.tokenAddr].add(depositeERC20Data.amount);
 
-        emit DepositeERC20(msg.sender,depositeERC20Data.tokenAddr,depositeERC20Data.receiver,depositeERC20Data.amount,depositeERC20Data.orderId,depositeERC20Data.chainId,block.timestamp);
+        emit DepositeERC20(msg.sender,depositeERC20Data.tokenAddr,address(this),depositeERC20Data.amount,depositeERC20Data.orderId,feeReceiver,depositeERC20Data.feeAmount,depositeERC20Data.chainId,block.timestamp);
     }
-
+    // "Permit(address userAddr,address tokenAddr,uint256 amount,uint256 feeAmount,uint256 orderId,uint256 chainId)"
     function parseDepositeERC20Data(bytes calldata data) internal view returns (DepositeERC20Data memory) {
         (
             address userAddr,
             address tokenAddr,
-            address _receiver,
             uint256 amount,
+            uint256 feeAmount,
             uint256 orderId,
             uint256 chainId,
             bytes memory signature
@@ -349,7 +361,7 @@ contract SourceBridge is
             (
                 address,
                 address,
-                address,
+                uint256,
                 uint256,
                 uint256,
                 uint256,
@@ -368,8 +380,8 @@ contract SourceBridge is
                         PERMIT_DEPOSIT_ERC20_TYPEHASH,
                         userAddr,
                         tokenAddr,
-                        _receiver,
                         amount,
+                        feeAmount,
                         orderId,
                         chainId
                     )
@@ -383,8 +395,8 @@ contract SourceBridge is
         );
         return DepositeERC20Data({
             tokenAddr:tokenAddr,
-            receiver:_receiver,
             amount:amount,
+            feeAmount:feeAmount,
             orderId:orderId,
             chainId:chainId
         });
