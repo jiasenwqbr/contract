@@ -25,6 +25,6 @@ main().catch(error=> {
 
 /***
 
- npx hardhat run ./scripts/bridge_standard/testnet/deploySourceBridge_on_testnet.ts --network uac
-SourceBridge address is :  0x465535ab7F50B1B3Dc4D6C140B0a5e0983d9340A
+npx hardhat run ./scripts/bridge_standard/testnet/deploySourceBridge_on_testnet.ts --network uac
+SourceBridge address is :  0x8B769E9BE8271e07a0ccb9b53E57d659D0963fe4
  */

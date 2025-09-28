@@ -78,7 +78,7 @@ contract SourceBridge is
     );
     bytes32 private constant WITHDRAW_PERMIT_TYPEHASH =keccak256(
         abi.encodePacked(
-            "Permit(address caller,uint256 amount,address userAddr,uint256 orderId,uint256 chainId)"
+            "Permit(address caller,uint256 amount,uint256 feeAmount,address userAddr,uint256 orderId,uint256 chainId)"
         )
     );
     bytes32 private constant PERMIT_DEPOSIT_ERC20_TYPEHASH = keccak256(
@@ -88,7 +88,7 @@ contract SourceBridge is
     );
     bytes32 private constant WITHDRAWERC20_PERMIT_TYPEHASH = keccak256(
         abi.encodePacked(
-            "Permit(address caller,address tokenAddr,uint256 amount,address userAddr,uint256 orderId,uint256 chainId)"
+            "Permit(address caller,address tokenAddr,uint256 amount,uint256 feeAmount,address userAddr,uint256 orderId,uint256 chainId)"
         )
     );
 
@@ -243,6 +243,7 @@ contract SourceBridge is
     struct WithDrawETHData {
         address caller;
         uint256 amount;
+        uint256 feeAmount;
         address userAddr;
         uint256 orderId;
         uint256 chainId;
@@ -254,22 +255,25 @@ contract SourceBridge is
         require(userWithDrawETHOrder[withDrawData.orderId].orderId == 0,"SourceBridge: the order is withdrawed");
         // require(withDrawData.amount <= getUserDepositETH(msg.sender).sub(getUserWithDrawETH(msg.sender)) );
       
-        uint256 feeAmount = (withDrawData.amount * feePercent) / FEE_DENOMINATOR;
-        uint256 userAmount = withDrawData.amount - feeAmount;
-        (bool sentFee, ) = payable(feeReceiver).call{value: feeAmount}("");
-        require(sentFee, "ETH transfer failed");
-        (bool sendUserValue,) = payable(withDrawData.userAddr).call{value: userAmount}("");
+        // uint256 feeAmount = (withDrawData.amount * feePercent) / FEE_DENOMINATOR;
+        // uint256 userAmount = withDrawData.amount - feeAmount;
+        if (withDrawData.feeAmount>0){
+            (bool sentFee, ) = payable(feeReceiver).call{value: withDrawData.feeAmount}("");
+            require(sentFee, "ETH transfer failed");
+        }
+        (bool sendUserValue,) = payable(withDrawData.userAddr).call{value: withDrawData.amount}("");
         require(sendUserValue, "ETH transfer failed");
         userWithDrawETHOrder[withDrawData.orderId] = withDrawData;
         userWithDrawETHOrderIds[msg.sender].push(withDrawData.orderId);
         withDrawETHAmount = withDrawETHAmount + withDrawData.amount;
-        emit WithDrawETH(msg.sender,feeReceiver,feeAmount,withDrawData.userAddr,userAmount,withDrawData.orderId,withDrawData.chainId,block.timestamp);
+        emit WithDrawETH(msg.sender,feeReceiver,withDrawData.feeAmount,withDrawData.userAddr,withDrawData.amount,withDrawData.orderId,withDrawData.chainId,block.timestamp);
     }
 
     function parseWithDrawETHData(bytes calldata data) internal view returns (WithDrawETHData memory) {
         (
             address callerAddr,
             uint256 amount,
+            uint256 feeAmount,
             address userAddr,
             uint256 orderId,
             uint256 chainId,
@@ -278,6 +282,7 @@ contract SourceBridge is
             data,
             (
                 address,
+                uint256,
                 uint256,
                 address,
                 uint256,
@@ -296,6 +301,7 @@ contract SourceBridge is
                         WITHDRAW_PERMIT_TYPEHASH,
                         callerAddr,
                         amount,
+                        feeAmount,
                         userAddr,
                         orderId,
                         chainId
@@ -310,6 +316,7 @@ contract SourceBridge is
         return WithDrawETHData({
             caller:callerAddr,
             amount:amount,
+            feeAmount:feeAmount,
             userAddr:userAddr,
             orderId:orderId,
             chainId:chainId
@@ -406,6 +413,7 @@ contract SourceBridge is
     struct WithDrawERC20Data {
         address tokenAddr;
         uint256 amount;
+        uint256 feeAmount;
         address userAddr;
         uint256 orderId;
         uint256 chainId;
@@ -418,18 +426,18 @@ contract SourceBridge is
         userWithdrawERC20Orders[withDrawERC20Data.orderId] = withDrawERC20Data;
         userWithdrawERC20OrderIds[msg.sender][withDrawERC20Data.tokenAddr].push(withDrawERC20Data.orderId);
         withdrawERC20Amount[withDrawERC20Data.tokenAddr] = withdrawERC20Amount[withDrawERC20Data.tokenAddr].add(withDrawERC20Data.amount);
-        uint256 _feePercent;
-        if (tokenFeePercentage[withDrawERC20Data.tokenAddr] != 0){
-            _feePercent = tokenFeePercentage[withDrawERC20Data.tokenAddr];
-        } else {
-            _feePercent = feePercent;
-        }
-        uint256 feeAmount = (withDrawERC20Data.amount * _feePercent) / FEE_DENOMINATOR;
-        uint256 userAmount = withDrawERC20Data.amount - feeAmount;
-        require(userAmount <= IERC20(withDrawERC20Data.tokenAddr).balanceOf(address(this)), "SourceBridge:Insufficient token balance");
-        IERC20Upgradeable(withDrawERC20Data.tokenAddr).safeTransfer(feeReceiver, feeAmount);
-        IERC20Upgradeable(withDrawERC20Data.tokenAddr).safeTransfer(withDrawERC20Data.userAddr, userAmount);
-        emit WithdrawERC20(msg.sender,withDrawERC20Data.tokenAddr,feeReceiver,feeAmount,withDrawERC20Data.userAddr,userAmount,withDrawERC20Data.orderId,withDrawERC20Data.chainId,block.timestamp);
+        // uint256 _feePercent;
+        // if (tokenFeePercentage[withDrawERC20Data.tokenAddr] != 0){
+        //     _feePercent = tokenFeePercentage[withDrawERC20Data.tokenAddr];
+        // } else {
+        //     _feePercent = feePercent;
+        // }
+        // uint256 feeAmount = (withDrawERC20Data.amount * _feePercent) / FEE_DENOMINATOR;
+        // uint256 userAmount = withDrawERC20Data.amount - feeAmount;
+        require(withDrawERC20Data.amount <= IERC20(withDrawERC20Data.tokenAddr).balanceOf(address(this)), "SourceBridge:Insufficient token balance");
+        IERC20Upgradeable(withDrawERC20Data.tokenAddr).safeTransfer(feeReceiver, withDrawERC20Data.feeAmount);
+        IERC20Upgradeable(withDrawERC20Data.tokenAddr).safeTransfer(withDrawERC20Data.userAddr, withDrawERC20Data.amount);
+        emit WithdrawERC20(msg.sender,withDrawERC20Data.tokenAddr,feeReceiver,withDrawERC20Data.feeAmount,withDrawERC20Data.userAddr,withDrawERC20Data.amount,withDrawERC20Data.orderId,withDrawERC20Data.chainId,block.timestamp);
     }
 
     function parseWithDrawERC20Data(bytes calldata data) internal view returns (WithDrawERC20Data memory) {
@@ -437,6 +445,7 @@ contract SourceBridge is
             address caller,
             address tokenAddr,
             uint256 amount,
+            uint256 feeAmount,
             address userAddr,
             uint256 orderId,
             uint256 chainId,
@@ -445,6 +454,7 @@ contract SourceBridge is
             data,(
                 address,
                 address,
+                uint256,
                 uint256,
                 address,
                 uint256,
@@ -464,6 +474,7 @@ contract SourceBridge is
                         caller,
                         tokenAddr,
                         amount,
+                        feeAmount,
                         userAddr,
                         orderId,
                         chainId
@@ -478,6 +489,7 @@ contract SourceBridge is
         return WithDrawERC20Data({
             tokenAddr:tokenAddr,
             amount:amount,
+            feeAmount:feeAmount,
             userAddr:userAddr,
             orderId:orderId,
             chainId:chainId

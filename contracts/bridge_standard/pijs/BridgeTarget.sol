@@ -59,7 +59,7 @@ contract BridgeTarget is
     bytes32 public DOMAIN_SEPARATOR;
     bytes32 private constant  PERMIT_MINT_TYPEHASH = keccak256(
         abi.encodePacked(
-            "Permit(address caller,address to,uint256 amount,address token,uint256 orderId)"
+            "Permit(address caller,address to,uint256 amount,uint256 feeAmount,address token,uint256 orderId)"
         )
     );
 
@@ -129,6 +129,7 @@ contract BridgeTarget is
         address caller;
         address to;
         uint256 amount;
+        uint256 feeAmount;
         address token;
         uint256 orderId;
     }
@@ -138,16 +139,16 @@ contract BridgeTarget is
         
         MintTokenData memory mintTokenData = parseMintTokenData(data);
         require(mintTokenOrders[mintTokenData.orderId].orderId == 0,"BridgeTarget:The order has minted");
-        uint256 feeAmount = (mintTokenData.amount * feePercent) / FEE_DENOMINATOR;
-        uint256 userAmount = mintTokenData.amount - feeAmount;
+        // uint256 feeAmount = (mintTokenData.amount * feePercent) / FEE_DENOMINATOR;
+        // uint256 userAmount = mintTokenData.amount - feeAmount;
         mintTokenOrders[mintTokenData.orderId] = mintTokenData;
         tokenMintIds[mintTokenData.token].push(mintTokenData.orderId);
         tokenMintAmount[mintTokenData.token] = tokenMintAmount[mintTokenData.token].add(mintTokenData.amount); 
         require(mintTokenData.to != address(0), "BridgeTarget:Invalid address");
-        MintableERC20(mintTokenData.token).mint(mintTokenData.to, userAmount);
-        MintableERC20(mintTokenData.token).mint(feeReceiver, feeAmount);
+        MintableERC20(mintTokenData.token).mint(mintTokenData.to, mintTokenData.amount);
+        MintableERC20(mintTokenData.token).mint(feeReceiver, mintTokenData.feeAmount);
 
-        emit MintToken(mintTokenData.caller,mintTokenData.token,mintTokenData.to, userAmount, feeAmount, mintTokenData.orderId);
+        emit MintToken(mintTokenData.caller,mintTokenData.token,mintTokenData.to, mintTokenData.amount, mintTokenData.feeAmount, mintTokenData.orderId);
     }
 
     function parseMintTokenData(bytes calldata data) internal view returns (MintTokenData memory) {
@@ -155,6 +156,7 @@ contract BridgeTarget is
             address caller,
             address to,
             uint256 amount,
+             uint256 feeAmount,
             address token,
             uint256 orderId,
             bytes memory signature
@@ -163,6 +165,7 @@ contract BridgeTarget is
             (
                 address,
                 address,
+                uint256,
                 uint256,
                 address,
                 uint256,
@@ -182,6 +185,7 @@ contract BridgeTarget is
                         caller,
                         to,
                         amount,
+                        feeAmount,
                         token,
                         orderId
                     )
@@ -196,6 +200,7 @@ contract BridgeTarget is
             caller:caller,
             to:to,
             amount:amount,
+            feeAmount:feeAmount,
             token:token,
             orderId:orderId
         });

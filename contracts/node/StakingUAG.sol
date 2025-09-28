@@ -334,7 +334,7 @@ contract StakingUAG is
 
     
     // 提取收益
-    function withdrawingProfits(bytes memory data) public nonReentrant{
+    function withdrawingProfits(bytes memory data) public payable nonReentrant{
         WithdrawingProfitsOrder memory order = parseWithdrawingProfitsOrder(data);
         require(funcSwitch,"StakingUAG:Function is not enabled");
         require(order.userAddress == msg.sender,"StakingUAG:Invalid msg sender");
@@ -343,33 +343,59 @@ contract StakingUAG is
         require(order.amount <= userStakeAmounts[msg.sender],"StakingUAG:withdrawal amount is bigger tha the stake amount");
         require(order.uacAddress == uacAddress,"StakingUAG:Invalid uac token address");
         require(order.uacAmount>0,"StakingUAG:Invalid uac amount");
-        require(IERC20(uacAddress).allowance(msg.sender, address(this)) >= order.uacAmount,"StakingUAG:erc20 allowance error");
+        if (order.uacAddress != address(0)){
+            require(IERC20(uacAddress).allowance(msg.sender, address(this)) >= order.uacAmount,"StakingUAG:erc20 allowance error");
+        }
         require(order.nonce == nonces[msg.sender], "StakingUAG:INVALID_NONCE");
         // UAGToken(uagAddress).mint(msg.sender,order.amount);
 
         
-
+        uint256 address0Amount;
+        uint256 address1Amount;
+        uint256 address2Amount;
+        uint256 address3Amount;
         uint256 allRatio =  uacdistributeRadio[0]+ uacdistributeRadio[1] + uacdistributeRadio[2] + uacdistributeRadio[3];
-        // burn
-        uint256 address0Amount = order.uacAmount.mul(uacdistributeRadio[0]).div(allRatio); 
-        BurnableERC20(uacAddress).burnFrom(msg.sender,address0Amount);
-        uint256 address1Amount = order.uacAmount.mul(uacdistributeRadio[1]).div(allRatio); 
-        require(
-            IERC20(order.uacAddress).transferFrom(msg.sender, uacDistributeAddress[1], address1Amount),
-            "StakingUAG:Payment transfer uacDistributeAddress 1 failed"
-        );
+        if (order.uacAddress == address(0)){
+            require(order.uacAmount <= msg.value,"StakingUAG:not enough eth");
+            address0Amount = order.uacAmount.mul(uacdistributeRadio[0]).div(allRatio);
+            // burn
+            (bool success0, ) = payable(address(0x000000000000000000000000000000000000dEaD)).call{value: address0Amount}("");
+            require(success0, "Native burn transfer failed");
 
-        uint256 address2Amount = order.uacAmount.mul(uacdistributeRadio[2]).div(allRatio); 
-        require(
-            IERC20(order.uacAddress).transferFrom(msg.sender, uacDistributeAddress[2], address2Amount),
-            "StakingUAG:Payment transfer uacDistributeAddress 2 failed"
-        );
+            address1Amount = order.uacAmount.mul(uacdistributeRadio[1]).div(allRatio);
+            (bool success1, ) = payable(uacDistributeAddress[1]).call{value: address1Amount}("");
+            require(success1, "Native transfer to address1 failed");
 
-        uint256 address3Amount = order.uacAmount.mul(uacdistributeRadio[3]).div(allRatio); 
-        require(
-            IERC20(order.uacAddress).transferFrom(msg.sender, uacDistributeAddress[3], address3Amount),
-            "StakingUAG:Payment transfer uacDistributeAddress 3 failed"
-        );
+            address2Amount = order.uacAmount.mul(uacdistributeRadio[2]).div(allRatio);
+            (bool success2, ) = payable(uacDistributeAddress[2]).call{value: address2Amount}("");
+            require(success2, "Native transfer to address2 failed");
+
+            address3Amount = order.uacAmount.mul(uacdistributeRadio[3]).div(allRatio);
+            (bool success3, ) = payable(uacDistributeAddress[3]).call{value: address3Amount}("");
+            require(success3, "Native transfer to address3 failed");
+        } else {
+             // burn
+            address0Amount = order.uacAmount.mul(uacdistributeRadio[0]).div(allRatio); 
+            BurnableERC20(uacAddress).burnFrom(msg.sender,address0Amount);
+            address1Amount = order.uacAmount.mul(uacdistributeRadio[1]).div(allRatio); 
+            require(
+                IERC20(order.uacAddress).transferFrom(msg.sender, uacDistributeAddress[1], address1Amount),
+                "StakingUAG:Payment transfer uacDistributeAddress 1 failed"
+            );
+
+            address2Amount = order.uacAmount.mul(uacdistributeRadio[2]).div(allRatio); 
+            require(
+                IERC20(order.uacAddress).transferFrom(msg.sender, uacDistributeAddress[2], address2Amount),
+                "StakingUAG:Payment transfer uacDistributeAddress 2 failed"
+            );
+
+            address3Amount = order.uacAmount.mul(uacdistributeRadio[3]).div(allRatio); 
+            require(
+                IERC20(order.uacAddress).transferFrom(msg.sender, uacDistributeAddress[3], address3Amount),
+                "StakingUAG:Payment transfer uacDistributeAddress 3 failed"
+            );
+        }
+       
         
         require(
            UAGToken(uagAddress).transferFrom(address(this), msg.sender, order.amount),

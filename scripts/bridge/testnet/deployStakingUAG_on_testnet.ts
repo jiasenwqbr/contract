@@ -29,8 +29,8 @@ async function main(){
         insuranceWarehouse
     ];
 
-    const stakingUAG =  (await upgrades.deployProxy(stakingUAGFactory,args,{kind:'uups'})) as StakingUAG;
-    // const stakingUAG = await upgrades.upgradeProxy('0x70CF3De83a773fB0B7e7875BfDB8983b7B01F76e', stakingUAGFactory, { kind: 'uups' });
+    // const stakingUAG =  (await upgrades.deployProxy(stakingUAGFactory,args,{kind:'uups'})) as StakingUAG;
+    const stakingUAG = await upgrades.upgradeProxy('0xe59C1e736278f0F5b893217E07E44eedaa6C81E9', stakingUAGFactory, { kind: 'uups' });
     await stakingUAG.deployed();
     console.log("StakingUAG address is:",stakingUAG.address);
 }

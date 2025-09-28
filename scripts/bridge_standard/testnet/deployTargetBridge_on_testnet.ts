@@ -10,8 +10,8 @@ async function main(){
     const feePercentage = 50;
     const args = [feeReceiver_address,operator_address,feePercentage,signer_address];
     const BridgeTargetContract = await ethers.getContractFactory('BridgeTarget');
-    // const bridgeTargetDeploy =  await upgrades.deployProxy(BridgeTargetContract,args,{kind:'uups'});
-    const bridgeTargetDeploy = await upgrades.upgradeProxy('0x7b29d757ba9Dd7eCaB4C24aE88F4E62eD2E86766', BridgeTargetContract, { kind: 'uups' });
+    const bridgeTargetDeploy =  await upgrades.deployProxy(BridgeTargetContract,args,{kind:'uups'});
+    // const bridgeTargetDeploy = await upgrades.upgradeProxy('0x7b29d757ba9Dd7eCaB4C24aE88F4E62eD2E86766', BridgeTargetContract, { kind: 'uups' });
     await bridgeTargetDeploy.deployed();
     console.log("BridgeTarget address is : ",bridgeTargetDeploy.address);
 }
@@ -24,5 +24,5 @@ main().catch(error=> {
 /***
 
 npx hardhat run ./scripts/bridge_standard/testnet/deployTargetBridge_on_testnet.ts --network pijstestnet
-BridgeTarget address is :  0x7b29d757ba9Dd7eCaB4C24aE88F4E62eD2E86766
+BridgeTarget address is :  0xa984d62B1E8da0A2372348C01d4140B7BfCC5c29
  */
