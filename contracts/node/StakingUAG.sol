@@ -171,15 +171,23 @@ contract StakingUAG is
         require(order.userAddress == msg.sender,"StakingUAG:Invalid msg sender");
         require(userOrders[msg.sender][order.orderId].orderId == 0,"StakingUAG:The order is exist");
         require(order.amount.add(userStakeAmounts[msg.sender]) >= stakeAmountMin && order.amount.add(userStakeAmounts[msg.sender]) <= stakeAmountMax,"StakingUAG:The pledge amount is not within a reasonable range");
-        require(order.burnAmount>0,"StakingUAG:Invalid burn amount");
-        require(order.tokenAddress == uagAddress,"StakingUAG:Invalid token address");
-        require(IERC20(uagAddress).allowance(msg.sender, address(this)) >= order.amount.add(order.burnAmount),"StakingUAG:erc20 allowance error");
+        // require(order.burnAmount>0,"StakingUAG:Invalid burn amount");
+        // require(order.tokenAddress == uagAddress,"StakingUAG:Invalid token address");
+        // require(IERC20(uagAddress).allowance(msg.sender, address(this)) >= order.amount.add(order.burnAmount),"StakingUAG:erc20 allowance error");
 
-        require(
-            IERC20(order.tokenAddress).transferFrom(msg.sender, address(this), order.amount),
-            "StakingUAG:Payment transfer failed"
-        );
-        UAGToken(order.tokenAddress).burnFrom(order.userAddress,order.burnAmount);
+        require(order.amount !=0 || order.burnAmount!=0,"StakingUAG:amount and burnAmount shoud not all eq 0");
+        if (order.amount !=0){
+            require(
+                IERC20(order.tokenAddress).transferFrom(msg.sender, address(this), order.amount),
+                "StakingUAG:Payment transfer failed"
+             );
+        }
+        
+
+        if (order.burnAmount!=0){
+             UAGToken(order.tokenAddress).burnFrom(order.userAddress,order.burnAmount);
+        }
+       
         
         userOrders[msg.sender][order.orderId] = order;
         userOrderIds[msg.sender].push(order.orderId);
@@ -187,6 +195,7 @@ contract StakingUAG is
 
         emit StakeUAG(msg.sender,order.orderId,order.tokenAddress,order.amount,order.burnAmount,order.energyValue,userStakeAmounts[msg.sender],block.timestamp);
     }
+    // "Permit(uint256 orderId,address userAddress,address tokenAddress,uint256 amount,uint256 burnAmount,uint256 energyValue)"
     function parseOrder(bytes memory data) internal view returns(Order memory) {
         (
             uint256 orderId,
@@ -260,17 +269,17 @@ contract StakingUAG is
     function unStake(bytes memory data) public nonReentrant{
         require(funcSwitch,"StakingUAG:Function is not enabled");
         WithdrawalOrder memory order = parseWithdrawalOrder(data);
-        require(userOrders[msg.sender][order.orderId].orderId != 0,"StakingUAG:The order is not exist");
+        // require(userOrders[msg.sender][order.orderId].orderId != 0,"StakingUAG:The order is not exist");
         require(order.userAddress == msg.sender,"StakingUAG:Invalid msg sender");
         require(userWithdrawalOrders[msg.sender][order.orderId].orderId == 0,"StakingUAG:The unstake order is  exist");
-        require(order.tokenAddress == uagAddress,"StakingUAG:Invalid token address");
+        // require(order.tokenAddress == uagAddress,"StakingUAG:Invalid token address");
         require(order.amount <= userStakeAmounts[msg.sender],"StakingUAG:withdrawal amount is bigger tha the stake amount");
         uint256 fee = userStakeAmounts[msg.sender].mul(withdrawalFeePersentage).div(1000);
         uint256 userReceiveAmount = userStakeAmounts[msg.sender].sub(fee);
-        require(IERC20(order.tokenAddress).balanceOf(address(this)) >= userReceiveAmount,"StakingUAG:Insufficient payment amount");
+        // require(IERC20(order.tokenAddress).balanceOf(address(this)) >= userReceiveAmount,"StakingUAG:Insufficient payment amount");
 
         require(
-            IERC20(order.tokenAddress).transferFrom(msg.sender, feeAddress, fee),
+            IERC20(order.tokenAddress).transfer(feeAddress, fee),
             "StakingUAG:Payment transfer failed"
         );
 

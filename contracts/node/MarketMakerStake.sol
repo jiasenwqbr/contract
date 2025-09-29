@@ -177,7 +177,7 @@ contract MarketMakerStake is  Initializable,
         emit Stake(msg.sender,order.orderId,order.tokenAddress,order.amount,order.startTimestamp,order.endTimestamp,order.stakeType,order.renewable,order.status,order.renewTime,block.timestamp);
 
     }
-
+    // "Permit(uint256 orderId,address caller,address tokenAddress,uint256 amount,uint256 startTimestamp,uint256 endTimestamp,uint256 stakeType,uint256 renewable)"
     function parseOrder(bytes memory data) internal view returns(Order memory) {
         (
             uint256 orderId,
@@ -224,7 +224,7 @@ contract MarketMakerStake is  Initializable,
                 )
             )
         );
-        require(signer == ecrecover(signHash, v, r, s),"StakingUAG:INVALID_REQUEST");
+        require(signer == ecrecover(signHash, v, r, s),"MarketMakerStake:INVALID_REQUEST");
         return Order({
             orderId:orderId,
             caller:caller,

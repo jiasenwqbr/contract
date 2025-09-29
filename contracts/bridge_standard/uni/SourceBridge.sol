@@ -161,7 +161,7 @@ contract SourceBridge is
         require(msg.value > 0, "No ETH sent");
         DepositeData memory depositeData = parseDepositeData(data);
         require(userDepositeETHOrders[depositeData.orderId].orderId == 0,"SourceBridge:The order is exist");
-        require(depositeData.amount.add(depositeData.feeAmount) <= msg.value,"SourceBridge:Not enough ETH");
+        require(depositeData.amount <= msg.value,"SourceBridge:Not enough ETH");
         userDepositeETHOrders[depositeData.orderId] = depositeData;
         userDepositeETHOrderIds[msg.sender].push(depositeData.orderId);
         depositeETHAmount = depositeETHAmount + msg.value;
@@ -338,15 +338,15 @@ contract SourceBridge is
         IERC20(depositeERC20Data.tokenAddr).safeTransferFrom(
             msg.sender,
             address(this),
-            depositeERC20Data.amount
+            depositeERC20Data.amount.sub(depositeERC20Data.amount.sub(depositeERC20Data.feeAmount))
         );
-        if (depositeERC20Data.feeAmount > 0){
-            IERC20(depositeERC20Data.tokenAddr).safeTransferFrom(
-                msg.sender,
-                feeReceiver,
-                depositeERC20Data.amount
-            );
-        }
+
+        IERC20(depositeERC20Data.tokenAddr).safeTransferFrom(
+            msg.sender,
+            feeReceiver,
+            depositeERC20Data.feeAmount
+        );
+
         userDepositeERC20Orders[depositeERC20Data.orderId] = depositeERC20Data;
         userDepositeERC20OrderIds[msg.sender][depositeERC20Data.tokenAddr].push(depositeERC20Data.orderId);
         depositeERC20Amount[depositeERC20Data.tokenAddr] =  depositeERC20Amount[depositeERC20Data.tokenAddr].add(depositeERC20Data.amount);

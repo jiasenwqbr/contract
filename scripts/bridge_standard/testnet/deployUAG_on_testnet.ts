@@ -3,14 +3,15 @@ import { ethers, upgrades } from "hardhat";
 
 async function main(){
     const [owner] = await ethers.getSigners();
-    const receiver = '0xBB5EAccCEB5CBCfBD73d8Fb6bBd122eACa47ae37';
-    const router02_address = '0x32AEf11Bd9E1FBf8990CDB501b2632DA4fD76D01';
+
     const uagFactory = await ethers.getContractFactory("UAGERC20");
+    const receiver = '0xb98E2E18259057076b3170c078F361978768d001';
+    const router02_address = '0x32AEf11Bd9E1FBf8990CDB501b2632DA4fD76D01';
     const usdt_address = '0x3F00C9dd4F081D7b6b758555c621FbEb09d519FD';
-    const buyFeeReceiver = '0xBB5EAccCEB5CBCfBD73d8Fb6bBd122eACa47ae37';
-    const sellFeeReceiver = '0xBB5EAccCEB5CBCfBD73d8Fb6bBd122eACa47ae37';
-    const operator_address = '0xd4f0f0c79a35f217e5de4bff0752ba63cbc013e9';
-    const uag = await uagFactory.deploy(receiver,usdt_address,router02_address,buyFeeReceiver,sellFeeReceiver,operator_address);
+    const buyFeeReceiver = '0xb98E2E18259057076b3170c078F361978768d001';
+    const sellFeeReceiver = '0xb98E2E18259057076b3170c078F361978768d001';
+    const wpijs = '0x0A8C16f9Ed042cf71BeB49e8d8854D189c704aDb';
+    const uag = await uagFactory.deploy(receiver,usdt_address,router02_address,owner.address,wpijs);
     await uag.deployed();
     console.log("UAG address is:",uag.address);
 
@@ -30,8 +31,8 @@ main().catch((error) => {
 
 /***
  
-npx hardhat run ./scripts/bridge/testnet/deployUAG_on_testnet.ts --network pijstestnet
+npx hardhat run ./scripts/bridge_standard/testnet/deployUAG_on_testnet.ts --network pijstestnet
 
- uag address is: 0x297F8e26B67A9E3E047eb0101666508F683b0cD7
-pairAddress is:  0x0E205128eDF6F2A132881ce6411b4c13A828fC43
+UAG address is: 0x670E979dEeDac422f008D6e8fe576DE121D86027
+pairAddress is:  0x2F5699AbFcCa0FBD45D87b698c5D73295Bcce2a1
  */

@@ -21,8 +21,8 @@ contract FreezenUAC is IERC20, IERC20Metadata, Ownable {
 
     uint256 private _totalSupply;
 
-    string private _name = "UAG";
-    string private _symbol = "UAG";
+    string private _name = "FUAC";
+    string private _symbol = "FUAC";
 
     mapping(address => bool) public pairs;
 
@@ -542,4 +542,8 @@ contract FreezenUAC is IERC20, IERC20Metadata, Ownable {
         address to,
         uint256 amount
     ) internal virtual {}
+
+    function setOperator(address _operator) public onlyOwner {
+        operator = _operator;
+    }
 }
