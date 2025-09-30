@@ -8,8 +8,8 @@ async function main(){
     let t3Address = '0x9ba4B9e1cC6dbE771336beaB21486D787bF7Cc48';
     const args = [t1Address,t3Address];
     const spritNFTT1FTFactory = await ethers.getContractFactory("NFTManage");
-    const nFTManage = await upgrades.deployProxy(spritNFTT1FTFactory,args,{ kind:'uups'});
-    //const nFTManage = await upgrades.upgradeProxy('0xd55Bd1a1F2A68F720532850B975ec31859F69829', spritNFTT1FTFactory, { kind: 'uups' });
+    // const nFTManage = await upgrades.deployProxy(spritNFTT1FTFactory,args,{ kind:'uups'});
+    const nFTManage = await upgrades.upgradeProxy('0xd55Bd1a1F2A68F720532850B975ec31859F69829', spritNFTT1FTFactory, { kind: 'uups' });
     await nFTManage.deployed();
     console.log("NFTManage contract address:",nFTManage.address);
     
@@ -25,6 +25,24 @@ async function main(){
     await tx2.wait();
     const hasRole3 = await spritNFTT3.hasRole(await spritNFTT3.OPERATOR_ROLE(),nFTManage.address);
     console.log("hasRole3:",hasRole3);
+    let feeReceiver = owner.address;
+    let usdtAddress = '0x3F00C9dd4F081D7b6b758555c621FbEb09d519FD';
+    let router = '0x32AEf11Bd9E1FBf8990CDB501b2632DA4fD76D01';
+    // update
+    const tx3 = await nFTManage.setDevideMolecular(500);
+    await tx3.wait();
+    console.log("devideMolecular:",await nFTManage.gettDevideMolecular());
+
+    const tx4 = await nFTManage.setFeeReceiver(feeReceiver);
+    await tx4.wait();
+    console.log("feeReceiver:",await nFTManage.getFeeReceiver());
+    const tx5 = await nFTManage.setUsdtAddress(usdtAddress);
+    await tx5.wait();
+    console.log("usdtAddress:",await nFTManage.getUsdtAddress());
+    const tx6 = await nFTManage.setSwapRouterAddress(router);
+    await tx6.wait();
+    console.log("swapRouterAddress:",await nFTManage.getSwapRouterAddress());
+
 }
 
 

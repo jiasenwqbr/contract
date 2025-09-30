@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { ethers, upgrades } from "hardhat";
-import { SpritNFTT1,SpritNFTT3,NFTManage } from "../../typechain-types";
+import { SpritNFTT1,SpritNFTT3,NFTManage,PIJS_USDT } from "../../typechain-types";
 import { network } from "hardhat";
 import { Signer } from "ethers";
 
@@ -15,6 +15,7 @@ describe("NFTManage",()=>{
     let nft3:SpritNFTT3;
     let nft1Address:any;
     let nft3Address:any;
+    let usdt:PIJS_USDT;
     const fs = require("fs");
 
     beforeEach(async () => {
@@ -25,6 +26,9 @@ describe("NFTManage",()=>{
         nftManage = await ethers.getContractAt("NFTManage",nftManageAddress) as NFTManage;
         nft1 = await ethers.getContractAt("SpritNFTT1",nft1Address) as SpritNFTT1;
         nft3 = await ethers.getContractAt("SpritNFTT3",nft3Address) as SpritNFTT3;
+        usdt = (
+            await ethers.getContractAt("PIJS_USDT","0x3F00C9dd4F081D7b6b758555c621FbEb09d519FD")
+        ) as PIJS_USDT;
 
         // const tx1 = await nft1.setMaxImageBytes(1024 * 1024);
         // await tx1.wait();
@@ -56,22 +60,50 @@ describe("NFTManage",()=>{
     // });
 
     describe("get minted nft",() => {
-        beforeEach(async () => {
-            const ids = await nft1.getUserNFTs(owner.address);
-            console.log("ids:",ids);
-            console.log("ids:",ids[0].toString());
+        // beforeEach(async () => {
+        //     const ids = await nft1.getUserNFTs(owner.address);
+        //     console.log("ids:",ids);
+        //     console.log("ids:",ids[0].toString());
             
-            const mynft = await nft1.getNFTByTokenId(10);
-            console.log("mynft :",mynft);
-            console.log("mynft name :",mynft.name);
-            console.log("mynft image:",mynft.image);
-            console.log("mynft description:",mynft.description);
-        });
-        it("balance of user",async () => {
-            console.log("nft1",await nft1.balanceOf(owner.address));
-            console.log("nft3:",await nft3.balanceOf(owner.address));
-        })
+        //     const mynft = await nft1.getNFTByTokenId(10);
+        //     console.log("mynft :",mynft);
+        //     console.log("mynft name :",mynft.name);
+        //     console.log("mynft image:",mynft.image);
+        //     console.log("mynft description:",mynft.description);
+        // });
+        // it("balance of user",async () => {
+        //     console.log("nft1",await nft1.balanceOf(owner.address));
+        //     console.log("nft3:",await nft3.balanceOf(owner.address));
+        // })
     });
+
+    describe("mintNFTWithToken",() => {
+        beforeEach(async () => {
+            console.log("before nft1",await nft1.balanceOf(owner.address));
+            console.log("before nft3:",await nft3.balanceOf(owner.address));
+            const imgPath = "/Users/jason/Desktop/bak/wechat_2025-09-18_112933_691.png";
+            const name = "t3 nft";
+            const desc = "t3 nft stored on-chain";
+            const tokenAddress = "0x3F00C9dd4F081D7b6b758555c621FbEb09d519FD";
+            const tokenAmount = ethers.utils.parseEther("10");
+
+            const tx1 = await usdt.connect(owner).approve(nftManageAddress,ethers.utils.parseEther("50"));
+            await tx1.wait();
+            const tx = await nftManage.connect(owner).mintNFTWithToken(3,tokenAddress,tokenAmount,imgPath, name, desc, {
+               gasLimit:12000000
+            });
+            const recipent = await tx.wait();
+            console.log("recipt:",recipent)
+        });
+
+        it("balance of owner",async () => {
+            console.log("after nft1",await nft1.balanceOf(owner.address));
+            console.log("after nft3:",await nft3.balanceOf(owner.address));
+        });
+
+    });
+
+    
 
 });
 

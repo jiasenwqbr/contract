@@ -5,6 +5,8 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 import "../utils/SafeMath.sol";
 interface INFT {
     function mint(address receiver) external returns (uint256);
@@ -20,10 +22,20 @@ contract NFTManage is
     ReentrancyGuardUpgradeable,
     UUPSUpgradeable {
         using SafeMath for uint;
-
+       
         bytes32 public constant MANAGE_ROLE = keccak256("MANAGE_ROLE");
         address public nftT1Address;
         address public nftT3Address;
+
+        uint256  constant  DENOMINATOR = 1000;
+        uint256 private devideMolecular; 
+        address usdtAddress;
+        address feeReceiver;
+        address swapRouterAddress;
+
+        
+
+       
 
         function initialize(address _nftT1Address,address _nftT3Address) public initializer {
             __AccessControlEnumerable_init();
@@ -40,6 +52,7 @@ contract NFTManage is
             _disableInitializers();
         }
         event MintNFT(address caller,address nftContractAddress,uint256 communityId,uint256 tokenid,string imageData,uint256 timestamp);
+        event MintNFTWithToken(address caller,address nftContractAddress,uint256 communityId,uint256 tokenid,string imageData,address tokenAddress,uint256 tokenAmount,uint256 buyPijsAmount,address feeReceiver,uint256 fee,uint256 timestamp);
 
         function _authorizeUpgrade(
             address newImplementation
@@ -68,4 +81,91 @@ contract NFTManage is
                 require(false,"NFTManage:Invalid param");
             }
         }
+
+        function mintNFTWithToken(uint256 communityId,address tokenAddress,uint256 tokenAmount,string calldata imageData, string calldata name_, string calldata desc_) public {
+            require(INFT(nftT1Address).balanceOf(msg.sender) == 0  && INFT(nftT3Address).balanceOf(msg.sender) == 0,"NFTManage:only have 1 nft in T1 or T3");
+            require(tokenAddress == usdtAddress,"NFTManage:Invalid token address");
+            require(tokenAmount != 0,"NFTManage:Invalid tokenAmount");
+            uint256 buyPijsAmount = tokenAmount.mul(devideMolecular).div(DENOMINATOR);
+            uint256 fee = tokenAmount.sub(buyPijsAmount);
+
+            if (communityId == 1){
+                require(
+                    IERC20(tokenAddress).transferFrom(msg.sender, feeReceiver, fee),
+                    "NFTManage:Payment transfer failed"
+                );
+                // swap pijs
+                buyPIJS(tokenAddress,buyPijsAmount,0,msg.sender);
+                // mint nft
+                uint256 tokenid = INFT(nftT1Address).mintTo(msg.sender,imageData,name_,desc_);
+                emit MintNFTWithToken(msg.sender,nftT1Address,communityId,tokenid,imageData,tokenAddress,tokenAmount,buyPijsAmount,feeReceiver,fee,block.timestamp);
+            }  else if (communityId == 3){
+                require(
+                    IERC20(tokenAddress).transferFrom(msg.sender, feeReceiver, fee),
+                    "NFTManage:Payment transfer failed"
+                );
+                // swap pijs
+                buyPIJS(tokenAddress,buyPijsAmount,0,msg.sender);
+                // mint nft
+                uint256 tokenid = INFT(nftT3Address).mintTo(msg.sender,imageData,name_,desc_);
+                emit MintNFTWithToken(msg.sender,nftT1Address,communityId,tokenid,imageData,tokenAddress,tokenAmount,buyPijsAmount,feeReceiver,fee,block.timestamp);
+            } else {
+                require(false,"NFTManage:Invalid param");
+            }
+
+        }
+        function buyPIJS(address tokenAddress,uint256 amountIn,uint256 amountOutMin,address to) internal {
+                IUniswapV2Router02 swapRouter = IUniswapV2Router02(swapRouterAddress);
+                // 1. 将用户的 USDT 转到本合约
+                IERC20(tokenAddress).transferFrom(msg.sender, address(this), amountIn);
+                // 2. 授权给 Router
+                IERC20(tokenAddress).approve(address(swapRouter), 0);
+                IERC20(tokenAddress).approve(address(swapRouter), amountIn);
+                // 3. 设置兑换路径 USDT -> 目标代币
+
+                address[] memory path = new address[](2);
+                path[0] = tokenAddress;
+                path[1] = IUniswapV2Router02(address(swapRouter)).WETH();
+                // 4. 调用 swapExactTokensForTokens
+                swapRouter.swapExactTokensForETHSupportingFeeOnTransferTokens(
+                    amountIn,
+                    amountOutMin, // 最小预期输出，防止滑点
+                    path,
+                    to, // 接收代币的地址
+                    block.timestamp + 300 // 5分钟有效期
+                );
+        }
+        ///////////  setter
+        function setDevideMolecular(uint256 _devideMolecular) public onlyRole(MANAGE_ROLE) {
+            require(_devideMolecular < DENOMINATOR,"NFTManage:Invalid devide");
+            devideMolecular = _devideMolecular;
+        }
+
+        function gettDevideMolecular() public view returns(uint256){
+            return devideMolecular;
+        }
+
+        function setFeeReceiver(address _feeReceiver) public onlyRole(MANAGE_ROLE) {
+            feeReceiver = _feeReceiver;
+        }
+        function getFeeReceiver() public view returns(address) {
+            return feeReceiver;
+        }
+
+        function setUsdtAddress(address _usdtAddress) public onlyRole(MANAGE_ROLE) {
+            usdtAddress = _usdtAddress;
+        }
+        function getUsdtAddress() public view returns(address){
+            return usdtAddress;
+        }
+        function setSwapRouterAddress(address _swapRouterAddress) public onlyRole(MANAGE_ROLE) {
+            swapRouterAddress = _swapRouterAddress;
+        }
+        function getSwapRouterAddress() public view returns(address) {
+            return swapRouterAddress;
+        }
+
+       
+
+
     }   

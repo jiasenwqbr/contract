@@ -348,12 +348,12 @@ contract StakingUAG is
         require(funcSwitch,"StakingUAG:Function is not enabled");
         require(order.userAddress == msg.sender,"StakingUAG:Invalid msg sender");
         require(userWithdrawProfitsOrders[msg.sender][order.orderId].orderId == 0,"StakingUAG:The order is exist");
-        require(order.tokenAddress == uagAddress,"StakingUAG:Invalid token address");
+        // require(order.tokenAddress == uagAddress,"StakingUAG:Invalid token address");
         require(order.amount <= userStakeAmounts[msg.sender],"StakingUAG:withdrawal amount is bigger tha the stake amount");
-        require(order.uacAddress == uacAddress,"StakingUAG:Invalid uac token address");
+        // require(order.uacAddress == uacAddress,"StakingUAG:Invalid uac token address");
         require(order.uacAmount>0,"StakingUAG:Invalid uac amount");
         if (order.uacAddress != address(0)){
-            require(IERC20(uacAddress).allowance(msg.sender, address(this)) >= order.uacAmount,"StakingUAG:erc20 allowance error");
+            require(IERC20(order.uacAddress).allowance(msg.sender, address(this)) >= order.uacAmount,"StakingUAG:erc20 allowance error");
         }
         require(order.nonce == nonces[msg.sender], "StakingUAG:INVALID_NONCE");
         // UAGToken(uagAddress).mint(msg.sender,order.amount);
@@ -385,7 +385,7 @@ contract StakingUAG is
         } else {
              // burn
             address0Amount = order.uacAmount.mul(uacdistributeRadio[0]).div(allRatio); 
-            BurnableERC20(uacAddress).burnFrom(msg.sender,address0Amount);
+            BurnableERC20(order.uacAddress).burnFrom(msg.sender,address0Amount);
             address1Amount = order.uacAmount.mul(uacdistributeRadio[1]).div(allRatio); 
             require(
                 IERC20(order.uacAddress).transferFrom(msg.sender, uacDistributeAddress[1], address1Amount),
@@ -407,7 +407,7 @@ contract StakingUAG is
        
         
         require(
-           UAGToken(uagAddress).transferFrom(address(this), msg.sender, order.amount),
+           UAGToken(order.tokenAddress).transfer(msg.sender, order.amount),
             "StakingUAG:Payment transfer failed"
         );
 

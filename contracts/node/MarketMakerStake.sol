@@ -242,7 +242,7 @@ contract MarketMakerStake is  Initializable,
     function splitSignature(
         bytes memory sig
     ) internal pure returns (uint8, bytes32, bytes32) {
-        require(sig.length == 65, "StakingUAG:Not Invalid Signature Data");
+        require(sig.length == 65, "MarketMakerStake:Not Invalid Signature Data");
         bytes32 r;
         bytes32 s;
         uint8 v;
@@ -256,8 +256,8 @@ contract MarketMakerStake is  Initializable,
 
     function unStake(uint256 stakingId) public  nonReentrant {
         Order memory order = userOrders[msg.sender][stakingId];
-        require(order.orderId != 0,"StakingUAG:Order is not exist");
-        require(order.status == 0,"StakingUAG:Order is not in staking");
+        require(order.orderId != 0,"MarketMakerStake:Order is not exist");
+        require(order.status == 0,"MarketMakerStake:Order is not in staking");
         if (order.renewTime == 0){
             require(order.startTimestamp + order.stakeType >=  block.timestamp);
         } else {
@@ -271,8 +271,8 @@ contract MarketMakerStake is  Initializable,
 
     function reStake(uint256 stakingId) public   nonReentrant {
         Order memory order = userOrders[msg.sender][stakingId];
-        require(order.orderId != 0,"StakingUAG:Order is not exist");
-        require(order.status == 0,"StakingUAG:Order is not in staking");
+        require(order.orderId != 0,"MarketMakerStake:Order is not exist");
+        require(order.status == 0,"MarketMakerStake:Order is not in staking");
         if (order.renewTime == 0){
             require(order.startTimestamp + order.stakeType >=  block.timestamp);
         } else {
@@ -377,18 +377,18 @@ contract MarketMakerStake is  Initializable,
     mapping(address => uint256[]) userReleaseOrderIds;
     function releaseStake(bytes memory data) public payable nonReentrant{
         ReleaseOrder memory order = parseReleaseOrder(data);
-        require(funcSwitch,"StakingUAG:Function is not enabled");
-        require(order.userAddress == msg.sender,"StakingUAG:Invalid msg sender");
-        require(order.nonce == releaseNonces[msg.sender], "StakingUAG:INVALID_NONCE");
-        require(userReleaseOrders[msg.sender][order.orderId].orderId == 0,"StakingUAG:The order is exist");
-        require(order.tokenAddress == uagAddress,"StakingUAG:Invalid token address");
-        // require(order.uacAddress == uacAddress,"StakingUAG:Invalid uac token address");
+        require(funcSwitch,"MarketMakerStake:Function is not enabled");
+        require(order.userAddress == msg.sender,"MarketMakerStake:Invalid msg sender");
+        require(order.nonce == releaseNonces[msg.sender], "MarketMakerStake:INVALID_NONCE");
+        require(userReleaseOrders[msg.sender][order.orderId].orderId == 0,"MarketMakerStake:The order is exist");
+        // require(order.tokenAddress == uagAddress,"MarketMakerStake:Invalid token address");
+        // require(order.uacAddress == uacAddress,"MarketMakerStake:Invalid uac token address");
         
         if (order.releaseType!=0){
-             require(releaseTypeMap[order.releaseType].releaseType != 0,"StakingUAG:release type is not exist");
+             require(releaseTypeMap[order.releaseType].releaseType != 0,"MarketMakerStake:release type is not exist");
         }
         if (order.uacAddress != address(0)){
-            require(IERC20(uacAddress).allowance(msg.sender, address(this)) >= order.uacAmount,"StakingUAG:erc20 allowance error");
+            require(IERC20(order.uacAddress).allowance(msg.sender, address(this)) >= order.uacAmount,"MarketMakerStake:erc20 allowance error");
         }
         uint256 address0Amount;
         uint256 address1Amount;
@@ -396,7 +396,7 @@ contract MarketMakerStake is  Initializable,
         uint256 address3Amount;
         uint256 allRatio =  uacdistributeRadio[0]+ uacdistributeRadio[1] + uacdistributeRadio[2] + uacdistributeRadio[3];
         if (order.uacAddress == address(0)){
-            require(order.uacAmount <= msg.value,"StakingUAG:not enough eth");
+            require(order.uacAmount <= msg.value,"MarketMakerStake:not enough eth");
             address0Amount = order.uacAmount.mul(uacdistributeRadio[0]).div(allRatio);
             // burn
             (bool success0, ) = payable(address(0x000000000000000000000000000000000000dEaD)).call{value: address0Amount}("");
@@ -416,23 +416,23 @@ contract MarketMakerStake is  Initializable,
         } else {
             // burn
             address0Amount = order.uacAmount.mul(uacdistributeRadio[0]).div(allRatio); 
-            BurnableERC20(uacAddress).burnFrom(msg.sender,address0Amount);
+            BurnableERC20(order.uacAddress).burnFrom(msg.sender,address0Amount);
             address1Amount = order.uacAmount.mul(uacdistributeRadio[1]).div(allRatio); 
             require(
                 IERC20(order.uacAddress).transferFrom(msg.sender, uacDistributeAddress[1], address1Amount),
-                "StakingUAG:Payment transfer uacDistributeAddress 1 failed"
+                "MarketMakerStake:Payment transfer uacDistributeAddress 1 failed"
             );
 
             address2Amount = order.uacAmount.mul(uacdistributeRadio[2]).div(allRatio); 
             require(
                 IERC20(order.uacAddress).transferFrom(msg.sender, uacDistributeAddress[2], address2Amount),
-                "StakingUAG:Payment transfer uacDistributeAddress 2 failed"
+                "MarketMakerStake:Payment transfer uacDistributeAddress 2 failed"
             );
 
             address3Amount = order.uacAmount.mul(uacdistributeRadio[3]).div(allRatio); 
             require(
                 IERC20(order.uacAddress).transferFrom(msg.sender, uacDistributeAddress[3], address3Amount),
-                "StakingUAG:Payment transfer uacDistributeAddress 3 failed"
+                "MarketMakerStake:Payment transfer uacDistributeAddress 3 failed"
             );
         }
 
@@ -446,7 +446,7 @@ contract MarketMakerStake is  Initializable,
     }
     bytes32 private constant PERMIT_RELEASE_TYPEHASH = keccak256(
         abi.encodePacked(
-            "Permit(uint256 orderId,address userAddress,address tokenAddress,uint256 amount,address uacAddress,uint256 amount,uint256 releaseType,uint256 nonce)"
+            "Permit(uint256 orderId,address userAddress,address tokenAddress,uint256 amount,address uacAddress,uint256 uacAmount,uint256 releaseType,uint256 nonce)"
         )
     );
     function parseReleaseOrder(bytes memory data) internal view returns(ReleaseOrder memory) {
@@ -481,7 +481,7 @@ contract MarketMakerStake is  Initializable,
                 DOMAIN_SEPARATOR,
                 keccak256(
                     abi.encode(
-                        PERMIT_WITHDRAWPROFITS_TYPEHASH,
+                        PERMIT_RELEASE_TYPEHASH,
                         orderId,
                         userAddress,
                         tokenAddress,
@@ -494,7 +494,7 @@ contract MarketMakerStake is  Initializable,
                 )
             )
         );
-        require(signer == ecrecover(signHash, v, r, s),"StakingUAG:INVALID_REQUEST");
+        require(signer == ecrecover(signHash, v, r, s),"MarketMakerStake:INVALID_REQUEST");
         return ReleaseOrder({
             orderId:orderId,
             userAddress: userAddress,
@@ -523,14 +523,14 @@ contract MarketMakerStake is  Initializable,
     // 提取收益
     function withdrawingProfits(bytes memory data) public nonReentrant{
         WithdrawingProfitsOrder memory order = parseWithdrawingProfitsOrder(data);
-        require(funcSwitch,"StakingUAG:Function is not enabled");
-        require(order.userAddress == msg.sender,"StakingUAG:Invalid msg sender");
-        require(userWithdrawProfitsOrders[msg.sender][order.orderId].orderId == 0,"StakingUAG:The order is exist");
-        require(order.tokenAddress == uagAddress,"StakingUAG:Invalid token address");
-        require(order.nonce == nonces[msg.sender], "StakingUAG:INVALID_NONCE");
+        require(funcSwitch,"MarketMakerStake:Function is not enabled");
+        require(order.userAddress == msg.sender,"MarketMakerStake:Invalid msg sender");
+        require(userWithdrawProfitsOrders[msg.sender][order.orderId].orderId == 0,"MarketMakerStake:The order is exist");
+        // require(order.tokenAddress == uagAddress,"MarketMakerStake:Invalid token address");
+        require(order.nonce == nonces[msg.sender], "MarketMakerStake:INVALID_NONCE");
         require(
-           UAGToken(uagAddress).transferFrom(address(this), msg.sender, order.amount),
-            "StakingUAG:Payment transfer failed"
+           UAGToken(order.tokenAddress).transfer(msg.sender, order.amount),
+            "MarketMakerStake:Payment transfer failed"
         );
         userWithdrawProfitsOrders[msg.sender][order.orderId] = order;
         userWithdrawProfitsOrderIds[msg.sender].push(order.orderId);
@@ -577,7 +577,7 @@ contract MarketMakerStake is  Initializable,
                 )
             )
         );
-        require(signer == ecrecover(signHash, v, r, s),"StakingUAG:INVALID_REQUEST");
+        require(signer == ecrecover(signHash, v, r, s),"MarketMakerStake:INVALID_REQUEST");
 
         return WithdrawingProfitsOrder({
             orderId:orderId,
