@@ -310,6 +310,12 @@ contract MarketMakerStake is  Initializable,
             expendUacPercent:_expendUacPercent
         });
     }
+    function setUacdistributeRadio(uint256[4] memory radio) public onlyRole(MANAGE_ROLE){
+        uacdistributeRadio[0] = radio[0];
+        uacdistributeRadio[1] = radio[1];
+        uacdistributeRadio[2] = radio[2];
+        uacdistributeRadio[3] = radio[3];
+    }
 
 
     ////////////////////  getters
@@ -353,6 +359,9 @@ contract MarketMakerStake is  Initializable,
             orders[i] = userWithdrawProfitsOrders[userAddress][ids[i]];
         }
         return orders;
+    }
+    function getUacdistributeRadio() public view returns(uint256[4] memory){
+        return uacdistributeRadio;
     }
 
     // 释放

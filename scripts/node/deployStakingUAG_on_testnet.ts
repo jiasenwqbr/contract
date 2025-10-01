@@ -1,6 +1,6 @@
 import { id } from "ethers/lib/utils";
 import { ethers, upgrades } from "hardhat";
-import {StakingUAG} from  "../../../typechain-types";
+import {StakingUAG} from  "../../typechain-types";
 async function main(){
     const [owner] = await ethers.getSigners();
     const stakingUAGFactory = await ethers.getContractFactory('StakingUAG');
@@ -33,6 +33,10 @@ async function main(){
     const stakingUAG = await upgrades.upgradeProxy('0xe59C1e736278f0F5b893217E07E44eedaa6C81E9', stakingUAGFactory, { kind: 'uups' });
     await stakingUAG.deployed();
     console.log("StakingUAG address is:",stakingUAG.address);
+    const ratio = [15,10,25,50];
+    const tx = await stakingUAG.setUacdistributeRadio(ratio);
+    await tx.wait();
+    console.log("ratio:",await stakingUAG.getUacdistributeRadio());
 }
 
 main().catch(
@@ -44,6 +48,6 @@ main().catch(
 
 
 /**
-npx hardhat run ./scripts/bridge/testnet/deployStakingUAG_on_testnet.ts --network pijstestnet
+npx hardhat run ./scripts/node/deployStakingUAG_on_testnet.ts --network pijstestnet
 StakingUAG address is: 0xe59C1e736278f0F5b893217E07E44eedaa6C81E9
  */

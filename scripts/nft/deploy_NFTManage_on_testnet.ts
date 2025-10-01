@@ -25,6 +25,7 @@ async function main(){
     await tx2.wait();
     const hasRole3 = await spritNFTT3.hasRole(await spritNFTT3.OPERATOR_ROLE(),nFTManage.address);
     console.log("hasRole3:",hasRole3);
+    
     let feeReceiver = owner.address;
     let usdtAddress = '0x3F00C9dd4F081D7b6b758555c621FbEb09d519FD';
     let router = '0x32AEf11Bd9E1FBf8990CDB501b2632DA4fD76D01';

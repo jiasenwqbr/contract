@@ -33,6 +33,8 @@ contract NFTManage is
         address feeReceiver;
         address swapRouterAddress;
 
+        uint256 tokenAmountLimit;
+
         
 
        
@@ -86,6 +88,7 @@ contract NFTManage is
             require(INFT(nftT1Address).balanceOf(msg.sender) == 0  && INFT(nftT3Address).balanceOf(msg.sender) == 0,"NFTManage:only have 1 nft in T1 or T3");
             require(tokenAddress == usdtAddress,"NFTManage:Invalid token address");
             require(tokenAmount != 0,"NFTManage:Invalid tokenAmount");
+            require(tokenAmount >= tokenAmountLimit,"NFTManage:tokenAmount must gt or eq tokenAmountLimit");
             uint256 buyPijsAmount = tokenAmount.mul(devideMolecular).div(DENOMINATOR);
             uint256 fee = tokenAmount.sub(buyPijsAmount);
 
@@ -108,7 +111,7 @@ contract NFTManage is
                 buyPIJS(tokenAddress,buyPijsAmount,0,msg.sender);
                 // mint nft
                 uint256 tokenid = INFT(nftT3Address).mintTo(msg.sender,imageData,name_,desc_);
-                emit MintNFTWithToken(msg.sender,nftT1Address,communityId,tokenid,imageData,tokenAddress,tokenAmount,buyPijsAmount,feeReceiver,fee,block.timestamp);
+                emit MintNFTWithToken(msg.sender,nftT3Address,communityId,tokenid,imageData,tokenAddress,tokenAmount,buyPijsAmount,feeReceiver,fee,block.timestamp);
             } else {
                 require(false,"NFTManage:Invalid param");
             }
@@ -164,6 +167,13 @@ contract NFTManage is
         function getSwapRouterAddress() public view returns(address) {
             return swapRouterAddress;
         }
+        function setTokenAmountLimit(uint256 _tokenAmountLimit) public onlyRole(MANAGE_ROLE){
+            tokenAmountLimit = _tokenAmountLimit;
+        }
+        function getTokenAmountLimit() public view returns(uint256){
+            return tokenAmountLimit;
+        }
+
 
        
 

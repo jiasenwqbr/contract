@@ -1,6 +1,6 @@
 import { id } from "ethers/lib/utils";
 import { ethers, upgrades } from "hardhat";
-import {StakingUAG,MarketMakerStake} from  "../../../typechain-types";
+import {StakingUAG,MarketMakerStake} from  "../../typechain-types";
 async function main(){
     const [owner,user1] = await ethers.getSigners();
     const marketMakerStakeFactory = await ethers.getContractFactory('MarketMakerStake');
@@ -59,6 +59,11 @@ async function main(){
     // const tx4444 = await marketMakerStake.setReleaseTypeMap(30*60,50);
     //await tx4444.wait();
 
+    const ratio = [15,10,25,50];
+    const tx = await marketMakerStake.setUacdistributeRadio(ratio);
+    await tx.wait();
+    console.log("ratio:",await marketMakerStake.getUacdistributeRadio());
+
 
 }
 
@@ -71,6 +76,6 @@ main().catch(
 
 
 /**
-npx hardhat run ./scripts/bridge/testnet/deployMarketMakerStake_on_testnet.ts --network pijstestnet
+npx hardhat run ./scripts/node/deployMarketMakerStake_on_testnet.ts --network pijstestnet
 MarketMakerStake address is: 0x00d93AC8517d835B98030330bEeA955c4144E643
  */

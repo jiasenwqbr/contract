@@ -526,4 +526,9 @@ contract StakingUAG is
         uacdistributeRadio = ratio;
     }
 
+    function getUacdistributeRadio()  public view returns(uint256[4] memory) {
+        return uacdistributeRadio;
+    }
+    
+
 }
