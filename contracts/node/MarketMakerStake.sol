@@ -39,7 +39,7 @@ contract MarketMakerStake is  Initializable,
     event Stake(address caller,uint256 orderId,address tokenAddress,uint256 amount,uint256 startTimestamp,uint256 endTimestamp,uint256 stakeType,uint256 renewable,uint256 status,uint256 renewTime,uint256 timestamp);
     event UnStake(address caller,uint256 orderId,uint256 amount,uint256 timestamp);
     event ReStake(address caller,uint256 orderId,uint256 renewTime,uint256 timestamp);
-    event WithdrawingProfits(address caller,uint256 orderId,address tokenAddress,uint256 amount,uint256 timestamp);
+    event WithdrawingProfits(address caller,uint256 orderId,address tokenAddress,uint256 amount,address feeReceiver,uint256 fee,uint256 userAmount,uint256 timestamp);
     event ReleaseStakes(address caller,uint256 orderId,address tokenAddress,uint256 amount,address uacAddress,uint256 uacAmount,uint256 releaseType,uint256 timestamp);
     
     /// @custom:oz-upgrades-unsafe-allow constructor
@@ -528,7 +528,9 @@ contract MarketMakerStake is  Initializable,
     mapping(address => mapping(uint256 => WithdrawingProfitsOrder)) public userWithdrawProfitsOrders;
     mapping(address => uint256[]) userWithdrawProfitsOrderIds;
 
-
+    uint256 withdrawPercent;
+    uint256  constant  DENOMINATOR = 1000;
+    address feeReceiver;
     // 提取收益
     function withdrawingProfits(bytes memory data) public nonReentrant{
         WithdrawingProfitsOrder memory order = parseWithdrawingProfitsOrder(data);
@@ -537,15 +539,24 @@ contract MarketMakerStake is  Initializable,
         require(userWithdrawProfitsOrders[msg.sender][order.orderId].orderId == 0,"MarketMakerStake:The order is exist");
         // require(order.tokenAddress == uagAddress,"MarketMakerStake:Invalid token address");
         require(order.nonce == nonces[msg.sender], "MarketMakerStake:INVALID_NONCE");
+
+        uint256 fee =  order.amount.mul(withdrawPercent).div(DENOMINATOR);
+        uint256 userAmount = order.amount.sub(fee);
+        if (fee > 0){
+            require(
+                 UAGToken(order.tokenAddress).transfer(feeReceiver, fee),
+            "MarketMakerStake:Payment transfer fee failed"
+            );
+        }
         require(
-           UAGToken(order.tokenAddress).transfer(msg.sender, order.amount),
+           UAGToken(order.tokenAddress).transfer(msg.sender, userAmount),
             "MarketMakerStake:Payment transfer failed"
         );
         userWithdrawProfitsOrders[msg.sender][order.orderId] = order;
         userWithdrawProfitsOrderIds[msg.sender].push(order.orderId);
         nonces[msg.sender]++;
 
-        emit WithdrawingProfits(msg.sender,order.orderId,order.tokenAddress,order.amount,block.timestamp);
+        emit WithdrawingProfits(msg.sender,order.orderId,order.tokenAddress,order.amount,feeReceiver,fee,userAmount,block.timestamp);
 
     }
 
@@ -596,5 +607,19 @@ contract MarketMakerStake is  Initializable,
             nonce:nonce,
             createTime: block.timestamp
         });
+    }
+
+    function setWithdrawPercent(uint256 _withdrawPercent) public onlyRole(MANAGE_ROLE) {
+        withdrawPercent = _withdrawPercent;
+    }
+    function getWithdrawPercent() public view returns(uint256){
+        return withdrawPercent;
+    }
+
+    function setFeeReceiver(address _feeReceiver) public onlyRole(MANAGE_ROLE) {
+        feeReceiver = _feeReceiver;
+    }
+    function getFeeReceiver() public view returns(address){
+        return feeReceiver;
     }
 }

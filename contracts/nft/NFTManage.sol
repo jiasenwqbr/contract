@@ -93,20 +93,26 @@ contract NFTManage is
             uint256 fee = tokenAmount.sub(buyPijsAmount);
 
             if (communityId == 1){
-                require(
-                    IERC20(tokenAddress).transferFrom(msg.sender, feeReceiver, fee),
-                    "NFTManage:Payment transfer failed"
-                );
+                if (fee >0){
+                    require(
+                        IERC20(tokenAddress).transferFrom(msg.sender, feeReceiver, fee),
+                        "NFTManage:Payment transfer failed"
+                     );
+                }
+                
                 // swap pijs
                 buyPIJS(tokenAddress,buyPijsAmount,0,msg.sender);
                 // mint nft
                 uint256 tokenid = INFT(nftT1Address).mintTo(msg.sender,imageData,name_,desc_);
                 emit MintNFTWithToken(msg.sender,nftT1Address,communityId,tokenid,imageData,tokenAddress,tokenAmount,buyPijsAmount,feeReceiver,fee,block.timestamp);
             }  else if (communityId == 3){
-                require(
-                    IERC20(tokenAddress).transferFrom(msg.sender, feeReceiver, fee),
-                    "NFTManage:Payment transfer failed"
-                );
+                if (fee >0){
+                    require(
+                        IERC20(tokenAddress).transferFrom(msg.sender, feeReceiver, fee),
+                        "NFTManage:Payment transfer failed"
+                    );
+                }
+                
                 // swap pijs
                 buyPIJS(tokenAddress,buyPijsAmount,0,msg.sender);
                 // mint nft
@@ -140,7 +146,7 @@ contract NFTManage is
         }
         ///////////  setter
         function setDevideMolecular(uint256 _devideMolecular) public onlyRole(MANAGE_ROLE) {
-            require(_devideMolecular < DENOMINATOR,"NFTManage:Invalid devide");
+            // require(_devideMolecular < DENOMINATOR,"NFTManage:Invalid devide");
             devideMolecular = _devideMolecular;
         }
 

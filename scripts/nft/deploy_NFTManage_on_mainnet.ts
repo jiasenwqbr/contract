@@ -31,22 +31,32 @@ async function main(){
     let feeReceiver = '0x517563100C7ceca8FfA85a50a53c61dc0Dd13E3f';
     let usdtAddress = '0x08aD141eadFC93cD4e1566c31E1fb49886D5b80B';
     let router = '0xDd682E7BE09F596F0D0DEDD53Eb75abffDcd2312';
-    const devideMolecular = 500;
-    const tx3 = await nFTManage.setDevideMolecular(devideMolecular);
+    const devideMolecular = 1000;
+    const tx3 = await nFTManage.setDevideMolecular(devideMolecular,{
+                gasLimit: 1_000_000,
+            });
     await tx3.wait();
     console.log("devideMolecular:",await nFTManage.gettDevideMolecular());
 
-    const tx4 = await nFTManage.setFeeReceiver(feeReceiver);
+    const tx4 = await nFTManage.setFeeReceiver(feeReceiver,{
+                gasLimit: 1_000_000,
+            });
     await tx4.wait();
     console.log("feeReceiver:",await nFTManage.getFeeReceiver());
-    const tx5 = await nFTManage.setUsdtAddress(usdtAddress);
+    const tx5 = await nFTManage.setUsdtAddress(usdtAddress,{
+                gasLimit: 1_000_000,
+            });
     await tx5.wait();
     console.log("usdtAddress:",await nFTManage.getUsdtAddress());
-    const tx6 = await nFTManage.setSwapRouterAddress(router);
+    const tx6 = await nFTManage.setSwapRouterAddress(router,{
+                gasLimit: 1_000_000,
+            });
     await tx6.wait();
     console.log("swapRouterAddress:",await nFTManage.getSwapRouterAddress());
-    
-    const tx7 = await nFTManage.setTokenAmountLimit(ethers.utils.parseEther('10'));
+
+    const tx7 = await nFTManage.setTokenAmountLimit(ethers.utils.parseEther('10'),{
+                gasLimit: 1_000_000,
+            });
     await tx7.wait();
     console.log("TokenAmountLimit:",await nFTManage.getTokenAmountLimit());
 

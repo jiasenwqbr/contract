@@ -64,6 +64,18 @@ async function main(){
     await tx.wait();
     console.log("ratio:",await marketMakerStake.getUacdistributeRadio());
 
+    const feeReceiver = '';
+    const withdrawPercent = 30;
+
+    const tx1 = await marketMakerStake.setWithdrawPercent(withdrawPercent);
+    await tx1.wait();
+    console.log("withdrawPercent:",await marketMakerStake.getWithdrawPercent());
+
+    const tx2 = await marketMakerStake.setFeeReceiver(feeReceiver);
+    await tx2.wait();
+    console.log("feeReceiver:",await marketMakerStake.getFeeReceiver());
+
+
 
 }
 

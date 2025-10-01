@@ -478,6 +478,97 @@ contract StakingUAG is
         });
     }
 
+    struct WithdrawingProfitsNonConsumptionOrder{
+        uint256 orderId; // 订单号
+        address userAddress; // 用户地址
+        address tokenAddress; //UAG的地址
+        uint256 amount; // 质押UAG数量
+        uint256 withdrawType;
+        uint256 createTime;
+        uint256 nonce;
+    }
+    mapping(address => uint) public withdrawingNonConsumptionNonces;
+    mapping(address => mapping(uint256 => WithdrawingProfitsNonConsumptionOrder)) public userWithdrawProfitsNonConsumptionOrders;
+    mapping(address => uint256[]) userWithdrawProfitsNonConsumptionOrderIds;
+    bytes32 private constant PERMIT_WITHDRAWPROFITSNON_TYPEHASH = keccak256(
+        abi.encodePacked(
+            "Permit(uint256 orderId,address userAddress,address tokenAddress,uint256 amount,uint256 withdrawType,uint256 nonce)"
+        )
+    );
+    event WithdrawingProfitsNonConsumptionNonces(address caller,uint256 orderId,address tokenAddress,uint256 amount,uint256 withdrawType,uint256 timestamp);
+
+    function withdrawingProfitsNonConsumption(bytes memory data) public payable nonReentrant{
+        WithdrawingProfitsNonConsumptionOrder memory order = parseWithdrawingNonConsumptionrder(data);
+        require(funcSwitch,"StakingUAG:Function is not enabled");
+        require(order.userAddress == msg.sender,"StakingUAG:Invalid msg sender");
+        require(userWithdrawProfitsNonConsumptionOrders[msg.sender][order.orderId].orderId == 0,"StakingUAG:The order is exist");
+        // require(order.amount <= userStakeAmounts[msg.sender],"StakingUAG:withdrawal amount is bigger tha the stake amount");
+        require(order.nonce == withdrawingNonConsumptionNonces[msg.sender], "StakingUAG:INVALID_NONCE");
+
+        require(
+           UAGToken(order.tokenAddress).transfer(msg.sender, order.amount),
+            "StakingUAG:Payment transfer failed"
+        );
+
+        userWithdrawProfitsNonConsumptionOrders[msg.sender][order.orderId] = order;
+        userWithdrawProfitsNonConsumptionOrderIds[msg.sender].push(order.orderId);
+        withdrawingNonConsumptionNonces[msg.sender]++;
+        emit WithdrawingProfitsNonConsumptionNonces(msg.sender,order.orderId,order.tokenAddress,order.amount,order.withdrawType,block.timestamp);
+
+    }
+
+     function parseWithdrawingNonConsumptionrder(bytes memory data) internal view returns(WithdrawingProfitsNonConsumptionOrder memory) {
+        (
+            uint256 orderId,
+            address userAddress,
+            address tokenAddress,
+            uint256 amount,
+            uint256 withdrawType,
+            uint256 nonce,
+            bytes memory signature
+        ) = abi.decode(
+            data,
+            (
+                uint256,
+                address,
+                address,
+                uint256,
+                uint256,
+                uint256,
+                bytes
+            )
+        );
+         (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
+          bytes32 signHash = keccak256(
+            abi.encodePacked(
+                "\x19\x01",
+                DOMAIN_SEPARATOR,
+                keccak256(
+                    abi.encode(
+                        PERMIT_WITHDRAWPROFITSNON_TYPEHASH,
+                        orderId,
+                        userAddress,
+                        tokenAddress,
+                        amount,
+                        withdrawType,
+                        nonce
+                    )
+                )
+            )
+        );
+        require(signer == ecrecover(signHash, v, r, s),"StakingUAG:INVALID_REQUEST");
+
+        return WithdrawingProfitsNonConsumptionOrder({
+            orderId:orderId,
+            userAddress: userAddress,
+            tokenAddress: tokenAddress,
+            amount: amount,
+            withdrawType:withdrawType,
+            nonce:nonce,
+            createTime: block.timestamp
+        });
+    }
+
     ///////////////////// setters
     function setFuncSwith(bool _funcSwitch) public onlyRole(MANAGE_ROLE) {
         funcSwitch = _funcSwitch;
