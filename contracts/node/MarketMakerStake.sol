@@ -99,10 +99,10 @@ contract MarketMakerStake is  Initializable,
         uacDistributeAddress[1] = gensisNodeDistribute;
         uacDistributeAddress[2] = ecoDevAddress;
         uacDistributeAddress[3] = insuranceWarehouse;
-        uacdistributeRadio[0] = 3;
-        uacdistributeRadio[1] = 2;
-        uacdistributeRadio[2] = 5;
-        uacdistributeRadio[3] = 10;
+        uacdistributeRadio[0] = 15;
+        uacdistributeRadio[1] = 10;
+        uacdistributeRadio[2] = 25;
+        uacdistributeRadio[3] = 50;
 
         releaseTypeMap[0 ] = ReleaseOption({
             releaseType:30,

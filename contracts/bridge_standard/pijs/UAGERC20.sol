@@ -91,7 +91,7 @@ contract UAGERC20 is IERC20, IERC20Metadata, Ownable {
         pairsEnabled[pair2] = false; // PIJS交易对默认开启
         pifPijsAddr = pair2;
         operator = _operator;
-        _mint(_receiver, 628_000_000 * 10 ** decimals());
+        _mint(_receiver, 21_000_000 * 10 ** decimals());
         uint256 chainId;
         assembly {
             chainId := chainid()

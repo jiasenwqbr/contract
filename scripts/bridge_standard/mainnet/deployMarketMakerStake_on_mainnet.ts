@@ -1,6 +1,6 @@
 import { id } from "ethers/lib/utils";
 import { ethers, upgrades } from "hardhat";
-import {StakingUAG,MarketMakerStake} from  "../../typechain-types";
+import {StakingUAG,MarketMakerStake} from  "../../../typechain-types";
 async function main(){
     const [owner,user1] = await ethers.getSigners();
     const marketMakerStakeFactory = await ethers.getContractFactory('MarketMakerStake');
@@ -58,6 +58,7 @@ async function main(){
     // await tx3333.wait();
     // const tx4444 = await marketMakerStake.setReleaseTypeMap(30*60,50);
     //await tx4444.wait();
+    
 
     const ratio = [15,10,25,50];
     const tx = await marketMakerStake.setUacdistributeRadio(ratio);

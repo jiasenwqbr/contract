@@ -27,13 +27,28 @@ async function main(){
     // const pairAddress = await factory.getPair(tokenA, tokenB);
     // console.log("pairAddress is:",pairAddress);
 
-    const uac = await ethers.getContractAt("UACToken","0x07a4DCf08F3345E5f3aeE7E5edc81Ece9Ae8b234");
+    const uac = await ethers.getContractAt("FreezenUAC","0x07a4DCf08F3345E5f3aeE7E5edc81Ece9Ae8b234");
     const tx1 = await uac.setTradeToPublic(true);
     await tx1.wait();
 
-    const uag = await ethers.getContractAt("UAGERC20","0x670E979dEeDac422f008D6e8fe576DE121D86027");
+    const tx11 = await uac.connect(owner).setBuyFeeReceiver('0xd4f0f0c79a35f217e5de4bff0752ba63cbc013e9');
+    await tx11.wait();
+
+    const tx111 = await uac.connect(owner).setSellFeeReceiver('0xd4f0f0c79a35f217e5de4bff0752ba63cbc013e9');
+    await tx111.wait();
+
+
+    const uag = await ethers.getContractAt("FreezenUAC","0x670E979dEeDac422f008D6e8fe576DE121D86027");
     const tx2 = await uag.setTradeToPublic(true);
     await tx2.wait();
+
+     const tx22 = await uag.connect(owner).setBuyFeeReceiver('0xd4f0f0c79a35f217e5de4bff0752ba63cbc013e9');
+    await tx22.wait();
+
+    const tx222 = await uag.connect(owner).setSellFeeReceiver('0xd4f0f0c79a35f217e5de4bff0752ba63cbc013e9');
+    await tx222.wait();
+
+
 
 }
 
