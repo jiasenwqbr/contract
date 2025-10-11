@@ -23,7 +23,7 @@ main().catch(error => {
 /**
  npx hardhat run ./scripts/bridge_standard/mainnet/deploy_BatchTransferUpgradeable_mainnet.ts --network pijs
 
-BatchTransferUpgradeable contract address: 
+BatchTransferUpgradeable contract address: 0xCB590041c9bf6B0b6E0FAD5a65f794D2de97Bf0B
 
 // 单币种批量转账 - 不同金额
 function batchTransferDifferentAmounts(

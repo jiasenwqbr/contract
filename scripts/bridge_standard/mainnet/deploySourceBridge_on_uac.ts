@@ -11,8 +11,8 @@ async function main(){
     const feePercentage = 60;
     const args = [feeReceiver_address,signer_address,operator_address,feePercentage];
     const SourceBridgeContract = await ethers.getContractFactory('SourceBridge');
-    const sourceBridgeDeploy = await upgrades.upgradeProxy('0x8B769E9BE8271e07a0ccb9b53E57d659D0963fe4', SourceBridgeContract, { kind: 'uups' });
-    // const sourceBridgeDeploy =  await upgrades.deployProxy(SourceBridgeContract,args,{kind:'uups'});
+    // const sourceBridgeDeploy = await upgrades.upgradeProxy('0x881d05D8E12aABE3fF06105551b44f1976DB8c44', SourceBridgeContract, { kind: 'uups' });
+    const sourceBridgeDeploy =  await upgrades.deployProxy(SourceBridgeContract,args,{kind:'uups'});
 
     await sourceBridgeDeploy.deployed();
 
@@ -28,6 +28,6 @@ main().catch(error=> {
 
 /***
 
-npx hardhat run ./scripts/bridge_standard/mainnet/deploySourceBridge_on_mainnet.ts --network uac
-SourceBridge address is :  0x8B769E9BE8271e07a0ccb9b53E57d659D0963fe4
+npx hardhat run ./scripts/bridge_standard/mainnet/deploySourceBridge_on_uac.ts --network uac
+SourceBridge address is :  0x881d05D8E12aABE3fF06105551b44f1976DB8c44
  */

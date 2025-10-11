@@ -4,18 +4,21 @@ import {StakingUAG,MarketMakerStake} from  "../../../typechain-types";
 async function main(){
     const [owner,user1] = await ethers.getSigners();
     const marketMakerStakeFactory = await ethers.getContractFactory('MarketMakerStake');
-    const signer = '0xd4f0f0c79a35f217e5de4bff0752ba63cbc013e9';
-    const uagAddress = '0x0b5E6Ef97FF0E013eB502735769e98fD4c538FE9';
-    const uacAddress = '0xe15B602eF891D45251FF749BE97db6a983CdE175';
+    const signer = '0xf504551185c4b3ee73e9d96eea06e3fd4210e601';
+    const uagAddress = '0xe6Abc3Efd6818f20143D7587dCac5cb336F93640';
+    const uacAddress = '0xE1bB8D9B24d8e5b6e7517A8e9eA23f77621a5FFF';
     const usdtAddress = '0x3F00C9dd4F081D7b6b758555c621FbEb09d519FD';
-    const feeAddress = '0xBB5EAccCEB5CBCfBD73d8Fb6bBd122eACa47ae37';
-    const gensisNodeDistribute = user1.address;
-    const ecoDevAddress = user1.address;
-    const insuranceWarehouse = user1.address;
+    
+    const feeAddress = '0x084318D11E550fEc79040fE84032Ed9d12266338';
+    
+    const gensisNodeDistribute = '0xf504551185c4b3ee73e9d96eea06e3fd4210e601';
+    const ecoDevAddress = '0xE383D646ef73229421Ebf607d4CCe2B199a12078'; // 生态建设
+    const insuranceWarehouse = '0x4f5f15f22206347471b0C0555d78EBec9a96e8D6';  // 保险仓
+
     const args = [signer,uagAddress,uacAddress,usdtAddress,feeAddress,gensisNodeDistribute,ecoDevAddress,insuranceWarehouse];
     
     // const marketMakerStake =  (await upgrades.deployProxy(marketMakerStakeFactory,args,{kind:'uups'})) as MarketMakerStake;
-    const marketMakerStake = await upgrades.upgradeProxy('0x00d93AC8517d835B98030330bEeA955c4144E643', marketMakerStakeFactory, { kind: 'uups' });
+    const marketMakerStake = await upgrades.upgradeProxy('0x133b395ec56B7c901AAF793Aa1E4c7Ef9981A74f', marketMakerStakeFactory, { kind: 'uups' });
     await marketMakerStake.deployed();
 
     // const marketMakerStake  = await ethers.getContractAt('0x00d93AC8517d835B98030330bEeA955c4144E643','MarketMakerStake');
@@ -60,7 +63,7 @@ async function main(){
     //await tx4444.wait();
     
 
-    const ratio = [15,10,25,50];
+     const ratio:[number, number, number, number] = [15,10,25,50];
     const tx = await marketMakerStake.setUacdistributeRadio(ratio);
     await tx.wait();
     console.log("ratio:",await marketMakerStake.getUacdistributeRadio());
@@ -77,7 +80,7 @@ async function main(){
     console.log("feeReceiver:",await marketMakerStake.getFeeReceiver());
 
     const tx3 = await marketMakerStake.setUacDistributeAddress(
-        [feeAddress,'0xd4f0f0c79a35f217e5de4bff0752ba63cbc013e9',feeAddress,feeAddress]
+        ['0x0000000000000000000000000000000000000000',gensisNodeDistribute,ecoDevAddress,insuranceWarehouse]
     );
     await tx3.wait();
     console.log("uacDistributeAddress:",await marketMakerStake.getUacDistributeAddress());
@@ -97,6 +100,6 @@ main().catch(
 
 
 /**
-npx hardhat run ./scripts/node/deployMarketMakerStake_on_testnet.ts --network pijstestnet
-MarketMakerStake address is: 0x00d93AC8517d835B98030330bEeA955c4144E643
+npx hardhat run ./scripts/bridge_standard/mainnet/deployMarketMakerStake_on_mainnet.ts --network pijs
+MarketMakerStake address is: 0x133b395ec56B7c901AAF793Aa1E4c7Ef9981A74f
  */

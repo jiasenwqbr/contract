@@ -10,14 +10,14 @@ async function main(){
     const operator_address = '0xf504551185c4b3ee73e9d96eea06e3fd4210e601';
     const feePercentage = 60;
     const args = [feeReceiver_address,signer_address,operator_address,feePercentage];
-    const SourceBridgeContract = await ethers.getContractFactory('SourceBridge');
-    // const sourceBridgeDeploy = await upgrades.upgradeProxy('0x8B769E9BE8271e07a0ccb9b53E57d659D0963fe4', SourceBridgeContract, { kind: 'uups' });
+    const SourceBridgeContract = await ethers.getContractFactory('BridgeTargetV1');
+    // const sourceBridgeDeploy = await upgrades.upgradeProxy('0x18E11768B9178FB2bdF299020653154550095dE3', SourceBridgeContract, { kind: 'uups' });
     const sourceBridgeDeploy =  await upgrades.deployProxy(SourceBridgeContract,args,{kind:'uups'});
 
     await sourceBridgeDeploy.deployed();
 
     
-    console.log("SourceBridge address is : ",sourceBridgeDeploy.address);
+    console.log("BridgeTargetV1 address is : ",sourceBridgeDeploy.address);
 
 }
 
@@ -28,6 +28,6 @@ main().catch(error=> {
 
 /***
 
-npx hardhat run ./scripts/bridge_standard/mainnet/deploySourceBridge_on_mainnet.ts --network pijs
-SourceBridge address is :  
+npx hardhat run ./scripts/bridge_standard/mainnet/deployBridgeTargetV1_on_mainnet.ts --network pijs
+BridgeTargetV1 address is :  0x18E11768B9178FB2bdF299020653154550095dE3
  */

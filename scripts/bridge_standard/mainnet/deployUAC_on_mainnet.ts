@@ -27,13 +27,13 @@ async function main(){
 
      //    手续费
     const tx = await uac.setBuyFeeReceivers(
-        ['0xb6b3bf25a787182f4a45535a5228730873cecd6d','0x311b3D4aA8ef16874C11f11880ADaa2146aBEAbd'],
+        ['0xafD34ac5978e635D6352575E253Ba3b35c11cc18','0xf504551185c4b3ee73e9d96eea06e3fd4210e601'],
         [10,10]
     );
     await tx.wait();
 
     const tx1 = await uac.setSellFeeReceivers(
-         ['0xb6b3bf25a787182f4a45535a5228730873cecd6d','0x311b3D4aA8ef16874C11f11880ADaa2146aBEAbd'],
+         ['0xafD34ac5978e635D6352575E253Ba3b35c11cc18','0xf504551185c4b3ee73e9d96eea06e3fd4210e601'],
          [10,10]
     );
     await tx1.wait();
@@ -81,8 +81,7 @@ main().catch((error) => {
 /***
  * 
 npx hardhat run ./scripts/bridge_standard/mainnet/deployUAC_on_mainnet.ts --network pijs
-
-UAC address is: 0x07a4DCf08F3345E5f3aeE7E5edc81Ece9Ae8b234
-pairAddress is: 0x949CE898088B4b6e564E614c7F92f16B61B0ac67
+UAC address is: 0xE1bB8D9B24d8e5b6e7517A8e9eA23f77621a5FFF
+UAC/USDT pairAddress is: 0x14AA54Ba49D6f503410B950027f073ad71460890
 
  */

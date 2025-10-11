@@ -5,12 +5,12 @@ async function main(){
     const [owner] = await ethers.getSigners();
     const stakingUAGFactory = await ethers.getContractFactory('StakingUAG');
     const signer = '0xf504551185c4b3ee73e9d96eea06e3fd4210e601';
-    const uagAddress = '0x0b5E6Ef97FF0E013eB502735769e98fD4c538FE9';
-    const uacAddress = '0xe15B602eF891D45251FF749BE97db6a983CdE175';
-    const feeAddress = '0x2D703c5fcd6F99be0d87F7Dfd19080e2Ea4c4a92';
+    const uagAddress = '0xe6Abc3Efd6818f20143D7587dCac5cb336F93640';
+    const uacAddress = '0xE1bB8D9B24d8e5b6e7517A8e9eA23f77621a5FFF';
+    const feeAddress = '0x084318D11E550fEc79040fE84032Ed9d12266338';
     const stakeAmountMin = ethers.utils.parseEther("10");
     const stakeAmountMax= ethers.utils.parseEther("1000");
-    const withdrawalFeePersentage = 50;
+    const withdrawalFeePersentage = 30;
 
     const gensisNodeDistribute = '0xf504551185c4b3ee73e9d96eea06e3fd4210e601';
     const ecoDevAddress = '0xE383D646ef73229421Ebf607d4CCe2B199a12078'; // 生态建设
@@ -56,6 +56,6 @@ main().catch(
 
 
 /**
-npx hardhat run ./scripts/bridge_standard/mainnet/deployStakingUAG_on_mainnet.ts --network pijstestnet
-StakingUAG address is: 0xe59C1e736278f0F5b893217E07E44eedaa6C81E9
+npx hardhat run ./scripts/bridge_standard/mainnet/deployStakingUAG_on_mainnet.ts --network pijs
+StakingUAG address is: 0x1D992B047459D36179d401eE467eaba54AafDf14
  */

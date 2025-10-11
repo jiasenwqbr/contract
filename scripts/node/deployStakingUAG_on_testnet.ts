@@ -10,7 +10,7 @@ async function main(){
     const feeAddress = '0xBB5EAccCEB5CBCfBD73d8Fb6bBd122eACa47ae37';
     const stakeAmountMin = ethers.utils.parseEther("10");
     const stakeAmountMax= ethers.utils.parseEther("1000");
-    const withdrawalFeePersentage = 50;
+    const withdrawalFeePersentage = 30;
 
     const gensisNodeDistribute = feeAddress;
     const ecoDevAddress = feeAddress;
@@ -49,6 +49,11 @@ async function main(){
     await tx6.wait();
     const [min,max]  = await stakingUAG.getStakeAmountLimit();
     console.log("min:",min,"max:",max);
+
+    // const stakingUAG = await ethers.getContractAt("StakingUAG",'0xe59C1e736278f0F5b893217E07E44eedaa6C81E9');
+    const tx7 = await stakingUAG.setWithdrawalFeePersentage(withdrawalFeePersentage);
+    await tx7.wait();
+    console.log("withdrawalFeePersentage is:",await stakingUAG.getWithdrawalFeePersentage());
 
 
     

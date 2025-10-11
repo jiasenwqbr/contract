@@ -349,7 +349,7 @@ contract StakingUAG is
         require(order.userAddress == msg.sender,"StakingUAG:Invalid msg sender");
         require(userWithdrawProfitsOrders[msg.sender][order.orderId].orderId == 0,"StakingUAG:The order is exist");
         // require(order.tokenAddress == uagAddress,"StakingUAG:Invalid token address");
-        require(order.amount <= userStakeAmounts[msg.sender],"StakingUAG:withdrawal amount is bigger tha the stake amount");
+        // require(order.amount <= userStakeAmounts[msg.sender],"StakingUAG:withdrawal amount is bigger tha the stake amount");
         // require(order.uacAddress == uacAddress,"StakingUAG:Invalid uac token address");
         require(order.uacAmount>0,"StakingUAG:Invalid uac amount");
         if (order.uacAddress != address(0)){
@@ -576,6 +576,9 @@ contract StakingUAG is
 
     function setWithdrawalFeePersentage(uint256 _withdrawalFeePersentage) public onlyRole(MANAGE_ROLE) {
         withdrawalFeePersentage = _withdrawalFeePersentage;
+    }
+    function getWithdrawalFeePersentage() public view returns (uint256) {
+        return withdrawalFeePersentage;
     }
     
     function setFeeAddress(address _feeAddress)  public onlyRole(MANAGE_ROLE) {

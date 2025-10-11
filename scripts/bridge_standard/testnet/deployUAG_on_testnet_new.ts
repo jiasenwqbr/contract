@@ -2,13 +2,13 @@ import { id } from "ethers/lib/utils";
 import { ethers, upgrades } from "hardhat";
 
 async function main(){
-   
-   const [owner] = await ethers.getSigners();
-    const receiver = '0x2e395365c9d36252268d8997ca0f022431967232';
 
-    const router02_address = '0xDd682E7BE09F596F0D0DEDD53Eb75abffDcd2312';
-    const usdt_address = '0x08aD141eadFC93cD4e1566c31E1fb49886D5b80B';
-    const wpijs = '0x30FF9d7E86Cbc55E970a6835248b30B21BD1390E';
+   const [owner] = await ethers.getSigners();
+    const receiver = '0xb98E2E18259057076b3170c078F361978768d001';
+
+   const router02_address = '0x32AEf11Bd9E1FBf8990CDB501b2632DA4fD76D01';
+    const usdt_address = '0x3F00C9dd4F081D7b6b758555c621FbEb09d519FD';
+    const wpijs = '0x0A8C16f9Ed042cf71BeB49e8d8854D189c704aDb';
    
     // const operator_address = '0xd4f0f0c79a35f217e5de4bff0752ba63cbc013e9';
 
@@ -18,8 +18,8 @@ async function main(){
     console.log("UAG address is:",uag.address);
 
     const tokenA = uag.address;
-    const tokenB = "0x08aD141eadFC93cD4e1566c31E1fb49886D5b80B"; // USDT
-    const factoryAddress = "0x144590c6C9ce4B352943a6BA17F1748aAe0E3BAd"; // PiJFactory
+    const tokenB = "0x3F00C9dd4F081D7b6b758555c621FbEb09d519FD"; // USDT
+    const factoryAddress = "0x113D5ef4c6FE6f2edBcF6915Bf7582c09F342499"; // PiJFactory
     const factory = await ethers.getContractAt("PiJFactory",factoryAddress);
     const pairAddress = await factory.getPair(tokenA, tokenB);
     console.log("UAG/USDT pairAddress is:",pairAddress);
@@ -27,13 +27,13 @@ async function main(){
 
      //    手续费
     const tx = await uag.setBuyFeeReceivers(
-        ['0x57F6384D434B1613eb80B26B6D74C49909372b11','0xf504551185c4b3ee73e9d96eea06e3fd4210e601'],
+        ['0xd4f0f0c79a35f217e5de4bff0752ba63cbc013e9','0xd4f0f0c79a35f217e5de4bff0752ba63cbc013e9'],
         [10,10]
     );
     await tx.wait();
 
     const tx1 = await uag.setSellFeeReceivers(
-         ['0x57F6384D434B1613eb80B26B6D74C49909372b11','0xf504551185c4b3ee73e9d96eea06e3fd4210e601'],
+         ['0xd4f0f0c79a35f217e5de4bff0752ba63cbc013e9','0xd4f0f0c79a35f217e5de4bff0752ba63cbc013e9'],
          [10,10]
     );
     await tx1.wait();
@@ -45,8 +45,11 @@ async function main(){
         gasLimit:12000000
     });
     await tx2.wait();
-}
 
+
+
+
+}
 
 main().catch((error) => {
     console.error(error);
@@ -54,9 +57,9 @@ main().catch((error) => {
 });
 
 /***
- 
-npx hardhat run ./scripts/bridge_standard/mainnet/deployUAG_on_mainnet.ts --network pijs
+ * 
+npx hardhat run ./scripts/bridge_standard/testnet/deployUAG_on_testnet_new.ts --network pijstestnet
+UAG address is: 0xACfB54616A301c205375d8001a4F8ddc4CD143D5
+UAG/USDT pairAddress is: 0xA69725e38c03d26431e4A827BB1Acc7b77d04987
 
-UAG address is: 0xe6Abc3Efd6818f20143D7587dCac5cb336F93640
-UAG/USDT pairAddress is: 0x577B0C2c921b75486ed87Ef33f517eab9102E15e
  */

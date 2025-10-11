@@ -94,6 +94,7 @@ contract MarketMakerStake is  Initializable,
         marketMakerStakeTypeNumber[60 days] = 1000;
         marketMakerStakeTypeNumber[90 days] = 1000;
         marketMakerStakeTypeNumber[180 days] =1000;
+        marketMakerStakeTypeNumber[360 days] =1000;
 
         uacDistributeAddress[0] = address(0);
         uacDistributeAddress[1] = gensisNodeDistribute;
@@ -259,13 +260,27 @@ contract MarketMakerStake is  Initializable,
         require(order.orderId != 0,"MarketMakerStake:Order is not exist");
         require(order.status == 0,"MarketMakerStake:Order is not in staking");
         if (order.renewTime == 0){
-            require(order.startTimestamp + order.stakeType >=  block.timestamp);
+            require(order.startTimestamp + order.stakeType <=  block.timestamp,"MarketMakerStake:Pledge not yet expired");
         } else {
-             require(order.renewTime + order.stakeType >=  block.timestamp);
+            require(order.renewTime + order.stakeType <=  block.timestamp,"MarketMakerStake:Pledge not yet expired");
         }
 
+        uint256 fee = order.amount.mul(withdrawPercent).div(1000);
+        uint256 userReceiveAmount = order.amount.sub(fee);
+        // require(IERC20(order.tokenAddress).balanceOf(address(this)) >= userReceiveAmount,"StakingUAG:Insufficient payment amount");
+
+        require(
+            IERC20(order.tokenAddress).transfer(feeAddress, fee),
+            "StakingUAG:Payment transfer failed"
+        );
+
+        require(
+             IERC20(order.tokenAddress).transfer(msg.sender, userReceiveAmount),
+            "StakingUAG:Payment transfer failed"
+        );
+
         userOrders[msg.sender][stakingId].status = 1;
-        IERC20Upgradeable(usdtAddress).safeTransfer(msg.sender, order.amount);
+        // IERC20Upgradeable(usdtAddress).safeTransfer(msg.sender, order.amount);
         emit UnStake(msg.sender,order.orderId,order.amount,block.timestamp);
     }
 
@@ -274,9 +289,9 @@ contract MarketMakerStake is  Initializable,
         require(order.orderId != 0,"MarketMakerStake:Order is not exist");
         require(order.status == 0,"MarketMakerStake:Order is not in staking");
         if (order.renewTime == 0){
-            require(order.startTimestamp + order.stakeType >=  block.timestamp);
+            require(order.startTimestamp + order.stakeType <= block.timestamp,"MarketMakerStake:Pledge not yet expired");
         } else {
-             require(order.renewTime + order.stakeType >=  block.timestamp);
+             require(order.renewTime + order.stakeType <=  block.timestamp,"MarketMakerStake:Pledge not yet expired");
         }
         userOrders[msg.sender][stakingId].renewTime = block.timestamp.add(order.stakeType);
         RenewOrder memory renewOrder = RenewOrder({
@@ -622,4 +637,13 @@ contract MarketMakerStake is  Initializable,
     function getFeeReceiver() public view returns(address){
         return feeReceiver;
     }
+    function setUacDistributeAddress(address[4] memory distributeAddresses) public  onlyRole(MANAGE_ROLE) {
+        uacDistributeAddress = distributeAddresses;
+    }
+    function getUacDistributeAddress() public view returns(address[4] memory) {
+        return uacDistributeAddress;
+    }
+
+   
+    
 }

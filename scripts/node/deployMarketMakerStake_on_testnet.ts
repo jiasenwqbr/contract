@@ -18,48 +18,54 @@ async function main(){
     const marketMakerStake = await upgrades.upgradeProxy('0x00d93AC8517d835B98030330bEeA955c4144E643', marketMakerStakeFactory, { kind: 'uups' });
     await marketMakerStake.deployed();
 
-    // const marketMakerStake  = await ethers.getContractAt('0x00d93AC8517d835B98030330bEeA955c4144E643','MarketMakerStake');
+    // const marketMakerStake  = await ethers.getContractAt('MarketMakerStake','0x00d93AC8517d835B98030330bEeA955c4144E643');
     console.log("MarketMakerStake address is:",marketMakerStake.address);
 
     /// only for test
-    // const tx1 = await marketMakerStake.setMarketMakerStakeTypeNumber(30,1000);
-    // await tx1.wait();
-    // const tx2 = await marketMakerStake.setMarketMakerStakeTypeNumber(60,1000);
-    // await tx2.wait();
-    // const tx3 = await marketMakerStake.setMarketMakerStakeTypeNumber(90,1000);
-    // await tx3.wait();
-    // const tx4 = await marketMakerStake.setMarketMakerStakeTypeNumber(180,1000);
-    // await tx4.wait();
+    const tx01 = await marketMakerStake.setMarketMakerStakeTypeNumber(30,1000);
+    await tx01.wait();
+    const tx02 = await marketMakerStake.setMarketMakerStakeTypeNumber(60,1000);
+    await tx02.wait();
+    const tx03 = await marketMakerStake.setMarketMakerStakeTypeNumber(90,1000);
+    await tx03.wait();
+    const tx04 = await marketMakerStake.setMarketMakerStakeTypeNumber(180,1000);
+    await tx04.wait();
 
-    // const tx11 = await marketMakerStake.setReleaseTypeMap(0,200);
-    // await tx11.wait();
-    // const tx22 = await marketMakerStake.setReleaseTypeMap(10,150);
-    // await tx22.wait();
-    // const tx33 = await marketMakerStake.setReleaseTypeMap(20,100);
-    // await tx33.wait();
-    // const tx44 = await marketMakerStake.setReleaseTypeMap(30,50);
-    // await tx44.wait();
+    const tx11 = await marketMakerStake.setReleaseTypeMap(0,200);
+    await tx11.wait();
+    const tx22 = await marketMakerStake.setReleaseTypeMap(10,150);
+    await tx22.wait();
+    const tx33 = await marketMakerStake.setReleaseTypeMap(20,100);
+    await tx33.wait();
+    const tx44 = await marketMakerStake.setReleaseTypeMap(30,50);
+    await tx44.wait();
 
 
-    // const tx111 = await marketMakerStake.setMarketMakerStakeTypeNumber(30*60,1000);
-    // await tx111.wait();
-    // const tx222 = await marketMakerStake.setMarketMakerStakeTypeNumber(60*60,1000);
-    // await tx222.wait();
-    // const tx333 = await marketMakerStake.setMarketMakerStakeTypeNumber(90*60,1000);
-    // await tx333.wait();
-    // const tx444 = await marketMakerStake.setMarketMakerStakeTypeNumber(180*60,1000);
-    // await tx444.wait();
+    const tx111 = await marketMakerStake.setMarketMakerStakeTypeNumber(30*60,1000);
+    await tx111.wait();
+    const tx222 = await marketMakerStake.setMarketMakerStakeTypeNumber(60*60,1000);
+    await tx222.wait();
+    const tx333 = await marketMakerStake.setMarketMakerStakeTypeNumber(90*60,1000);
+    await tx333.wait();
+    const tx444 = await marketMakerStake.setMarketMakerStakeTypeNumber(180*60,1000);
+    await tx444.wait();
 
-    // const tx1111 = await marketMakerStake.setReleaseTypeMap(0,200);
-    // await tx1111.wait();
-    // const tx2222 = await marketMakerStake.setReleaseTypeMap(10*60,150);
-    // await tx2222.wait();
-    // const tx3333 = await marketMakerStake.setReleaseTypeMap(20*60,100);
-    // await tx3333.wait();
-    // const tx4444 = await marketMakerStake.setReleaseTypeMap(30*60,50);
-    //await tx4444.wait();
+    const tx004 = await marketMakerStake.setMarketMakerStakeTypeNumber(360*24*60*60,1000);
+    await tx004.wait();
 
-    const ratio = [15,10,25,50];
+    const tx1111 = await marketMakerStake.setReleaseTypeMap(0,200);
+    await tx1111.wait();
+    const tx2222 = await marketMakerStake.setReleaseTypeMap(10*60,150);
+    await tx2222.wait();
+    const tx3333 = await marketMakerStake.setReleaseTypeMap(20*60,100);
+    await tx3333.wait();
+    const tx4444 = await marketMakerStake.setReleaseTypeMap(30*60,50);
+    await tx4444.wait();
+
+
+
+
+    const ratio:[number, number, number, number] = [15,10,25,50];
     const tx = await marketMakerStake.setUacdistributeRadio(ratio);
     await tx.wait();
     console.log("ratio:",await marketMakerStake.getUacdistributeRadio());
