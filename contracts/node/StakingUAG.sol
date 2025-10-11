@@ -612,6 +612,9 @@ contract StakingUAG is
     function setUacDistributeAddress(address[4] memory distributeAddresses) public  onlyRole(MANAGE_ROLE) {
         uacDistributeAddress = distributeAddresses;
     }
+    function getUacDistributeAddress() public view returns(address[4] memory) {
+        return uacDistributeAddress;
+    }
 
     function setUacdistributeRadio(uint256[4] memory ratio)  public onlyRole(MANAGE_ROLE) {
         uacdistributeRadio = ratio;
@@ -619,6 +622,14 @@ contract StakingUAG is
 
     function getUacdistributeRadio()  public view returns(uint256[4] memory) {
         return uacdistributeRadio;
+    }
+
+    function setStakeAmountLimit(uint256 _stakeAmountMin,uint256 _stakeAmountMax) public onlyRole(MANAGE_ROLE) {
+        stakeAmountMax = _stakeAmountMax;
+        stakeAmountMin = _stakeAmountMin;
+    }
+    function getStakeAmountLimit() public view returns (uint256,uint256) {
+        return (stakeAmountMin,stakeAmountMax);
     }
     
 

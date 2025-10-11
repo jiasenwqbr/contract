@@ -45,6 +45,16 @@ async function main(){
     console.log("uacDistributeAddress:",await stakingUAG.getUacDistributeAddress());
 
 
+    const tx6 = await stakingUAG.setStakeAmountLimit(ethers.utils.parseEther("10"),ethers.utils.parseEther("100000"));
+    await tx6.wait();
+    const [min,max]  = await stakingUAG.getStakeAmountLimit();
+    console.log("min:",min,"max:",max);
+
+
+    
+
+
+
 }
 
 main().catch(

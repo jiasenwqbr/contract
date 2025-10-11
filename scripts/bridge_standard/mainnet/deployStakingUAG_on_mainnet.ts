@@ -33,13 +33,13 @@ async function main(){
     // const stakingUAG = await upgrades.upgradeProxy('0xe59C1e736278f0F5b893217E07E44eedaa6C81E9', stakingUAGFactory, { kind: 'uups' });
     await stakingUAG.deployed();
     console.log("StakingUAG address is:",stakingUAG.address);
-    const ratio = [15,10,25,50];
+    const ratio:[number, number, number, number] = [15,10,25,50];
     const tx = await stakingUAG.setUacdistributeRadio(ratio);
     await tx.wait();
     console.log("ratio:",await stakingUAG.getUacdistributeRadio());
 
     const tx3 = await stakingUAG.setUacDistributeAddress(
-        [feeAddress,'0xd4f0f0c79a35f217e5de4bff0752ba63cbc013e9',feeAddress,feeAddress]
+        ['0x0000000000000000000000000000000000000000',gensisNodeDistribute,ecoDevAddress,insuranceWarehouse]
     );
     await tx3.wait();
     console.log("uacDistributeAddress:",await stakingUAG.getUacDistributeAddress());
