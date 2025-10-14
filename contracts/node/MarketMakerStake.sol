@@ -555,23 +555,23 @@ contract MarketMakerStake is  Initializable,
         // require(order.tokenAddress == uagAddress,"MarketMakerStake:Invalid token address");
         require(order.nonce == nonces[msg.sender], "MarketMakerStake:INVALID_NONCE");
 
-        uint256 fee =  order.amount.mul(withdrawPercent).div(DENOMINATOR);
-        uint256 userAmount = order.amount.sub(fee);
-        if (fee > 0){
-            require(
-                 UAGToken(order.tokenAddress).transfer(feeReceiver, fee),
-            "MarketMakerStake:Payment transfer fee failed"
-            );
-        }
+        // uint256 fee =  order.amount.mul(withdrawPercent).div(DENOMINATOR);
+        // uint256 userAmount = order.amount.sub(fee);
+        // if (fee > 0){
+        //     require(
+        //          UAGToken(order.tokenAddress).transfer(feeReceiver, fee),
+        //     "MarketMakerStake:Payment transfer fee failed"
+        //     );
+        // }
         require(
-           UAGToken(order.tokenAddress).transfer(msg.sender, userAmount),
+           UAGToken(order.tokenAddress).transfer(msg.sender, order.amount),
             "MarketMakerStake:Payment transfer failed"
         );
         userWithdrawProfitsOrders[msg.sender][order.orderId] = order;
         userWithdrawProfitsOrderIds[msg.sender].push(order.orderId);
         nonces[msg.sender]++;
 
-        emit WithdrawingProfits(msg.sender,order.orderId,order.tokenAddress,order.amount,feeReceiver,fee,userAmount,block.timestamp);
+        emit WithdrawingProfits(msg.sender,order.orderId,order.tokenAddress,order.amount,feeReceiver,0,order.amount,block.timestamp);
 
     }
 
