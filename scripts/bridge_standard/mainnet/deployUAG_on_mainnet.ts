@@ -54,9 +54,9 @@ async function main(){
     // // 币对是不是开放
     // const tx21 = await  tokenContract.setPairsEnabledStatus('0x577B0C2c921b75486ed87Ef33f517eab9102E15e',true);
     // await tx21.wait();
-    // // // 交易是否公开
-    // const tx22 = await tokenContract.updateTradingEnabled(false);
-    // await tx22.wait();
+    // // 交易是否公开
+    const tx22 = await tokenContract.updateTradingEnabled(true);
+    await tx22.wait();
     // 交易是否开启全局交易
     // const tx23 = await tokenContract.setTradeToPublic(true);
     // await tx23.wait();
@@ -92,45 +92,45 @@ async function main(){
 0xA4D93994b25cb00E6b74a40357208aF705B2E025
  */
 
-    const tx26 = await tokenContract.batchUpdateTradeWhitelist(['0x083F626DCe22D98671DD86Adb916B59E65f8CE06','0xbA79620A4ed050dd7240Fe206D1896778F86a84C',
-        '0xF3F13Eaf11886a1daf4F8A004488EDD5d35284F8',
-        '0xA70882DFb3745Cb175157A7C2DBC7e5b43A5ADb3',
-        '0xf4c32d64E2eC1a206bFB8E586B8c4E460154432A',
-        '0xd1c6FE47623dD12C041dee9188E0d40A7038C46c',
-        '0xC37850699319C1d1664B62975c733e29A5FA13ea',
-        '0xa2d46F61Ed621be1Cd4e3b97aD29b4ccB2f032E3',
-        '0x155F602BD1aC1037c56A7e79c4592c22C7859344',
-        '0xd659ECB542dD3684e3Fb54b05fFbA425ff5CAC6E',
-        '0xA4D93994b25cb00E6b74a40357208aF705B2E025'
-    ],true);
-    await tx26.wait();
+    // const tx26 = await tokenContract.batchUpdateTradeWhitelist(['0x083F626DCe22D98671DD86Adb916B59E65f8CE06','0xbA79620A4ed050dd7240Fe206D1896778F86a84C',
+    //     '0xF3F13Eaf11886a1daf4F8A004488EDD5d35284F8',
+    //     '0xA70882DFb3745Cb175157A7C2DBC7e5b43A5ADb3',
+    //     '0xf4c32d64E2eC1a206bFB8E586B8c4E460154432A',
+    //     '0xd1c6FE47623dD12C041dee9188E0d40A7038C46c',
+    //     '0xC37850699319C1d1664B62975c733e29A5FA13ea',
+    //     '0xa2d46F61Ed621be1Cd4e3b97aD29b4ccB2f032E3',
+    //     '0x155F602BD1aC1037c56A7e79c4592c22C7859344',
+    //     '0xd659ECB542dD3684e3Fb54b05fFbA425ff5CAC6E',
+    //     '0xA4D93994b25cb00E6b74a40357208aF705B2E025'
+    // ],true);
+    // await tx26.wait();
 
 
-    const tx25 = await tokenContract.batchSetTradeWhitelistBuyLimit(['0x083F626DCe22D98671DD86Adb916B59E65f8CE06','0xbA79620A4ed050dd7240Fe206D1896778F86a84C',
-        '0xF3F13Eaf11886a1daf4F8A004488EDD5d35284F8',
-        '0xA70882DFb3745Cb175157A7C2DBC7e5b43A5ADb3',
-        '0xf4c32d64E2eC1a206bFB8E586B8c4E460154432A',
-        '0xd1c6FE47623dD12C041dee9188E0d40A7038C46c',
-        '0xC37850699319C1d1664B62975c733e29A5FA13ea',
-        '0xa2d46F61Ed621be1Cd4e3b97aD29b4ccB2f032E3',
-        '0x155F602BD1aC1037c56A7e79c4592c22C7859344',
-        '0xd659ECB542dD3684e3Fb54b05fFbA425ff5CAC6E',
-        '0xA4D93994b25cb00E6b74a40357208aF705B2E025'
-    ],[ethers.utils.parseEther('1000000'),ethers.utils.parseEther('1000000'),
-        ethers.utils.parseEther('1000000'),
-        ethers.utils.parseEther('1000000'),
-        ethers.utils.parseEther('1000000'),
-        ethers.utils.parseEther('1000000'),
-        ethers.utils.parseEther('1000000'),
-        ethers.utils.parseEther('1000000'),
-        ethers.utils.parseEther('1000000'),
-        ethers.utils.parseEther('1000000'),
-         ethers.utils.parseEther('1000000')
+    // const tx25 = await tokenContract.batchSetTradeWhitelistBuyLimit(['0x083F626DCe22D98671DD86Adb916B59E65f8CE06','0xbA79620A4ed050dd7240Fe206D1896778F86a84C',
+    //     '0xF3F13Eaf11886a1daf4F8A004488EDD5d35284F8',
+    //     '0xA70882DFb3745Cb175157A7C2DBC7e5b43A5ADb3',
+    //     '0xf4c32d64E2eC1a206bFB8E586B8c4E460154432A',
+    //     '0xd1c6FE47623dD12C041dee9188E0d40A7038C46c',
+    //     '0xC37850699319C1d1664B62975c733e29A5FA13ea',
+    //     '0xa2d46F61Ed621be1Cd4e3b97aD29b4ccB2f032E3',
+    //     '0x155F602BD1aC1037c56A7e79c4592c22C7859344',
+    //     '0xd659ECB542dD3684e3Fb54b05fFbA425ff5CAC6E',
+    //     '0xA4D93994b25cb00E6b74a40357208aF705B2E025'
+    // ],[ethers.utils.parseEther('1000000'),ethers.utils.parseEther('1000000'),
+    //     ethers.utils.parseEther('1000000'),
+    //     ethers.utils.parseEther('1000000'),
+    //     ethers.utils.parseEther('1000000'),
+    //     ethers.utils.parseEther('1000000'),
+    //     ethers.utils.parseEther('1000000'),
+    //     ethers.utils.parseEther('1000000'),
+    //     ethers.utils.parseEther('1000000'),
+    //     ethers.utils.parseEther('1000000'),
+    //      ethers.utils.parseEther('1000000')
 
-    ]);
-    await tx25.wait();
+    // ]);
+    // await tx25.wait();
 
-    console.log("213:","0x083F626DCe22D98671DD86Adb916B59E65f8CE06",await tokenContract.getTradeWhitelistBuyLimit("0x083F626DCe22D98671DD86Adb916B59E65f8CE06"));
+    // console.log("213:","0x083F626DCe22D98671DD86Adb916B59E65f8CE06",await tokenContract.getTradeWhitelistBuyLimit("0x083F626DCe22D98671DD86Adb916B59E65f8CE06"));
 
   
    

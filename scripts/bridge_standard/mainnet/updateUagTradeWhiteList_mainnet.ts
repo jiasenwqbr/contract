@@ -7,9 +7,10 @@ import * as XLSX from "xlsx";
 async function main(){
     const [owner,operator] = await ethers.getSigners();
     const tokenContract = await ethers.getContractAt("UAGERC20","0xe6Abc3Efd6818f20143D7587dCac5cb336F93640") as UAGERC20;
-    const pages = readExcelInPages("/Users/jason/Desktop/code/web3/bridge/scripts/bridge_standard/mainnet/UAG_receiver.xls",500);
+    // const pages = readExcelInPages("/Users/jason/Desktop/code/web3/bridge/scripts/bridge_standard/mainnet/UAG_receiver.xls",500);
+    const pages = readExcelInPages("/Users/jason/Desktop/code/web3/bridge/scripts/bridge_standard/mainnet/UAG.xls",500);
     console.log("1:","0x4bcba33f01D74E63E2385148B853Fb57E8573db4",await tokenContract.getTradeWhitelistBuyLimit("0x4bcba33f01D74E63E2385148B853Fb57E8573db4"));
-    console.log("213:","0x619a1B6704Faf584a9DD6ed602237B4fd2ac32fb",await tokenContract.getTradeWhitelistBuyLimit("0x619a1B6704Faf584a9DD6ed602237B4fd2ac32fb"));
+    console.log("505:","0xA4D93994b25cb00E6b74a40357208aF705B2E025",await tokenContract.getTradeWhitelistBuyLimit("0xA4D93994b25cb00E6b74a40357208aF705B2E025"));
     for (const [index, page] of pages.entries()) {
         console.log(`处理第 ${index + 1} 页，共 ${page.length} 行`);
         // console.log(page);
@@ -25,7 +26,7 @@ async function main(){
         try {
             const tx5 = await tokenContract.batchUpdateTradeWhitelist(witeList,true);
             await tx5.wait();
-            
+
             const tx4 = await tokenContract.batchSetTradeWhitelistBuyLimit(witeList, limits, {
                 gasLimit: 12000000
             });
@@ -47,7 +48,7 @@ async function main(){
     }
 
     console.log("1:","0x4bcba33f01D74E63E2385148B853Fb57E8573db4",await tokenContract.getTradeWhitelistBuyLimit("0x4bcba33f01D74E63E2385148B853Fb57E8573db4"));
-    console.log("213:","0x619a1B6704Faf584a9DD6ed602237B4fd2ac32fb",await tokenContract.getTradeWhitelistBuyLimit("0x619a1B6704Faf584a9DD6ed602237B4fd2ac32fb"));
+    console.log("505:","0xA4D93994b25cb00E6b74a40357208aF705B2E025",await tokenContract.getTradeWhitelistBuyLimit("0xA4D93994b25cb00E6b74a40357208aF705B2E025"));
 
 
 

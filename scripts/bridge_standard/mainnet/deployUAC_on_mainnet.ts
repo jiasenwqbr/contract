@@ -54,11 +54,11 @@ async function main(){
     // // 币对是不是开放
     // const tx21 = await  tokenContract.setPairsEnabledStatus('0xFD236d8B3D7B0B5096226D18b31761138D64d283',true);
     // await tx21.wait();
-    // // 交易是否公开
-    // const tx22 = await tokenContract.updateTradingEnabled(true);
-    // await tx22.wait();
+    // 交易是否公开
+    const tx22 = await tokenContract.updateTradingEnabled(true);
+    await tx22.wait();
     // 交易是否开启全局交易
-    const tx23 = await tokenContract.setTradeToPublic(true);
+    const tx23 = await tokenContract.setTradeToPublic(false);
     await tx23.wait();
     // // 批量更新全局白名单
     // const tx24 = await tokenContract.batchUpdateGlobalWhitelist([
