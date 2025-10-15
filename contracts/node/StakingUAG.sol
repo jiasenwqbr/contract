@@ -634,6 +634,8 @@ contract StakingUAG is
     function getStakeAmountLimit() public view returns (uint256,uint256) {
         return (stakeAmountMin,stakeAmountMax);
     }
+
+    
     
 
 }

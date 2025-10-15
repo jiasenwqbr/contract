@@ -51,14 +51,14 @@ async function main(){
 
     // 开关
     const tokenContract = await ethers.getContractAt('UACToken','0xE1bB8D9B24d8e5b6e7517A8e9eA23f77621a5FFF');
-    // // 币对是不是开放
-    // const tx21 = await  tokenContract.setPairsEnabledStatus('0xFD236d8B3D7B0B5096226D18b31761138D64d283',true);
-    // await tx21.wait();
+    // 币对是不是开放
+    const tx21 = await  tokenContract.setPairsEnabledStatus('0x14AA54Ba49D6f503410B950027f073ad71460890',true);
+    await tx21.wait();
     // 交易是否公开
     const tx22 = await tokenContract.updateTradingEnabled(true);
     await tx22.wait();
     // 交易是否开启全局交易
-    const tx23 = await tokenContract.setTradeToPublic(false);
+    const tx23 = await tokenContract.setTradeToPublic(true);
     await tx23.wait();
     // // 批量更新全局白名单
     // const tx24 = await tokenContract.batchUpdateGlobalWhitelist([
