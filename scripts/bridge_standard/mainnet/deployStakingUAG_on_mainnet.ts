@@ -8,7 +8,7 @@ async function main(){
     const uagAddress = '0xe6Abc3Efd6818f20143D7587dCac5cb336F93640';
     const uacAddress = '0xE1bB8D9B24d8e5b6e7517A8e9eA23f77621a5FFF';
     const feeAddress = '0x084318D11E550fEc79040fE84032Ed9d12266338';
-    const stakeAmountMin = ethers.utils.parseEther("10");
+    const stakeAmountMin = ethers.utils.parseEther("5");
     const stakeAmountMax= ethers.utils.parseEther("1000");
     const withdrawalFeePersentage = 30;
 
@@ -29,8 +29,8 @@ async function main(){
         insuranceWarehouse
     ];
 
-    const stakingUAG =  (await upgrades.deployProxy(stakingUAGFactory,args,{kind:'uups'})) as StakingUAG;
-    // const stakingUAG = await upgrades.upgradeProxy('0xe59C1e736278f0F5b893217E07E44eedaa6C81E9', stakingUAGFactory, { kind: 'uups' });
+    // const stakingUAG =  (await upgrades.deployProxy(stakingUAGFactory,args,{kind:'uups'})) as StakingUAG;
+    const stakingUAG = await upgrades.upgradeProxy('0x1D992B047459D36179d401eE467eaba54AafDf14', stakingUAGFactory, { kind: 'uups' });
     await stakingUAG.deployed();
     console.log("StakingUAG address is:",stakingUAG.address);
     const ratio:[number, number, number, number] = [15,10,25,50];
@@ -43,6 +43,16 @@ async function main(){
     );
     await tx3.wait();
     console.log("uacDistributeAddress:",await stakingUAG.getUacDistributeAddress());
+
+
+
+    // modify
+    // const stakingUAG = await ethers.getContractAt('StakingUAG','0x1D992B047459D36179d401eE467eaba54AafDf14');
+    const tx4 = await stakingUAG.setStakeAmountLimit(stakeAmountMin,stakeAmountMax) ;
+    await tx4.wait();
+
+    console.log(await stakingUAG.getStakeAmountLimit());
+
 
 
 }
