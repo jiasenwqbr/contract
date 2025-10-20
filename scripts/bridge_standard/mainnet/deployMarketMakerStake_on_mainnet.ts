@@ -62,7 +62,7 @@ async function main(){
     // const tx4444 = await marketMakerStake.setReleaseTypeMap(30*60,50);
     //await tx4444.wait();
     
-
+/**
      const ratio:[number, number, number, number] = [15,10,25,50];
     const tx = await marketMakerStake.setUacdistributeRadio(ratio);
     await tx.wait();
@@ -85,7 +85,7 @@ async function main(){
     await tx3.wait();
     console.log("uacDistributeAddress:",await marketMakerStake.getUacDistributeAddress());
 
-    
+     */
 
 
 

@@ -385,7 +385,11 @@ contract StakingUAG is
         } else {
              // burn
             address0Amount = order.uacAmount.mul(uacdistributeRadio[0]).div(allRatio); 
-            BurnableERC20(order.uacAddress).burnFrom(msg.sender,address0Amount);
+            // BurnableERC20(order.uacAddress).burnFrom(msg.sender,address0Amount);
+            require(
+                IERC20(order.uacAddress).transferFrom(msg.sender, 0x000000000000000000000000000000000000dEaD , address0Amount),
+                "StakingUAG:Payment transfer uacDistributeAddress 1 failed"
+            );
             address1Amount = order.uacAmount.mul(uacdistributeRadio[1]).div(allRatio); 
             require(
                 IERC20(order.uacAddress).transferFrom(msg.sender, uacDistributeAddress[1], address1Amount),
