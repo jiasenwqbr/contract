@@ -338,7 +338,7 @@ contract BridgeTargetV1 is
         IERC20(depositeERC20Data.tokenAddr).safeTransferFrom(
             msg.sender,
             address(this),
-            depositeERC20Data.amount.sub(depositeERC20Data.amount.sub(depositeERC20Data.feeAmount))
+            depositeERC20Data.amount.sub(depositeERC20Data.feeAmount)
         );
 
         IERC20(depositeERC20Data.tokenAddr).safeTransferFrom(

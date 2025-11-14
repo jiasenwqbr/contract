@@ -55,8 +55,8 @@ async function main(){
     // const tx21 = await  tokenContract.setPairsEnabledStatus('0x577B0C2c921b75486ed87Ef33f517eab9102E15e',true);
     // await tx21.wait();
     // // 交易是否公开
-    const tx22 = await tokenContract.updateTradingEnabled(true);
-    await tx22.wait();
+    //const tx22 = await tokenContract.updateTradingEnabled(true);
+    //await tx22.wait();
     // 交易是否开启全局交易
     // const tx23 = await tokenContract.setTradeToPublic(true);
     // await tx23.wait();
@@ -68,7 +68,45 @@ async function main(){
     //     gasLimit:12000000
     // });
     // await tx24.wait();
+    
+    // console.log("ox balance",await tokenContract.balanceOf("0x0000000000000000000000000000000000000000")) ;
 
+
+    const tx24 = await tokenContract.batchUpdateGlobalWhitelist([
+        '0x752B3363a0130f5795DEc4df2EcB9d5C4765e343',
+        '0x8D16fE25ded0b598Be99b81b39E146639C84DA1C',
+        '0x18f0DaE9D5dB7D3ad7A1d6593e77175AA23354aE',
+        '0x9eAAAC6A824da4CC0bc42C9Ea45c1dc98D79e5E6'
+    ],true,{
+        gasLimit:12000000
+    });
+    await tx24.wait();
+
+    const tx5 = await tokenContract.batchUpdateTradeWhitelist([
+         '0x752B3363a0130f5795DEc4df2EcB9d5C4765e343',
+        '0x8D16fE25ded0b598Be99b81b39E146639C84DA1C',
+        '0x18f0DaE9D5dB7D3ad7A1d6593e77175AA23354aE',
+        '0x9eAAAC6A824da4CC0bc42C9Ea45c1dc98D79e5E6'],true);
+    await tx5.wait();
+
+    
+    console.log("1:","0x752B3363a0130f5795DEc4df2EcB9d5C4765e343",
+        "  isGlobalWhitelisted:",
+        await tokenContract.isGlobalWhitelisted('0x752B3363a0130f5795DEc4df2EcB9d5C4765e343')
+        ," isTradeWhitelisted:",await tokenContract.isTradeWhitelisted('0x752B3363a0130f5795DEc4df2EcB9d5C4765e343'));
+
+    console.log("1:","0x8D16fE25ded0b598Be99b81b39E146639C84DA1C",
+        "  isGlobalWhitelisted:",
+        await tokenContract.isGlobalWhitelisted('0x8D16fE25ded0b598Be99b81b39E146639C84DA1C')
+        ," isTradeWhitelisted:",await tokenContract.isTradeWhitelisted('0x8D16fE25ded0b598Be99b81b39E146639C84DA1C'));
+    console.log("1:","0x18f0DaE9D5dB7D3ad7A1d6593e77175AA23354aE",
+        "  isGlobalWhitelisted:",
+        await tokenContract.isGlobalWhitelisted('0x18f0DaE9D5dB7D3ad7A1d6593e77175AA23354aE')
+        ," isTradeWhitelisted:",await tokenContract.isTradeWhitelisted('0x18f0DaE9D5dB7D3ad7A1d6593e77175AA23354aE'))
+    console.log("1:","0x752B3363a0130f5795DEc4df2EcB9d5C4765e343",
+        "  isGlobalWhitelisted:",
+        await tokenContract.isGlobalWhitelisted('0x9eAAAC6A824da4CC0bc42C9Ea45c1dc98D79e5E6')
+        ," isTradeWhitelisted:",await tokenContract.isTradeWhitelisted('0x9eAAAC6A824da4CC0bc42C9Ea45c1dc98D79e5E6'));
 
 
 /**

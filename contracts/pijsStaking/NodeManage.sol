@@ -1,0 +1,390 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.9;
+
+import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "./ValidateNode.sol";
+
+contract NodeManage is  Initializable,
+    AccessControlEnumerableUpgradeable,
+    ReentrancyGuardUpgradeable,
+    UUPSUpgradeable {
+        bytes32 public constant MANAGE_ROLE = keccak256("MANAGE_ROLE");
+        bytes32 public DOMAIN_SEPARATOR;
+        bytes32 public constant OPERATE_ROLE = keccak256("OPERATE_ROLE");
+        bool private funcSwitch;
+        // 签名者
+        address public signer;
+         constructor() {
+            _disableInitializers(); // 禁止逻辑合约自己初始化
+        }
+        
+        function _authorizeUpgrade(
+            address newImplementation
+        ) internal override onlyRole(MANAGE_ROLE) {}
+
+        function initialize(address _signer,address _validatorContractAddress,address _feeReceiver,address _usdtAddress) public initializer {
+            __AccessControlEnumerable_init();
+            __ReentrancyGuard_init();
+            __UUPSUpgradeable_init();
+            _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+            _grantRole(MANAGE_ROLE, msg.sender);
+
+            signer = _signer;
+            validatorContractAddress = _validatorContractAddress;
+            feeReceiver = _feeReceiver;
+            usdtAddress = _usdtAddress;
+            uint256 chainId = block.chainid;
+            DOMAIN_SEPARATOR = keccak256(
+                abi.encode(
+                    keccak256(
+                        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+                    ),
+                    keccak256(bytes("NodeManage")),
+                    keccak256(bytes("1")),
+                    chainId,
+                    address(this)
+                )
+            );
+        }
+        /*//////////////////////////////////////////////////////////////
+                               Struct
+        //////////////////////////////////////////////////////////////*/
+
+        struct BuyValidateOrder {
+            uint256 orderId;
+            string name;
+            uint256 purchaseDuration;
+            address tokenAddress;
+            uint256 payAmount;
+            address feeTo;
+            uint256 expiryDate;
+            address agentAddress;
+            uint256 nonce;
+        }
+
+        struct RegistNodeOrder {
+            uint256 orderId;
+            uint8 nodeType;
+            string name;
+            uint256 nonce;
+            
+        }
+
+        struct RegistAgentOrder {
+            uint256 orderId;
+            string name;
+            uint256 purchaseDuration;
+            address agentAddress;
+            address feeTo;
+            uint256 expiryDate;
+            uint256 payAmount;
+            uint256 nonce;
+        }
+
+        /*//////////////////////////////////////////////////////////////
+                            STATE VARIABLES
+        /////////////////////////////////////////////////////////////*/
+        // PERMIT_BUYVALIDITENODE_TYPEHASH
+        bytes32 private constant PERMIT_BUYVALIDITENODE_TYPEHASH = keccak256(
+            abi.encodePacked(
+                "Permit(uint256 orderId,string name,uint256 purchaseDuration,address tokenAddress,uint256 payAmount,address feeTo,uint256 expiryDate,address agentAddress,uint256 nonce)"
+            )
+        );
+        // PERMIT_REGISTAGENT_TYPEHASH
+        bytes32 private constant PERMIT_REGISTAGENT_TYPEHASH = keccak256(
+            abi.encodePacked(
+                "Permit(uint256 orderId,string name,uint256 purchaseDuration,address agentAddress,address feeTo,uint256 expiryDate,uint256 payAmount,uint256 nonce)"
+            )
+        );
+        
+
+        address validatorContractAddress;
+        address feeReceiver;
+        address usdtAddress;
+        mapping(address => uint) public buyValidateNodeNonces;
+        mapping(address => uint) public registValidateNodeNonces;
+        mapping(uint256 => BuyValidateOrder) public buyValidateOrders;
+        mapping(address => uint256[]) public buyValidateNodeOrderIds;
+        mapping(uint256 => RegistAgentOrder) public registAgentOrders;
+        mapping(address => uint256[]) public registAgentOrderIds;
+
+        /*//////////////////////////////////////////////////////////////
+                                 EVENTS
+        //////////////////////////////////////////////////////////////*/
+        event BuyNode(uint256 orderId,string name,uint256 purchaseDuration,address tokenAddress,uint256 payAmount,address feeTo,uint256 expiryDate,address agentAddress,uint256 nonce,uint256 createTime);
+        event RegistNode(uint8 nodeType,string name,address nodeAddress,uint256 nonce,uint256 createTime);
+        event RegistAgent(uint256 orderId,string name,uint256 purchaseDuration,address agentAddress,address feeTo,uint256 expiryDate,uint256 payAmount,uint256 nonce,uint256 createTime);
+        /*//////////////////////////////////////////////////////////////
+                               MODIFIERS
+        //////////////////////////////////////////////////////////////*/
+
+
+        /*//////////////////////////////////////////////////////////////
+                               FUNCTIONS
+        //////////////////////////////////////////////////////////////*/
+
+        /// buy validate node
+        function buyNode(bytes memory data) public  nonReentrant {
+            BuyValidateOrder memory order = parseBuyValidateOrder(data);
+            require(order.nonce == buyValidateNodeNonces[msg.sender], "NodeManage:INVALID_NONCE");
+            require(buyValidateOrders[order.orderId].purchaseDuration == 0,"NodeManage:order is exist");
+            require(order.tokenAddress == usdtAddress,"NodeManage:tokenAddress must be usdt");
+            require(order.payAmount > 0,"NodeManage:payAmount >0");
+            require(feeReceiver != address(0),"0 address");
+            require(feeReceiver == order.feeTo,"NodeManage:Invalid feeTo");
+            
+            buyValidateOrders[order.orderId] = order;
+            buyValidateNodeOrderIds[msg.sender].push(order.orderId);
+            buyValidateNodeNonces[msg.sender]++;
+            
+            require(
+                IERC20(order.tokenAddress).transferFrom(msg.sender, feeReceiver, order.payAmount),
+                "NodeManage:Payment transfer usdt failed"
+            );
+
+            emit BuyNode(order.orderId,order.name,order.purchaseDuration,order.tokenAddress,order.payAmount,order.feeTo,order.expiryDate,order.agentAddress,order.nonce,block.timestamp);
+        }
+
+
+        function parseBuyValidateOrder(bytes memory data )  internal view returns(BuyValidateOrder memory) {
+            (
+                uint256 orderId,
+                string memory name,
+                uint256 purchaseDuration,
+                address tokenAddress,
+                uint256 payAmount,
+                address feeTo,
+                uint256 expiryDate,
+                address agentAddress,
+                uint256 nonce,
+                bytes memory signature
+            ) = abi.decode(
+                data,
+                (
+                    uint256,
+                    string,
+                    uint256,
+                    address,
+                    uint256,
+                    address,
+                    uint256,
+                    address,
+                    uint256,
+                    bytes
+                )
+            );
+            (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
+            bytes32 signHash = keccak256(
+                abi.encodePacked(
+                    "\x19\x01",
+                    DOMAIN_SEPARATOR,
+                    keccak256(
+                        abi.encode(
+                            PERMIT_BUYVALIDITENODE_TYPEHASH,
+                            orderId,
+                            name,
+                            purchaseDuration,
+                            tokenAddress,
+                            payAmount,
+                            feeTo,
+                            expiryDate,
+                            agentAddress,
+                            nonce
+                        )
+                    )
+                )
+            );
+            require(signer == ecrecover(signHash, v, r, s),"NodeManage:INVALID_REQUEST");
+        
+            return BuyValidateOrder({
+                orderId:orderId,
+                name: name,
+                purchaseDuration: purchaseDuration,
+                tokenAddress:tokenAddress,
+                payAmount: payAmount,
+                feeTo:feeTo,
+                expiryDate: expiryDate,
+                agentAddress: agentAddress,
+                nonce: nonce
+            });
+        } 
+
+
+        function splitSignature(
+            bytes memory sig
+        ) internal pure returns (uint8, bytes32, bytes32) {
+            require(sig.length == 65, "NodeManage:Not Invalid Signature Data");
+            bytes32 r;
+            bytes32 s;
+            uint8 v;
+            assembly {
+                r := mload(add(sig, 32))
+                s := mload(add(sig, 64))
+                v := byte(0, mload(add(sig, 96)))
+            }
+            return (v, r, s);
+        }
+
+        /// regist Node to be a validate node
+        function registNode( 
+            uint8 nodeType,
+            string memory name,
+            uint256 nonce,
+            address nodeAddress) public onlyRole(OPERATE_ROLE) nonReentrant {
+            require(nodeType == 1 || nodeType == 2 ,"NodeManage:Invalid node type");
+            require(nonce == registValidateNodeNonces[msg.sender], "NodeManage:INVALID_NONCE");
+            if (nodeType == 1) {
+                require(buyValidateNodeOrderIds[nodeAddress].length>0,"NodeManage:not buy node");
+            }
+
+            // to be real node
+            ValidateNode.NodeInfo memory node;
+            if (nodeType == 1) {
+                BuyValidateOrder memory order = buyValidateOrders[buyValidateNodeOrderIds[nodeAddress][0]];
+                address[] memory agentAddress;
+                address[] memory clientAddress;
+                agentAddress[0] = order.agentAddress;
+                // agentAddress.push(order.agentAddress);
+                node = ValidateNode.NodeInfo({
+                        name:name,
+                        nodeAddress:nodeAddress,
+                        nodeType:nodeType,
+                        purchaseDuration:order.purchaseDuration,
+                        agentAddress:order.agentAddress,
+                        expiryDate:order.expiryDate,
+                        createTime:block.timestamp,
+                        agentAddresses:agentAddress,
+                        clientAddress:clientAddress
+                    }
+                );
+            } else {
+                address[] memory agentAddress;
+                address[] memory clientAddress;
+                node = ValidateNode.NodeInfo({
+                        name:name,
+                        nodeAddress:nodeAddress,
+                        nodeType:nodeType,
+                        purchaseDuration:0,
+                        agentAddress:address(0),
+                        expiryDate:0,
+                        createTime:block.timestamp,
+                        agentAddresses:agentAddress,
+                        clientAddress:clientAddress
+                    }
+                );
+            }
+            ValidateNode(validatorContractAddress).addNode(node);
+
+            emit RegistNode(nodeType,name,nodeAddress,nonce,block.timestamp);
+            
+        }
+
+        /// registAgent
+        function registAgent(bytes memory data) public payable nonReentrant {
+            RegistAgentOrder memory order = parseRegistAgentOrder(data);
+            require(order.nonce == registValidateNodeNonces[msg.sender], "NodeManage:INVALID_NONCE");
+            require(registAgentOrders[order.orderId].purchaseDuration == 0,"NodeManage:order is exist");
+            require(order.payAmount > 0,"NodeManage:payAmount >0");
+            require(feeReceiver != address(0),"0 address");
+            require(feeReceiver == order.feeTo,"NodeManage:Invalid feeTo");
+            require(msg.sender == order.agentAddress,"NodeManage:invalid agentAddress");
+
+            registAgentOrders[order.orderId] = order;
+            registAgentOrderIds[msg.sender].push(order.orderId);
+            registValidateNodeNonces[msg.sender]++;
+            
+            address[] memory validitorNodeAddresses;
+            address[] memory clientAddresses;
+            ValidateNode.AgentInfo memory agentInfo = ValidateNode.AgentInfo({
+                name:order.name,
+                agentAddress:order.agentAddress,
+                validitorNodeAddresses:validitorNodeAddresses,
+                clientAddresses:clientAddresses,
+                purchaseDuration:order.purchaseDuration,
+                expiryDate:order.expiryDate,
+                payAmount:order.payAmount,
+                createTime:block.timestamp
+
+            });
+            
+            ValidateNode(validatorContractAddress).addAgent(agentInfo);
+
+            (bool success1, ) = payable(feeReceiver).call{value: order.payAmount}("");
+            require(success1, "NodeManage:Native transfer to failed");
+
+            emit RegistAgent(order.orderId,order.name,order.purchaseDuration,order.agentAddress,order.feeTo,order.expiryDate,order.payAmount,order.nonce,block.timestamp);
+
+        }
+
+        function parseRegistAgentOrder(bytes memory data) internal view returns(RegistAgentOrder memory) {
+            (
+                uint256 orderId,
+                string memory name,
+                uint256 purchaseDuration,
+                address agentAddress,
+                address feeTo,
+                uint256 expiryDate,
+                uint256 payAmount,
+                uint256 nonce,
+                bytes memory signature
+            ) = abi.decode(
+                data,
+                (
+                    uint256,
+                    string,
+                    uint256,
+                    address,
+                    address,
+                    uint256,
+                    uint256,
+                    uint256,
+                    bytes
+                )
+            );
+
+            (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
+            bytes32 signHash = keccak256(
+                abi.encodePacked(
+                    "\x19\x01",
+                    DOMAIN_SEPARATOR,
+                    keccak256(
+                        abi.encode(
+                            PERMIT_REGISTAGENT_TYPEHASH,
+                            orderId,
+                            name,
+                            purchaseDuration,
+                            agentAddress,
+                            feeTo,
+                            expiryDate,
+                            payAmount,
+                            nonce
+                        )
+                    )
+                )
+            );
+            require(signer == ecrecover(signHash, v, r, s),"NodeManage:INVALID_REQUEST");
+
+            return RegistAgentOrder({
+                orderId:orderId,
+                name:name,
+                purchaseDuration:purchaseDuration,
+                agentAddress:agentAddress,
+                feeTo:feeTo,
+                expiryDate:expiryDate,
+                payAmount:payAmount,
+                nonce:nonce
+            });
+        }
+
+        // renewAgent
+
+        function renewAgent(bytes memory data) public payable nonReentrant {
+            
+        }
+
+    }

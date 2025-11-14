@@ -11,8 +11,8 @@ async function main(){
     const feePercentage = 60;
     const args = [feeReceiver_address,signer_address,operator_address,feePercentage];
     const SourceBridgeContract = await ethers.getContractFactory('SourceBridge');
-    // const sourceBridgeDeploy = await upgrades.upgradeProxy('0x881d05D8E12aABE3fF06105551b44f1976DB8c44', SourceBridgeContract, { kind: 'uups' });
-    const sourceBridgeDeploy =  await upgrades.deployProxy(SourceBridgeContract,args,{kind:'uups'});
+    const sourceBridgeDeploy = await upgrades.upgradeProxy('0x881d05D8E12aABE3fF06105551b44f1976DB8c44', SourceBridgeContract, { kind: 'uups' });
+    // const sourceBridgeDeploy =  await upgrades.deployProxy(SourceBridgeContract,args,{kind:'uups'});
 
     await sourceBridgeDeploy.deployed();
 

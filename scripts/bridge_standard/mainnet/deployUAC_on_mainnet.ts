@@ -52,24 +52,49 @@ async function main(){
     // 开关
     const tokenContract = await ethers.getContractAt('UACToken','0xE1bB8D9B24d8e5b6e7517A8e9eA23f77621a5FFF');
     // 币对是不是开放
-    const tx21 = await  tokenContract.setPairsEnabledStatus('0x14AA54Ba49D6f503410B950027f073ad71460890',true);
-    await tx21.wait();
+    // const tx21 = await  tokenContract.setPairsEnabledStatus('0x14AA54Ba49D6f503410B950027f073ad71460890',true);
+    // await tx21.wait();
     // 交易是否公开
-    const tx22 = await tokenContract.updateTradingEnabled(true);
-    await tx22.wait();
+    // const tx22 = await tokenContract.updateTradingEnabled(false);
+    // await tx22.wait();
+    console.log("uac TradingEnabled:",await tokenContract.getTradingEnabled());
     // 交易是否开启全局交易
-    const tx23 = await tokenContract.setTradeToPublic(true);
-    await tx23.wait();
+    // const tx23 = await tokenContract.setTradeToPublic(true);
+    // await tx23.wait();
     // // 批量更新全局白名单
+
+    /** */
     // const tx24 = await tokenContract.batchUpdateGlobalWhitelist([
     //     '0xb98E2E18259057076b3170c078F361978768d001',
-    //     '0xe02D3558765e603bDaAB3b2d38A4714aA8ce9159'
+    //     '0xe02D3558765e603bDaAB3b2d38A4714aA8ce9159',
+    //     '0x8CAb8F7b6E1345282a996C7498a3Fb74fE2E124C',
+    //     '0x9778E4E72aB7FBa205FCB27f6869E0142Ae5eee6',
+    //     '0x6143C55FD5D3961eA9b2D5fDEc09f42b3F68b7c1'
     // ],true,{
     //     gasLimit:12000000
     // });
     // await tx24.wait();
 
+    // const tx5 = await tokenContract.batchUpdateTradeWhitelist([
+    //     '0x8CAb8F7b6E1345282a996C7498a3Fb74fE2E124C',
+    //     '0x9778E4E72aB7FBa205FCB27f6869E0142Ae5eee6',
+    //     '0x6143C55FD5D3961eA9b2D5fDEc09f42b3F68b7c1'],true);
+    // await tx5.wait();
+
     
+    // console.log("1:","0x8CAb8F7b6E1345282a996C7498a3Fb74fE2E124C",
+    //     "  isGlobalWhitelisted:",
+    //     await tokenContract.isGlobalWhitelisted('0x8CAb8F7b6E1345282a996C7498a3Fb74fE2E124C')
+    //     ," isTradeWhitelisted:",await tokenContract.isTradeWhitelisted('0x8CAb8F7b6E1345282a996C7498a3Fb74fE2E124C'));
+    // console.log("2:","0x9778E4E72aB7FBa205FCB27f6869E0142Ae5eee6", "  isGlobalWhitelisted:",
+    //     await tokenContract.isGlobalWhitelisted('0x9778E4E72aB7FBa205FCB27f6869E0142Ae5eee6')
+    //     ," isTradeWhitelisted:",await tokenContract.isTradeWhitelisted('0x9778E4E72aB7FBa205FCB27f6869E0142Ae5eee6'));
+    // console.log("2:","0x6143C55FD5D3961eA9b2D5fDEc09f42b3F68b7c1", "  isGlobalWhitelisted:",
+    //     await tokenContract.isGlobalWhitelisted('0x6143C55FD5D3961eA9b2D5fDEc09f42b3F68b7c1')
+    //     ," isTradeWhitelisted:",await tokenContract.isTradeWhitelisted('0x6143C55FD5D3961eA9b2D5fDEc09f42b3F68b7c1'));
+
+
+
 
 
 
