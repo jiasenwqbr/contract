@@ -86,6 +86,15 @@ contract NodeManage is  Initializable,
             uint256 nonce;
         }
 
+        struct RenewAgentOrder {
+            uint256 orderId;
+            uint256 purchaseDuration;
+            uint256 expiryDate;
+            address agentAddress;
+            uint256 payAmount;
+            uint256 nonce;
+        }
+
         /*//////////////////////////////////////////////////////////////
                             STATE VARIABLES
         /////////////////////////////////////////////////////////////*/
@@ -101,17 +110,28 @@ contract NodeManage is  Initializable,
                 "Permit(uint256 orderId,string name,uint256 purchaseDuration,address agentAddress,address feeTo,uint256 expiryDate,uint256 payAmount,uint256 nonce)"
             )
         );
+
+        bytes32 private constant PERMIT_RENEWAGENT_TYPEHASH = keccak256(
+            abi.encodePacked(
+                "Permit(uint256 orderId,uint256 purchaseDuration,uint256 expiryDate,address agentAddress,uint256 payAmount,uint256 nonce)"
+            )
+        );
         
 
-        address validatorContractAddress;
-        address feeReceiver;
-        address usdtAddress;
+        address public validatorContractAddress;
+        address public feeReceiver;
+        address public usdtAddress;
         mapping(address => uint) public buyValidateNodeNonces;
         mapping(address => uint) public registValidateNodeNonces;
+        mapping(address => uint) public renewAgentNonces;
+
         mapping(uint256 => BuyValidateOrder) public buyValidateOrders;
-        mapping(address => uint256[]) public buyValidateNodeOrderIds;
+        mapping(uint256 => RenewAgentOrder) public renewAgentOrders;
         mapping(uint256 => RegistAgentOrder) public registAgentOrders;
+
+        mapping(address => uint256[]) public buyValidateNodeOrderIds;
         mapping(address => uint256[]) public registAgentOrderIds;
+        mapping(address => uint256[]) public renewAgentOrderIds;
 
         /*//////////////////////////////////////////////////////////////
                                  EVENTS
@@ -119,6 +139,8 @@ contract NodeManage is  Initializable,
         event BuyNode(uint256 orderId,string name,uint256 purchaseDuration,address tokenAddress,uint256 payAmount,address feeTo,uint256 expiryDate,address agentAddress,uint256 nonce,uint256 createTime);
         event RegistNode(uint8 nodeType,string name,address nodeAddress,uint256 nonce,uint256 createTime);
         event RegistAgent(uint256 orderId,string name,uint256 purchaseDuration,address agentAddress,address feeTo,uint256 expiryDate,uint256 payAmount,uint256 nonce,uint256 createTime);
+        event RenewAgent(uint256 orderId,uint256 purchaseDuration,uint256 expiryDate,address agentAddress,uint256 payAmount,uint256 nonce,uint256 createTime);
+        
         /*//////////////////////////////////////////////////////////////
                                MODIFIERS
         //////////////////////////////////////////////////////////////*/
@@ -382,9 +404,78 @@ contract NodeManage is  Initializable,
         }
 
         // renewAgent
-
         function renewAgent(bytes memory data) public payable nonReentrant {
+            RenewAgentOrder memory order = parseRenewAgentOrder(data);
+            require(order.nonce == renewAgentNonces[msg.sender], "NodeManage:INVALID_NONCE");
+            require(order.payAmount > 0,"NodeManage:payAmount >0");
+            require(feeReceiver != address(0),"0 address");
+            RegistAgentOrder memory raOrder = registAgentOrders[order.orderId];
+            require(raOrder.purchaseDuration != 0,"NodeManage:order is not exist");
+            ValidateNode.AgentInfo memory agent =  ValidateNode(validatorContractAddress).getAgentInfo(msg.sender);
+            require(agent.purchaseDuration != 0,"NodeManage:agent is not exist");
             
+            require(agent.expiryDate <= block.timestamp,"NodeManage:Not yet due");
+            agent.purchaseDuration = order.purchaseDuration;
+            agent.expiryDate = order.expiryDate;
+            agent.payAmount = order.payAmount;
+            ValidateNode(validatorContractAddress).renewAgent(agent);
+            renewAgentNonces[msg.sender]++;
+            (bool success3, ) = payable(feeReceiver).call{value: order.payAmount}("");
+            require(success3, "Native transfer to feeFeceiver failed");
+
+            emit RenewAgent(order.orderId,order.purchaseDuration,order.expiryDate,order.agentAddress,order.payAmount,order.nonce,block.timestamp);
+            
+
+        }
+
+        function parseRenewAgentOrder(bytes memory data) internal view returns(RenewAgentOrder memory){
+            (
+                uint256 orderId,
+                uint256 purchaseDuration,
+                uint256 expiryDate,
+                address agentAddress,
+                uint256 payAmount,
+                uint256 nonce,
+                bytes memory signature
+            ) = abi.decode(
+                data,
+                (
+                    uint256,
+                    uint256,
+                    uint256,
+                    address,
+                    uint256,
+                    uint256,
+                    bytes
+                )
+            );
+            (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
+            bytes32 signHash = keccak256(
+                abi.encodePacked(
+                    "\x19\x01",
+                    DOMAIN_SEPARATOR,
+                    keccak256(
+                        abi.encode(
+                            PERMIT_RENEWAGENT_TYPEHASH,
+                            orderId,
+                            purchaseDuration,
+                            expiryDate,
+                            agentAddress,
+                            payAmount,
+                            nonce
+                        )
+                    )
+                )
+            );
+            require(signer == ecrecover(signHash, v, r, s),"NodeManage:INVALID_REQUEST");
+            return RenewAgentOrder({
+                orderId:orderId,
+                purchaseDuration:purchaseDuration,
+                expiryDate:expiryDate,
+                agentAddress:agentAddress,
+                payAmount:payAmount,
+                nonce:nonce
+            });
         }
 
     }

@@ -6,7 +6,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
-
+import "./ValidateNode.sol";
 contract StakingRewardDistribute is
     Initializable,
     AccessControlEnumerableUpgradeable,
@@ -50,12 +50,27 @@ contract StakingRewardDistribute is
         );
     }
 
-    /*//////////////////////////////////////////////////////////////
+        /*//////////////////////////////////////////////////////////////
                             STATE VARIABLES
         /////////////////////////////////////////////////////////////*/
+        mapping(address => mapping(uint256 => Reward)) public rewards;
 
 
-         /*//////////////////////////////////////////////////////////////
+
+        /*//////////////////////////////////////////////////////////////
+                               Struct
+        //////////////////////////////////////////////////////////////*/
+        struct Reward {
+            uint256 yyyymm;
+            address beneficiaryAddress;
+            uint256 amount;
+            uint256 createTime;
+            bool isWithdraw;
+            uint256 withdrawTime;
+        }
+
+
+        /*//////////////////////////////////////////////////////////////
                                  EVENTS
         //////////////////////////////////////////////////////////////*/
 
@@ -67,6 +82,15 @@ contract StakingRewardDistribute is
         /*//////////////////////////////////////////////////////////////
                                FUNCTIONS
         //////////////////////////////////////////////////////////////*/
+        function generateRewards() public onlyRole(OPERATE_ROLE) {
+
+        }
+
+        function withdrawReward() public nonReentrant {
+
+        }
+
+
 
 
 }

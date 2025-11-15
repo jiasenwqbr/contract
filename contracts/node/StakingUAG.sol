@@ -185,7 +185,7 @@ contract StakingUAG is
         
 
         if (order.burnAmount!=0){
-             UAGToken(order.tokenAddress).burnFrom(order.userAddress,order.burnAmount);
+            UAGToken(order.tokenAddress).burnFrom(order.userAddress,order.burnAmount);
         }
        
         
