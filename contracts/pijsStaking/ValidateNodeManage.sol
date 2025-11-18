@@ -9,7 +9,7 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgrad
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./ValidateNode.sol";
 
-contract NodeManage is  Initializable,
+contract ValidateNodeManage is  Initializable,
     AccessControlEnumerableUpgradeable,
     ReentrancyGuardUpgradeable,
     UUPSUpgradeable {
@@ -19,7 +19,8 @@ contract NodeManage is  Initializable,
         bool private funcSwitch;
         // 签名者
         address public signer;
-         constructor() {
+        /// @custom:oz-upgrades-unsafe-allow constructor
+        constructor() {
             _disableInitializers(); // 禁止逻辑合约自己初始化
         }
         
@@ -50,6 +51,10 @@ contract NodeManage is  Initializable,
                     address(this)
                 )
             );
+
+            // mapping(uint256 => ValidteNodeProduct) public validteNodeProducts;mapping(uint256 => AgentNodeProduct) public agentNodeProducts;
+            // initalize product 
+            
         }
         /*//////////////////////////////////////////////////////////////
                                Struct
@@ -95,19 +100,36 @@ contract NodeManage is  Initializable,
             uint256 nonce;
         }
 
+        struct ValidteNodeProduct {
+            uint256 stakeType;
+            uint256 amount;
+            bool enabled;
+        }
+
+        struct AgentNodeProduct {
+            uint256 stakeType;
+            uint256 amount;
+            bool enabled;
+        }
+
         /*//////////////////////////////////////////////////////////////
                             STATE VARIABLES
         /////////////////////////////////////////////////////////////*/
         // PERMIT_BUYVALIDITENODE_TYPEHASH
+        // bytes32 private constant PERMIT_BUYVALIDITENODE_TYPEHASH = keccak256(
+        //     abi.encodePacked(
+        //         "Permit(uint256 orderId,string name,uint256 purchaseDuration,address tokenAddress,uint256 payAmount,address feeTo,uint256 expiryDate,address agentAddress,uint256 nonce)"
+        //     )
+        // );
         bytes32 private constant PERMIT_BUYVALIDITENODE_TYPEHASH = keccak256(
             abi.encodePacked(
-                "Permit(uint256 orderId,string name,uint256 purchaseDuration,address tokenAddress,uint256 payAmount,address feeTo,uint256 expiryDate,address agentAddress,uint256 nonce)"
+                "Permit(uint256 orderId,uint256 purchaseDuration,address tokenAddress,uint256 payAmount,address feeTo,uint256 expiryDate,address agentAddress,uint256 nonce)"
             )
         );
         // PERMIT_REGISTAGENT_TYPEHASH
         bytes32 private constant PERMIT_REGISTAGENT_TYPEHASH = keccak256(
             abi.encodePacked(
-                "Permit(uint256 orderId,string name,uint256 purchaseDuration,address agentAddress,address feeTo,uint256 expiryDate,uint256 payAmount,uint256 nonce)"
+                "Permit(uint256 orderId,uint256 purchaseDuration,address agentAddress,address feeTo,uint256 expiryDate,uint256 payAmount,uint256 nonce)"
             )
         );
 
@@ -132,6 +154,9 @@ contract NodeManage is  Initializable,
         mapping(address => uint256[]) public buyValidateNodeOrderIds;
         mapping(address => uint256[]) public registAgentOrderIds;
         mapping(address => uint256[]) public renewAgentOrderIds;
+
+        mapping(uint256 => ValidteNodeProduct) public validteNodeProducts;
+        mapping(uint256 => AgentNodeProduct) public agentNodeProducts;
 
         /*//////////////////////////////////////////////////////////////
                                  EVENTS
@@ -209,7 +234,7 @@ contract NodeManage is  Initializable,
                         abi.encode(
                             PERMIT_BUYVALIDITENODE_TYPEHASH,
                             orderId,
-                            name,
+                            // name,
                             purchaseDuration,
                             tokenAddress,
                             payAmount,
@@ -263,15 +288,15 @@ contract NodeManage is  Initializable,
             if (nodeType == 1) {
                 require(buyValidateNodeOrderIds[nodeAddress].length>0,"NodeManage:not buy node");
             }
+            require(ValidateNode(validatorContractAddress).getAgentInfo(nodeAddress).agentAddress == address(0),"NodeManage:agent node can not to be validate node");
 
             // to be real node
             ValidateNode.NodeInfo memory node;
             if (nodeType == 1) {
                 BuyValidateOrder memory order = buyValidateOrders[buyValidateNodeOrderIds[nodeAddress][0]];
-                address[] memory agentAddress;
-                address[] memory clientAddress;
+                address[] memory agentAddress = new address[](1);
+                address[] memory clientAddress = new address[](0); 
                 agentAddress[0] = order.agentAddress;
-                // agentAddress.push(order.agentAddress);
                 node = ValidateNode.NodeInfo({
                         name:name,
                         nodeAddress:nodeAddress,
@@ -285,8 +310,6 @@ contract NodeManage is  Initializable,
                     }
                 );
             } else {
-                address[] memory agentAddress;
-                address[] memory clientAddress;
                 node = ValidateNode.NodeInfo({
                         name:name,
                         nodeAddress:nodeAddress,
@@ -295,12 +318,13 @@ contract NodeManage is  Initializable,
                         agentAddress:address(0),
                         expiryDate:0,
                         createTime:block.timestamp,
-                        agentAddresses:agentAddress,
-                        clientAddress:clientAddress
+                        agentAddresses:new address[](0),
+                        clientAddress:new address[](0)
                     }
                 );
             }
             ValidateNode(validatorContractAddress).addNode(node);
+            registValidateNodeNonces[msg.sender]++;
 
             emit RegistNode(nodeType,name,nodeAddress,nonce,block.timestamp);
             
@@ -315,7 +339,7 @@ contract NodeManage is  Initializable,
             require(feeReceiver != address(0),"0 address");
             require(feeReceiver == order.feeTo,"NodeManage:Invalid feeTo");
             require(msg.sender == order.agentAddress,"NodeManage:invalid agentAddress");
-
+            require(ValidateNode(validatorContractAddress).getValidatorNodeInfo(order.agentAddress).nodeAddress == address(0),"NodeManage:validate node can not to be agent");
             registAgentOrders[order.orderId] = order;
             registAgentOrderIds[msg.sender].push(order.orderId);
             registValidateNodeNonces[msg.sender]++;
@@ -378,7 +402,7 @@ contract NodeManage is  Initializable,
                         abi.encode(
                             PERMIT_REGISTAGENT_TYPEHASH,
                             orderId,
-                            name,
+                            // name,
                             purchaseDuration,
                             agentAddress,
                             feeTo,
@@ -409,8 +433,6 @@ contract NodeManage is  Initializable,
             require(order.nonce == renewAgentNonces[msg.sender], "NodeManage:INVALID_NONCE");
             require(order.payAmount > 0,"NodeManage:payAmount >0");
             require(feeReceiver != address(0),"0 address");
-            RegistAgentOrder memory raOrder = registAgentOrders[order.orderId];
-            require(raOrder.purchaseDuration != 0,"NodeManage:order is not exist");
             ValidateNode.AgentInfo memory agent =  ValidateNode(validatorContractAddress).getAgentInfo(msg.sender);
             require(agent.purchaseDuration != 0,"NodeManage:agent is not exist");
             
@@ -419,6 +441,8 @@ contract NodeManage is  Initializable,
             agent.expiryDate = order.expiryDate;
             agent.payAmount = order.payAmount;
             ValidateNode(validatorContractAddress).renewAgent(agent);
+            renewAgentOrders[order.orderId] = order;
+            renewAgentOrderIds[order.agentAddress].push(order.orderId);
             renewAgentNonces[msg.sender]++;
             (bool success3, ) = payable(feeReceiver).call{value: order.payAmount}("");
             require(success3, "Native transfer to feeFeceiver failed");
@@ -476,6 +500,11 @@ contract NodeManage is  Initializable,
                 payAmount:payAmount,
                 nonce:nonce
             });
+        }
+
+
+        function getRegistAgentOrder(uint256 orderId) public view returns(RegistAgentOrder memory) {
+            return registAgentOrders[orderId];
         }
 
     }

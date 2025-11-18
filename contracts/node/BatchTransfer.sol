@@ -41,7 +41,7 @@ contract BatchTransferUpgradeable is
     event ContractUpgraded(address newImplementation);
     event BatchLimitUpdated(uint256 newLimit);
     event  BatchTransferDifferentAmounts(address token,address caller,address[] recipients,uint256[] amounts,uint256 totalAmount,uint256 recipientsCount,uint256 timestamp);
-    event  BatchTransferDifferentTokenAmounts(address[] token,address caller,address[] recipients,uint256[] amounts,uint256 recipientsCount,uint256 timestamp);
+    event  BatchTransferDifferentTokenAmounts(address[] token,address caller,address[] recipients,uint256[] amounts,uint256 recipientsCount,uint256 transType,uint256 timestamp);
     event BatchTransferSameAmount(address token, address caller,address[] recipients,uint256 amount,uint256 totalAmount,uint256 recipientsCount,uint256 timestamp);
     
 
@@ -150,7 +150,8 @@ contract BatchTransferUpgradeable is
     function batchTransferMultipleTokens(
         address[] calldata tokens,
         address[] calldata recipients,
-        uint256[] calldata amounts
+        uint256[] calldata amounts,
+        uint256 transType
     ) external nonReentrant whenNotStopped {
         require(tokens.length > 0, "No tokens");
         require(tokens.length == recipients.length, "Array length mismatch");
@@ -188,7 +189,7 @@ contract BatchTransferUpgradeable is
         totalVolume += totalTransferred;
         
         // emit BatchTransferMultiToken(msg.sender, tokens.length, uniqueTokenCount);
-        emit BatchTransferDifferentTokenAmounts(tokens, msg.sender, recipients, amounts,recipients.length,block.timestamp);
+        emit BatchTransferDifferentTokenAmounts(tokens, msg.sender, recipients, amounts,recipients.length,transType,block.timestamp);
     }
 
     /**

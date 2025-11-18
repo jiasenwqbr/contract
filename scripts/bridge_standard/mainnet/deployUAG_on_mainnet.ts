@@ -72,41 +72,41 @@ async function main(){
     // console.log("ox balance",await tokenContract.balanceOf("0x0000000000000000000000000000000000000000")) ;
 
 
-    const tx24 = await tokenContract.batchUpdateGlobalWhitelist([
-        '0x752B3363a0130f5795DEc4df2EcB9d5C4765e343',
-        '0x8D16fE25ded0b598Be99b81b39E146639C84DA1C',
-        '0x18f0DaE9D5dB7D3ad7A1d6593e77175AA23354aE',
-        '0x9eAAAC6A824da4CC0bc42C9Ea45c1dc98D79e5E6'
-    ],true,{
-        gasLimit:12000000
-    });
-    await tx24.wait();
+    // const tx24 = await tokenContract.batchUpdateGlobalWhitelist([
+    //     '0x752B3363a0130f5795DEc4df2EcB9d5C4765e343',
+    //     '0x8D16fE25ded0b598Be99b81b39E146639C84DA1C',
+    //     '0x18f0DaE9D5dB7D3ad7A1d6593e77175AA23354aE',
+    //     '0x9eAAAC6A824da4CC0bc42C9Ea45c1dc98D79e5E6'
+    // ],true,{
+    //     gasLimit:12000000
+    // });
+    // await tx24.wait();
 
-    const tx5 = await tokenContract.batchUpdateTradeWhitelist([
-         '0x752B3363a0130f5795DEc4df2EcB9d5C4765e343',
-        '0x8D16fE25ded0b598Be99b81b39E146639C84DA1C',
-        '0x18f0DaE9D5dB7D3ad7A1d6593e77175AA23354aE',
-        '0x9eAAAC6A824da4CC0bc42C9Ea45c1dc98D79e5E6'],true);
-    await tx5.wait();
+    // const tx5 = await tokenContract.batchUpdateTradeWhitelist([
+    //      '0x752B3363a0130f5795DEc4df2EcB9d5C4765e343',
+    //     '0x8D16fE25ded0b598Be99b81b39E146639C84DA1C',
+    //     '0x18f0DaE9D5dB7D3ad7A1d6593e77175AA23354aE',
+    //     '0x9eAAAC6A824da4CC0bc42C9Ea45c1dc98D79e5E6'],true);
+    // await tx5.wait();
 
     
-    console.log("1:","0x752B3363a0130f5795DEc4df2EcB9d5C4765e343",
-        "  isGlobalWhitelisted:",
-        await tokenContract.isGlobalWhitelisted('0x752B3363a0130f5795DEc4df2EcB9d5C4765e343')
-        ," isTradeWhitelisted:",await tokenContract.isTradeWhitelisted('0x752B3363a0130f5795DEc4df2EcB9d5C4765e343'));
+    // console.log("1:","0x752B3363a0130f5795DEc4df2EcB9d5C4765e343",
+    //     "  isGlobalWhitelisted:",
+    //     await tokenContract.isGlobalWhitelisted('0x752B3363a0130f5795DEc4df2EcB9d5C4765e343')
+    //     ," isTradeWhitelisted:",await tokenContract.isTradeWhitelisted('0x752B3363a0130f5795DEc4df2EcB9d5C4765e343'));
 
-    console.log("1:","0x8D16fE25ded0b598Be99b81b39E146639C84DA1C",
-        "  isGlobalWhitelisted:",
-        await tokenContract.isGlobalWhitelisted('0x8D16fE25ded0b598Be99b81b39E146639C84DA1C')
-        ," isTradeWhitelisted:",await tokenContract.isTradeWhitelisted('0x8D16fE25ded0b598Be99b81b39E146639C84DA1C'));
-    console.log("1:","0x18f0DaE9D5dB7D3ad7A1d6593e77175AA23354aE",
-        "  isGlobalWhitelisted:",
-        await tokenContract.isGlobalWhitelisted('0x18f0DaE9D5dB7D3ad7A1d6593e77175AA23354aE')
-        ," isTradeWhitelisted:",await tokenContract.isTradeWhitelisted('0x18f0DaE9D5dB7D3ad7A1d6593e77175AA23354aE'))
-    console.log("1:","0x752B3363a0130f5795DEc4df2EcB9d5C4765e343",
-        "  isGlobalWhitelisted:",
-        await tokenContract.isGlobalWhitelisted('0x9eAAAC6A824da4CC0bc42C9Ea45c1dc98D79e5E6')
-        ," isTradeWhitelisted:",await tokenContract.isTradeWhitelisted('0x9eAAAC6A824da4CC0bc42C9Ea45c1dc98D79e5E6'));
+    // console.log("1:","0x8D16fE25ded0b598Be99b81b39E146639C84DA1C",
+    //     "  isGlobalWhitelisted:",
+    //     await tokenContract.isGlobalWhitelisted('0x8D16fE25ded0b598Be99b81b39E146639C84DA1C')
+    //     ," isTradeWhitelisted:",await tokenContract.isTradeWhitelisted('0x8D16fE25ded0b598Be99b81b39E146639C84DA1C'));
+    // console.log("1:","0x18f0DaE9D5dB7D3ad7A1d6593e77175AA23354aE",
+    //     "  isGlobalWhitelisted:",
+    //     await tokenContract.isGlobalWhitelisted('0x18f0DaE9D5dB7D3ad7A1d6593e77175AA23354aE')
+    //     ," isTradeWhitelisted:",await tokenContract.isTradeWhitelisted('0x18f0DaE9D5dB7D3ad7A1d6593e77175AA23354aE'))
+    // console.log("1:","0x752B3363a0130f5795DEc4df2EcB9d5C4765e343",
+    //     "  isGlobalWhitelisted:",
+    //     await tokenContract.isGlobalWhitelisted('0x9eAAAC6A824da4CC0bc42C9Ea45c1dc98D79e5E6')
+    //     ," isTradeWhitelisted:",await tokenContract.isTradeWhitelisted('0x9eAAAC6A824da4CC0bc42C9Ea45c1dc98D79e5E6'));
 
 
 /**
@@ -171,7 +171,18 @@ async function main(){
     // console.log("213:","0x083F626DCe22D98671DD86Adb916B59E65f8CE06",await tokenContract.getTradeWhitelistBuyLimit("0x083F626DCe22D98671DD86Adb916B59E65f8CE06"));
 
   
-   
+        //    手续费
+    const tx = await tokenContract.setBuyFeeReceivers(
+        ['0x57F6384D434B1613eb80B26B6D74C49909372b11','0xf504551185c4b3ee73e9d96eea06e3fd4210e601'],
+        [10,15]
+    );
+    await tx.wait();
+
+    const tx1 = await tokenContract.setSellFeeReceivers(
+         ['0x57F6384D434B1613eb80B26B6D74C49909372b11','0xf504551185c4b3ee73e9d96eea06e3fd4210e601'],
+         [10,15]
+    );
+    await tx1.wait();
 
 
 }

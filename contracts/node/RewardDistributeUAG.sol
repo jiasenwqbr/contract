@@ -122,6 +122,7 @@ contract RewardDistributeUAG is  Initializable,
     //////////////////////////////////////////////////////////////*/
     event MarketMakerWithdrawingProfits(address caller,uint256 orderId,address tokenAddress,uint256 amount,address feeReceiver,uint256 fee,uint256 userAmount,uint256 timestamp);
     event WithdrawingProfits(address caller,uint256 orderId,address tokenAddress,uint256 amount,address uacAddress,uint256 uacAmount,uint256 withdrawType,uint256 timestamp);
+    event WithdrawingProfitsNonConsumptionNonces(address caller,uint256 orderId,address tokenAddress,uint256 amount,uint256 withdrawType,uint256 timestamp);
 
      /*//////////////////////////////////////////////////////////////
                                FUNCTIONS
@@ -360,8 +361,7 @@ contract RewardDistributeUAG is  Initializable,
             "Permit(uint256 orderId,address userAddress,address tokenAddress,uint256 amount,uint256 withdrawType,uint256 nonce)"
         )
     );
-    event WithdrawingProfitsNonConsumptionNonces(address caller,uint256 orderId,address tokenAddress,uint256 amount,uint256 withdrawType,uint256 timestamp);
-
+    
     function withdrawingProfitsNonConsumption(bytes memory data) public payable nonReentrant{
         WithdrawingProfitsNonConsumptionOrder memory order = parseWithdrawingNonConsumptionrder(data);
         require(order.userAddress == msg.sender,"RewardDistributeUAG:Invalid msg sender");

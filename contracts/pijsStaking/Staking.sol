@@ -18,7 +18,8 @@ contract Staking is  Initializable,
         bool private funcSwitch;
         // 签名者
         address public signer;
-         constructor() {
+        /// @custom:oz-upgrades-unsafe-allow constructor
+        constructor() {
             _disableInitializers(); // 禁止逻辑合约自己初始化
         }
         
@@ -47,6 +48,12 @@ contract Staking is  Initializable,
                     address(this)
                 )
             );
+
+            stakeTypes[30 days] = true;
+            stakeTypes[60 days] = true;
+            stakeTypes[90 days] = true;
+            stakeTypes[180 days] = true;
+            stakeTypes[360 days] = true;
         }
 
         /*//////////////////////////////////////////////////////////////
@@ -81,6 +88,7 @@ contract Staking is  Initializable,
         mapping(address => uint) public validatorStakeNonces;
         mapping(address => uint) public agentStakeNonces;
         mapping(address => uint) public clientStakeNonces;
+        mapping(uint256 => bool) public stakeTypes;
 
         /*//////////////////////////////////////////////////////////////
                                Struct
@@ -115,6 +123,7 @@ contract Staking is  Initializable,
             uint256 nonce;
             uint256 stakeTime;
         }
+        
 
         /*//////////////////////////////////////////////////////////////
                                  EVENTS
@@ -132,13 +141,17 @@ contract Staking is  Initializable,
         /*//////////////////////////////////////////////////////////////
                                FUNCTIONS
         //////////////////////////////////////////////////////////////*/
-        function validiatorStake(bytes memory data) public  nonReentrant {
+        function validiatorStake(bytes memory data) public  nonReentrant payable {
             ValidatorStakeOrder memory order = parseValidatorStakeOrder(data);
+
+            // is validator
+
             require(order.nonce == validatorStakeNonces[msg.sender],"Staking:INVALID_NONCE");
             require(order.validatorAddress == msg.sender,"Staking:Invalid user");
             require(order.stakeAmount > 0,"Staking:stakeAmount >0");
             require(order.stakeDuration > 0,"Staking:stakeDuration >0");
             require(validatorStakeOrders[order.orderId].stakeDuration == 0,"Staking:Order is exist");
+            require(stakeTypes[order.stakeDuration] == true,"Staking:stake type is disabled");
 
             validatorStakeNonces[msg.sender]++;
             validatorStakeOrders[order.orderId] = order;
@@ -215,13 +228,14 @@ contract Staking is  Initializable,
             return (v, r, s);
         }
 
-        function agentStake(bytes memory data) public  nonReentrant {
+        function agentStake(bytes memory data) public  nonReentrant payable {
             AgentStakeOrder memory order = parseAgentStakeOrder(data);
             require(order.nonce == agentStakeNonces[msg.sender],"Staking:INVALID_NONCE");
-            require(order.validatorAddress == msg.sender,"Staking:Invalid user");
+            require(order.agentAddress == msg.sender,"Staking:Invalid user");
             require(order.stakeAmount > 0,"Staking:stakeAmount >0");
             require(order.stakeDuration > 0,"Staking:stakeDuration >0");
             require(agentStakeOrders[order.orderId].stakeDuration == 0,"Staking:Order is exist");
+            require(stakeTypes[order.stakeDuration] == true,"Staking:stake type is disabled");
 
             agentStakeNonces[msg.sender]++;
             agentStakeOrders[order.orderId] = order;
@@ -284,13 +298,14 @@ contract Staking is  Initializable,
 
         }
 
-        function clientStake(bytes memory data) public  nonReentrant {
+        function clientStake(bytes memory data) public  nonReentrant payable {
             ClientStakeOrder memory order = parseClientStakeOrder(data);
             require(order.nonce == clientStakeNonces[msg.sender],"Staking:INVALID_NONCE");
-            require(order.validatorAddress == msg.sender,"Staking:Invalid user");
+            require(order.clientAddress == msg.sender,"Staking:Invalid user");
             require(order.stakeAmount > 0,"Staking:stakeAmount >0");
             require(order.stakeDuration > 0,"Staking:stakeDuration >0");
             require(clientStakeOrders[order.orderId].stakeDuration == 0,"Staking:Order is exist");
+            require(stakeTypes[order.stakeDuration] == true,"Staking:stake type is disabled");
 
             clientStakeNonces[msg.sender]++;
             clientStakeOrders[order.orderId] = order;
@@ -330,7 +345,7 @@ contract Staking is  Initializable,
                     DOMAIN_SEPARATOR,
                     keccak256(
                         abi.encode(
-                            PERMIT_VALIDATORSTAKE_TYPEHASH,
+                            PERMIT_CLIENTSTAKE_TYPEHASH,
                             orderId,
                             validatorAddress,
                             agentAddress,
@@ -355,5 +370,12 @@ contract Staking is  Initializable,
             });
 
         }
+
+
+        function setStakeType(uint256 stakeProid,bool enabled) public onlyRole(MANAGE_ROLE) {
+            stakeTypes[stakeProid] = enabled;
+        }
+
+        
 
     }

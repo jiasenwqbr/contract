@@ -7,7 +7,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
 import "./ValidateNode.sol";
-contract StakingRewardDistribute is
+contract PIJSStakingRewardDistribute is
     Initializable,
     AccessControlEnumerableUpgradeable,
     ReentrancyGuardUpgradeable,
@@ -19,7 +19,8 @@ contract StakingRewardDistribute is
     bool private funcSwitch;
     // 签名者
     address public signer;
-
+    
+    /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers(); // 禁止逻辑合约自己初始化
     }
@@ -95,12 +96,12 @@ contract StakingRewardDistribute is
         emit GenerateRewards(msg.sender,yyyymmdd,msg.value,rewardRecords[yyyymmdd],block.timestamp);
     }
 
-    function withdrawReward(bytes memory data) public nonReentrant {
+    function withdrawReward(bytes memory data) public nonReentrant  onlyRole(OPERATE_ROLE) {
         WithdrawRewardOrder memory order = parseWithdrawReward(data);
         require(order.nonce == withdrawNonces[msg.sender],"StakingRewardDistribute:INVALID_NONCE");
-        require(msg.sender == order.beneficiaryAddress,"StakingRewardDistribute:invalid user address");
+        // require(msg.sender == order.beneficiaryAddress,"StakingRewardDistribute:invalid user address");
         require(order.beneficiaryAddress != address(0),"StakingRewardDistribute:address 0 is not allowed");
-        require(withdrawRewardOrders[order.orderId].beneficiaryAddress != address(0),"StakingRewardDistribute:withwarded");
+        require(withdrawRewardOrders[order.orderId].beneficiaryAddress == address(0),"StakingRewardDistribute:withwarded");
 
         withdrawRewardOrders[order.orderId] = order;
         userWithdrawRewardOrderIds[msg.sender].push(order.orderId);

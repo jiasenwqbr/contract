@@ -18,13 +18,15 @@ contract ValidateNode is  Initializable,
         bool private funcSwitch;
         // 签名者
         address public signer;
-         constructor() {
+        /// @custom:oz-upgrades-unsafe-allow constructor
+        constructor() {
             _disableInitializers(); // 禁止逻辑合约自己初始化
         }
         
         function _authorizeUpgrade(
             address newImplementation
         ) internal override onlyRole(MANAGE_ROLE) {}
+        
         function initialize(address _signer) public initializer {
             __AccessControlEnumerable_init();
             __ReentrancyGuard_init();
@@ -79,6 +81,23 @@ contract ValidateNode is  Initializable,
             address[] agentAddresses; 
         }
 
+        struct ValidateNodeProduct {
+            uint8 productId;
+            uint8 nodeType; // 托管验证者 1、自建节点 2
+            uint256 purchaseDuration;
+            address payByTokenAddress;
+            uint256 payAmount;
+            bool enabled;
+        }
+
+        struct AgentNodeProduct {
+            uint8 productId;
+            uint256 purchaseDuration;
+            address payByTokenAddress;
+            uint256 payAmount;
+            bool enabled;
+        }
+
         /*//////////////////////////////////////////////////////////////
                             STATE VARIABLES
         /////////////////////////////////////////////////////////////*/
@@ -86,6 +105,8 @@ contract ValidateNode is  Initializable,
         mapping(address => NodeInfo) public validiteNodes;   // nodeAddress => NodeInfo{...}
         mapping(address => AgentInfo) public agentInfos;   // agent address => AgentInfo{...}
         mapping(address => ClientInfo) public clientInfos; // client address => ClientInfo{...}
+        mapping(uint256 => ValidateNodeProduct) public validateNodeProducts;
+        mapping(uint256 => AgentNodeProduct) public agentNodeProducts;
         
 
 
@@ -110,7 +131,7 @@ contract ValidateNode is  Initializable,
         }
 
         function addAgent(AgentInfo memory agent) external onlyRole(OPERATE_ROLE) {
-            require(agentInfos[agent.agentAddress].agentAddress != address(0),"ValidateNode:agent is exist");
+            require(agentInfos[agent.agentAddress].agentAddress == address(0),"ValidateNode:agent is exist");
             agentInfos[agent.agentAddress] = agent;
         }
 
@@ -211,10 +232,11 @@ contract ValidateNode is  Initializable,
 
             ClientInfo memory client = clientInfos[clientAddress];
             if (client.clientAddress == address(0)){
-                address[] memory vAddresses;
+                address[] memory vAddresses = new address[](1);
                 vAddresses[0] = validatorAddress;
                 address[] memory aAddresses;
                 if (agentAddress!= address(0)){
+                    aAddresses = new address[](1);
                    aAddresses[0] = agentAddress;
                 }
 
