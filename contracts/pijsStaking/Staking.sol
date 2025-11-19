@@ -274,7 +274,7 @@ contract Staking is  Initializable,
                     DOMAIN_SEPARATOR,
                     keccak256(
                         abi.encode(
-                            PERMIT_VALIDATORSTAKE_TYPEHASH,
+                            PERMIT_AGENTSTAKE_TYPEHASH,
                             orderId,
                             validatorAddress,
                             agentAddress,
@@ -376,6 +376,6 @@ contract Staking is  Initializable,
             stakeTypes[stakeProid] = enabled;
         }
 
-        
+
 
     }

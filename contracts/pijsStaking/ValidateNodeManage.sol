@@ -54,7 +54,52 @@ contract ValidateNodeManage is  Initializable,
 
             // mapping(uint256 => ValidteNodeProduct) public validteNodeProducts;mapping(uint256 => AgentNodeProduct) public agentNodeProducts;
             // initalize product 
-            
+            uint256 stakeType1 = 60 * 60 * 24  * 365 * 1; // 1 year
+            validteNodeProducts[stakeType1] = ValidteNodeProduct({
+                stakeType:stakeType1,
+                token:usdtAddress,
+                amount:10 ether,
+                enabled:true
+            });
+            uint256 stakeType2 = 60 * 60 * 24 * 365 * 2; // 2 year
+            validteNodeProducts[stakeType2] = ValidteNodeProduct({
+                stakeType:stakeType2,
+                token:usdtAddress,
+                amount:20 ether,
+                enabled:true
+            });
+            uint256 stakeType3 = 60 * 60 * 24 * 365 * 3; // 3 year
+            validteNodeProducts[stakeType3] = ValidteNodeProduct({
+                stakeType:stakeType3,
+                token:usdtAddress,
+                amount:20 ether,
+                enabled:true
+            });
+
+            uint256 agentStakeType1 = 30 days;
+            agentNodeProducts[agentStakeType1] = AgentNodeProduct({
+                stakeType:agentStakeType1,
+                token:address(0),
+                amount:30 ether,
+                enabled:true
+            });
+
+            uint256 agentStakeType2 = 60 days;
+            agentNodeProducts[agentStakeType2] = AgentNodeProduct({
+                stakeType:agentStakeType2,
+                token:address(0),
+                amount:60 ether,
+                enabled:true
+            });
+
+            uint256 agentStakeType3 = 90 days;
+            agentNodeProducts[agentStakeType3] = AgentNodeProduct({
+                stakeType:agentStakeType3,
+                token:address(0),
+                amount:90 ether,
+                enabled:true
+            });
+
         }
         /*//////////////////////////////////////////////////////////////
                                Struct
@@ -102,12 +147,14 @@ contract ValidateNodeManage is  Initializable,
 
         struct ValidteNodeProduct {
             uint256 stakeType;
+            address token;
             uint256 amount;
             bool enabled;
         }
 
         struct AgentNodeProduct {
             uint256 stakeType;
+            address token;
             uint256 amount;
             bool enabled;
         }
@@ -184,6 +231,8 @@ contract ValidateNodeManage is  Initializable,
             require(order.payAmount > 0,"NodeManage:payAmount >0");
             require(feeReceiver != address(0),"0 address");
             require(feeReceiver == order.feeTo,"NodeManage:Invalid feeTo");
+            require(validteNodeProducts[order.purchaseDuration].stakeType != 0,"NodeManage:stake type is not exist");
+            require(validteNodeProducts[order.purchaseDuration].amount <= order.payAmount,"NodeManage:amount is not enough");
             
             buyValidateOrders[order.orderId] = order;
             buyValidateNodeOrderIds[msg.sender].push(order.orderId);
@@ -340,6 +389,8 @@ contract ValidateNodeManage is  Initializable,
             require(feeReceiver == order.feeTo,"NodeManage:Invalid feeTo");
             require(msg.sender == order.agentAddress,"NodeManage:invalid agentAddress");
             require(ValidateNode(validatorContractAddress).getValidatorNodeInfo(order.agentAddress).nodeAddress == address(0),"NodeManage:validate node can not to be agent");
+            require(agentNodeProducts[order.purchaseDuration].stakeType != 0,"NodeManage:stake type is not exist");
+            require(agentNodeProducts[order.purchaseDuration].amount <= order.payAmount,"NodeManage:amount is not enough");
             registAgentOrders[order.orderId] = order;
             registAgentOrderIds[msg.sender].push(order.orderId);
             registValidateNodeNonces[msg.sender]++;

@@ -81,22 +81,7 @@ contract ValidateNode is  Initializable,
             address[] agentAddresses; 
         }
 
-        struct ValidateNodeProduct {
-            uint8 productId;
-            uint8 nodeType; // 托管验证者 1、自建节点 2
-            uint256 purchaseDuration;
-            address payByTokenAddress;
-            uint256 payAmount;
-            bool enabled;
-        }
-
-        struct AgentNodeProduct {
-            uint8 productId;
-            uint256 purchaseDuration;
-            address payByTokenAddress;
-            uint256 payAmount;
-            bool enabled;
-        }
+       
 
         /*//////////////////////////////////////////////////////////////
                             STATE VARIABLES
@@ -105,8 +90,6 @@ contract ValidateNode is  Initializable,
         mapping(address => NodeInfo) public validiteNodes;   // nodeAddress => NodeInfo{...}
         mapping(address => AgentInfo) public agentInfos;   // agent address => AgentInfo{...}
         mapping(address => ClientInfo) public clientInfos; // client address => ClientInfo{...}
-        mapping(uint256 => ValidateNodeProduct) public validateNodeProducts;
-        mapping(uint256 => AgentNodeProduct) public agentNodeProducts;
         
 
 
