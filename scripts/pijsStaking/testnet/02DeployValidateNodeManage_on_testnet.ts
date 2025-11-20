@@ -10,8 +10,8 @@ async function main(){
     const usdt = '0x3F00C9dd4F081D7b6b758555c621FbEb09d519FD';
     const args = [signer,validatorContractAddress,feeReceiver,usdt];
     const factory = await ethers.getContractFactory('ValidateNodeManage');
-    const validateNodeManage =  (await upgrades.deployProxy(factory,args,{kind:'uups'})) as ValidateNodeManage;
-    // const validateNodeManage = await upgrades.upgradeProxy('0xd61c57aCdD70561d908c492ef99884f4F1b03319', factory, { kind: 'uups' });
+    // const validateNodeManage =  (await upgrades.deployProxy(factory,args,{kind:'uups'})) as ValidateNodeManage;
+    const validateNodeManage = await upgrades.upgradeProxy('0xd61c57aCdD70561d908c492ef99884f4F1b03319', factory, { kind: 'uups' });
     await validateNodeManage.deployed();
     console.log("ValidateNodeManage address is:",validateNodeManage.address);
 

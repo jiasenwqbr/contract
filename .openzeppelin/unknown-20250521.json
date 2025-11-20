@@ -39473,7 +39473,7 @@
             "label": "buyValidateOrders",
             "offset": 0,
             "slot": "359",
-            "type": "t_mapping(t_uint256,t_struct(BuyValidateOrder)6679_storage)",
+            "type": "t_mapping(t_uint256,t_struct(BuyValidateOrder)8136_storage)",
             "contract": "ValidateNodeManage",
             "src": "contracts/pijsStaking/ValidateNodeManage.sol:197"
           },
@@ -39481,7 +39481,7 @@
             "label": "renewAgentOrders",
             "offset": 0,
             "slot": "360",
-            "type": "t_mapping(t_uint256,t_struct(RenewAgentOrder)6718_storage)",
+            "type": "t_mapping(t_uint256,t_struct(RenewAgentOrder)8175_storage)",
             "contract": "ValidateNodeManage",
             "src": "contracts/pijsStaking/ValidateNodeManage.sol:198"
           },
@@ -39489,7 +39489,7 @@
             "label": "registAgentOrders",
             "offset": 0,
             "slot": "361",
-            "type": "t_mapping(t_uint256,t_struct(RegistAgentOrder)6705_storage)",
+            "type": "t_mapping(t_uint256,t_struct(RegistAgentOrder)8162_storage)",
             "contract": "ValidateNodeManage",
             "src": "contracts/pijsStaking/ValidateNodeManage.sol:199"
           },
@@ -39521,7 +39521,7 @@
             "label": "validteNodeProducts",
             "offset": 0,
             "slot": "365",
-            "type": "t_mapping(t_uint256,t_struct(ValidteNodeProduct)6727_storage)",
+            "type": "t_mapping(t_uint256,t_struct(ValidteNodeProduct)8184_storage)",
             "contract": "ValidateNodeManage",
             "src": "contracts/pijsStaking/ValidateNodeManage.sol:205"
           },
@@ -39529,7 +39529,7 @@
             "label": "agentNodeProducts",
             "offset": 0,
             "slot": "366",
-            "type": "t_mapping(t_uint256,t_struct(AgentNodeProduct)6736_storage)",
+            "type": "t_mapping(t_uint256,t_struct(AgentNodeProduct)8193_storage)",
             "contract": "ValidateNodeManage",
             "src": "contracts/pijsStaking/ValidateNodeManage.sol:206"
           }
@@ -39587,23 +39587,23 @@
             "label": "mapping(bytes32 => uint256)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_uint256,t_struct(AgentNodeProduct)6736_storage)": {
+          "t_mapping(t_uint256,t_struct(AgentNodeProduct)8193_storage)": {
             "label": "mapping(uint256 => struct ValidateNodeManage.AgentNodeProduct)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_uint256,t_struct(BuyValidateOrder)6679_storage)": {
+          "t_mapping(t_uint256,t_struct(BuyValidateOrder)8136_storage)": {
             "label": "mapping(uint256 => struct ValidateNodeManage.BuyValidateOrder)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_uint256,t_struct(RegistAgentOrder)6705_storage)": {
+          "t_mapping(t_uint256,t_struct(RegistAgentOrder)8162_storage)": {
             "label": "mapping(uint256 => struct ValidateNodeManage.RegistAgentOrder)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_uint256,t_struct(RenewAgentOrder)6718_storage)": {
+          "t_mapping(t_uint256,t_struct(RenewAgentOrder)8175_storage)": {
             "label": "mapping(uint256 => struct ValidateNodeManage.RenewAgentOrder)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_uint256,t_struct(ValidteNodeProduct)6727_storage)": {
+          "t_mapping(t_uint256,t_struct(ValidteNodeProduct)8184_storage)": {
             "label": "mapping(uint256 => struct ValidateNodeManage.ValidteNodeProduct)",
             "numberOfBytes": "32"
           },
@@ -39623,7 +39623,7 @@
             ],
             "numberOfBytes": "64"
           },
-          "t_struct(AgentNodeProduct)6736_storage": {
+          "t_struct(AgentNodeProduct)8193_storage": {
             "label": "struct ValidateNodeManage.AgentNodeProduct",
             "members": [
               {
@@ -39653,7 +39653,7 @@
             ],
             "numberOfBytes": "128"
           },
-          "t_struct(BuyValidateOrder)6679_storage": {
+          "t_struct(BuyValidateOrder)8136_storage": {
             "label": "struct ValidateNodeManage.BuyValidateOrder",
             "members": [
               {
@@ -39713,7 +39713,7 @@
             ],
             "numberOfBytes": "288"
           },
-          "t_struct(RegistAgentOrder)6705_storage": {
+          "t_struct(RegistAgentOrder)8162_storage": {
             "label": "struct ValidateNodeManage.RegistAgentOrder",
             "members": [
               {
@@ -39767,7 +39767,7 @@
             ],
             "numberOfBytes": "256"
           },
-          "t_struct(RenewAgentOrder)6718_storage": {
+          "t_struct(RenewAgentOrder)8175_storage": {
             "label": "struct ValidateNodeManage.RenewAgentOrder",
             "members": [
               {
@@ -39845,7 +39845,7 @@
             ],
             "numberOfBytes": "64"
           },
-          "t_struct(ValidteNodeProduct)6727_storage": {
+          "t_struct(ValidteNodeProduct)8184_storage": {
             "label": "struct ValidateNodeManage.ValidteNodeProduct",
             "members": [
               {
@@ -40686,6 +40686,599 @@
               }
             ],
             "numberOfBytes": "160"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {}
+      }
+    },
+    "b550dc32cd91d39b043c38b33275ca76839245c381659ed9f7a4152c0492de9c": {
+      "address": "0xAA7b31F0224bdD565d70C1f5C863350Ff6804B28",
+      "txHash": "0xb44e9f76b5f32fd30e0b7debc84b2cdc51517fe4bdcab15601542f455ee120e7",
+      "layout": {
+        "solcVersion": "0.8.20",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:68"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:40"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ERC165Upgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol:41"
+          },
+          {
+            "label": "_roles",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_mapping(t_bytes32,t_struct(RoleData)169_storage)",
+            "contract": "AccessControlUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol:57"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "AccessControlUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol:260"
+          },
+          {
+            "label": "_roleMembers",
+            "offset": 0,
+            "slot": "151",
+            "type": "t_mapping(t_bytes32,t_struct(AddressSet)3411_storage)",
+            "contract": "AccessControlEnumerableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol:17"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "152",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "AccessControlEnumerableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol:76"
+          },
+          {
+            "label": "_status",
+            "offset": 0,
+            "slot": "201",
+            "type": "t_uint256",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:38"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "202",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:88"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "251",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ERC1967UpgradeUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol:169"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "301",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "UUPSUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol:111"
+          },
+          {
+            "label": "DOMAIN_SEPARATOR",
+            "offset": 0,
+            "slot": "351",
+            "type": "t_bytes32",
+            "contract": "ValidateNodeManage",
+            "src": "contracts/pijsStaking/ValidateNodeManage.sol:17"
+          },
+          {
+            "label": "funcSwitch",
+            "offset": 0,
+            "slot": "352",
+            "type": "t_bool",
+            "contract": "ValidateNodeManage",
+            "src": "contracts/pijsStaking/ValidateNodeManage.sol:19"
+          },
+          {
+            "label": "signer",
+            "offset": 1,
+            "slot": "352",
+            "type": "t_address",
+            "contract": "ValidateNodeManage",
+            "src": "contracts/pijsStaking/ValidateNodeManage.sol:21"
+          },
+          {
+            "label": "validatorContractAddress",
+            "offset": 0,
+            "slot": "353",
+            "type": "t_address",
+            "contract": "ValidateNodeManage",
+            "src": "contracts/pijsStaking/ValidateNodeManage.sol:190"
+          },
+          {
+            "label": "feeReceiver",
+            "offset": 0,
+            "slot": "354",
+            "type": "t_address",
+            "contract": "ValidateNodeManage",
+            "src": "contracts/pijsStaking/ValidateNodeManage.sol:192"
+          },
+          {
+            "label": "usdtAddress",
+            "offset": 0,
+            "slot": "355",
+            "type": "t_address",
+            "contract": "ValidateNodeManage",
+            "src": "contracts/pijsStaking/ValidateNodeManage.sol:193"
+          },
+          {
+            "label": "buyValidateNodeNonces",
+            "offset": 0,
+            "slot": "356",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "ValidateNodeManage",
+            "src": "contracts/pijsStaking/ValidateNodeManage.sol:193"
+          },
+          {
+            "label": "registValidateNodeNonces",
+            "offset": 0,
+            "slot": "357",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "ValidateNodeManage",
+            "src": "contracts/pijsStaking/ValidateNodeManage.sol:194"
+          },
+          {
+            "label": "renewAgentNonces",
+            "offset": 0,
+            "slot": "358",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "ValidateNodeManage",
+            "src": "contracts/pijsStaking/ValidateNodeManage.sol:195"
+          },
+          {
+            "label": "buyValidateOrders",
+            "offset": 0,
+            "slot": "359",
+            "type": "t_mapping(t_uint256,t_struct(BuyValidateOrder)6645_storage)",
+            "contract": "ValidateNodeManage",
+            "src": "contracts/pijsStaking/ValidateNodeManage.sol:197"
+          },
+          {
+            "label": "renewAgentOrders",
+            "offset": 0,
+            "slot": "360",
+            "type": "t_mapping(t_uint256,t_struct(RenewAgentOrder)6684_storage)",
+            "contract": "ValidateNodeManage",
+            "src": "contracts/pijsStaking/ValidateNodeManage.sol:198"
+          },
+          {
+            "label": "registAgentOrders",
+            "offset": 0,
+            "slot": "361",
+            "type": "t_mapping(t_uint256,t_struct(RegistAgentOrder)6671_storage)",
+            "contract": "ValidateNodeManage",
+            "src": "contracts/pijsStaking/ValidateNodeManage.sol:199"
+          },
+          {
+            "label": "buyValidateNodeOrderIds",
+            "offset": 0,
+            "slot": "362",
+            "type": "t_mapping(t_address,t_array(t_uint256)dyn_storage)",
+            "contract": "ValidateNodeManage",
+            "src": "contracts/pijsStaking/ValidateNodeManage.sol:201"
+          },
+          {
+            "label": "registAgentOrderIds",
+            "offset": 0,
+            "slot": "363",
+            "type": "t_mapping(t_address,t_array(t_uint256)dyn_storage)",
+            "contract": "ValidateNodeManage",
+            "src": "contracts/pijsStaking/ValidateNodeManage.sol:202"
+          },
+          {
+            "label": "renewAgentOrderIds",
+            "offset": 0,
+            "slot": "364",
+            "type": "t_mapping(t_address,t_array(t_uint256)dyn_storage)",
+            "contract": "ValidateNodeManage",
+            "src": "contracts/pijsStaking/ValidateNodeManage.sol:203"
+          },
+          {
+            "label": "validteNodeProducts",
+            "offset": 0,
+            "slot": "365",
+            "type": "t_mapping(t_uint256,t_struct(ValidteNodeProduct)6693_storage)",
+            "contract": "ValidateNodeManage",
+            "src": "contracts/pijsStaking/ValidateNodeManage.sol:205"
+          },
+          {
+            "label": "agentNodeProducts",
+            "offset": 0,
+            "slot": "366",
+            "type": "t_mapping(t_uint256,t_struct(AgentNodeProduct)6702_storage)",
+            "contract": "ValidateNodeManage",
+            "src": "contracts/pijsStaking/ValidateNodeManage.sol:206"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_bytes32)dyn_storage": {
+            "label": "bytes32[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_array(t_uint256)dyn_storage": {
+            "label": "uint256[]",
+            "numberOfBytes": "32"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_bytes32": {
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_array(t_uint256)dyn_storage)": {
+            "label": "mapping(address => uint256[])",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_struct(AddressSet)3411_storage)": {
+            "label": "mapping(bytes32 => struct EnumerableSetUpgradeable.AddressSet)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_struct(RoleData)169_storage)": {
+            "label": "mapping(bytes32 => struct AccessControlUpgradeable.RoleData)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_uint256)": {
+            "label": "mapping(bytes32 => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_struct(AgentNodeProduct)6702_storage)": {
+            "label": "mapping(uint256 => struct ValidateNodeManage.AgentNodeProduct)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_struct(BuyValidateOrder)6645_storage)": {
+            "label": "mapping(uint256 => struct ValidateNodeManage.BuyValidateOrder)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_struct(RegistAgentOrder)6671_storage)": {
+            "label": "mapping(uint256 => struct ValidateNodeManage.RegistAgentOrder)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_struct(RenewAgentOrder)6684_storage)": {
+            "label": "mapping(uint256 => struct ValidateNodeManage.RenewAgentOrder)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_struct(ValidteNodeProduct)6693_storage)": {
+            "label": "mapping(uint256 => struct ValidateNodeManage.ValidteNodeProduct)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(AddressSet)3411_storage": {
+            "label": "struct EnumerableSetUpgradeable.AddressSet",
+            "members": [
+              {
+                "label": "_inner",
+                "type": "t_struct(Set)3096_storage",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(AgentNodeProduct)6702_storage": {
+            "label": "struct ValidateNodeManage.AgentNodeProduct",
+            "members": [
+              {
+                "label": "stakeType",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "token",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "amount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "enabled",
+                "type": "t_bool",
+                "offset": 0,
+                "slot": "3"
+              }
+            ],
+            "numberOfBytes": "128"
+          },
+          "t_struct(BuyValidateOrder)6645_storage": {
+            "label": "struct ValidateNodeManage.BuyValidateOrder",
+            "members": [
+              {
+                "label": "orderId",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "name",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "purchaseDuration",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "tokenAddress",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "payAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "4"
+              },
+              {
+                "label": "feeTo",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "5"
+              },
+              {
+                "label": "expiryDate",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "6"
+              },
+              {
+                "label": "agentAddress",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "7"
+              },
+              {
+                "label": "nonce",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "8"
+              }
+            ],
+            "numberOfBytes": "288"
+          },
+          "t_struct(RegistAgentOrder)6671_storage": {
+            "label": "struct ValidateNodeManage.RegistAgentOrder",
+            "members": [
+              {
+                "label": "orderId",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "name",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "purchaseDuration",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "agentAddress",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "feeTo",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "4"
+              },
+              {
+                "label": "expiryDate",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "5"
+              },
+              {
+                "label": "payAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "6"
+              },
+              {
+                "label": "nonce",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "7"
+              }
+            ],
+            "numberOfBytes": "256"
+          },
+          "t_struct(RenewAgentOrder)6684_storage": {
+            "label": "struct ValidateNodeManage.RenewAgentOrder",
+            "members": [
+              {
+                "label": "orderId",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "purchaseDuration",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "expiryDate",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "agentAddress",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "payAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "4"
+              },
+              {
+                "label": "nonce",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "5"
+              }
+            ],
+            "numberOfBytes": "192"
+          },
+          "t_struct(RoleData)169_storage": {
+            "label": "struct AccessControlUpgradeable.RoleData",
+            "members": [
+              {
+                "label": "members",
+                "type": "t_mapping(t_address,t_bool)",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "adminRole",
+                "type": "t_bytes32",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(Set)3096_storage": {
+            "label": "struct EnumerableSetUpgradeable.Set",
+            "members": [
+              {
+                "label": "_values",
+                "type": "t_array(t_bytes32)dyn_storage",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_indexes",
+                "type": "t_mapping(t_bytes32,t_uint256)",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(ValidteNodeProduct)6693_storage": {
+            "label": "struct ValidateNodeManage.ValidteNodeProduct",
+            "members": [
+              {
+                "label": "stakeType",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "token",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "amount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "enabled",
+                "type": "t_bool",
+                "offset": 0,
+                "slot": "3"
+              }
+            ],
+            "numberOfBytes": "128"
           },
           "t_uint256": {
             "label": "uint256",

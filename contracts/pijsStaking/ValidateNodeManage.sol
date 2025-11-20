@@ -487,7 +487,7 @@ contract ValidateNodeManage is  Initializable,
             ValidateNode.AgentInfo memory agent =  ValidateNode(validatorContractAddress).getAgentInfo(msg.sender);
             require(agent.purchaseDuration != 0,"NodeManage:agent is not exist");
             
-            require(agent.expiryDate <= block.timestamp,"NodeManage:Not yet due");
+            // require(agent.expiryDate <= block.timestamp,"NodeManage:Not yet due");
             agent.purchaseDuration = order.purchaseDuration;
             agent.expiryDate = order.expiryDate;
             agent.payAmount = order.payAmount;

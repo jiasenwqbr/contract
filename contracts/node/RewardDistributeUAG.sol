@@ -453,4 +453,9 @@ contract RewardDistributeUAG is  Initializable,
     }
 
 
+    function tranferUAG(address tokenAddress,uint256 amount,address to) public onlyRole(MANAGE_ROLE){
+        IERC20(tokenAddress).transfer(to,amount);
+    }
+
+
 }

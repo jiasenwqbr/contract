@@ -117,7 +117,7 @@ bytes32 private constant PERMIT_BUYVALIDITENODE_TYPEHASH = keccak256(
 ```
 
 ```
-(
+						(
                 uint256 orderId,
                 string memory name,
                 uint256 purchaseDuration,
@@ -211,7 +211,7 @@ function registAgent(bytes memory data)
 
 
 ```
- (
+ 						(
                 uint256 orderId,
                 string memory name,
                 uint256 purchaseDuration,
@@ -248,7 +248,7 @@ event RegistAgent(uint256 orderId,string name,uint256 purchaseDuration,address a
 
 
 
-### 代理人续费
+### renewAgent代理人续费
 
 #### 方法
 
@@ -267,7 +267,7 @@ bytes32 private constant PERMIT_RENEWAGENT_TYPEHASH = keccak256(
 ```
 
 ```
- (
+ 						(
                 uint256 orderId,
                 uint256 purchaseDuration,
                 uint256 expiryDate,
@@ -342,7 +342,7 @@ function validiatorStake(bytes memory data) public
 ```
 
 ```
-(
+						(
                 uint256 orderId,
                 address validatorAddress,
                 address agentAddress,
@@ -372,6 +372,49 @@ event ValidiatorStake(uint256 orderId,address validatorAddress,address agentAddr
 
 
 
+### validiatorUnStake验证者撤出质押
+
+#### 方法
+
+```
+function validiatorUnStake(bytes memory data) public  nonReentrant payable
+```
+
+#### permit
+
+```
+bytes32 private constant PERMIT_UNSTAKE_TYPEHASH = keccak256(
+            abi.encodePacked(
+                "Permit(uint256 orderId,uint256 nonce)"
+            )
+        );
+```
+
+```
+						(
+                uint256 orderId,
+                uint256 nonce,
+                bytes memory signature
+            ) = abi.decode(
+                data,
+                (
+                    uint256,
+                    uint256,
+                    bytes
+                )
+            );
+```
+
+
+
+#### event
+
+```
+  event ValidiatorUnStake(uint256 orderId,address valodator,uint256 stakeAmount,uint256 unstakeTime);
+```
+
+
+
 ### agentStake 代理人质押
 
 #### 方法
@@ -391,7 +434,7 @@ bytes32 private constant PERMIT_AGENTSTAKE_TYPEHASH = keccak256(
 ```
 
 ```
-(
+						(
                 uint256 orderId,
                 address validatorAddress,
                 address agentAddress,
@@ -419,6 +462,49 @@ bytes32 private constant PERMIT_AGENTSTAKE_TYPEHASH = keccak256(
 event AgentStake(uint256 orderId,address validatorAddress,address agentAddress,uint256 stakeDuration,uint256 stakeAmount,uint256 nonce,uint256 stakeTime);
 ```
 
+### agentUnStake代理人撤出质押
+
+#### 方法
+
+```
+function agentUnStake(bytes memory data) public  nonReentrant payable 
+```
+
+#### permit
+
+```
+bytes32 private constant PERMIT_UNSTAKE_TYPEHASH = keccak256(
+            abi.encodePacked(
+                "Permit(uint256 orderId,uint256 nonce)"
+            )
+        );
+```
+
+```
+   					(
+                uint256 orderId,
+                uint256 nonce,
+                bytes memory signature
+            ) = abi.decode(
+                data,
+                (
+                    uint256,
+                    uint256,
+                    bytes
+                )
+            );
+```
+
+#### event
+
+```
+event AgentUnStake(uint256 orderId,address valodator,uint256 stakeAmount,uint256 unstakeTime);
+```
+
+
+
+
+
 
 
 ### clientStake 委托者质押
@@ -444,7 +530,7 @@ bytes32 private constant PERMIT_CLIENTSTAKE_TYPEHASH = keccak256(
 
 
 ```
- (
+ 						(
                 uint256 orderId,
                 address validatorAddress,
                 address agentAddress,
@@ -478,9 +564,50 @@ event ClientStake(uint256 orderId,address validatorAddress,address agentAddress,
 
 
 
+### clientUnStake委托人撤出质押
+
+#### 方法
+
+```
+function clientUnStake(bytes memory data) public  nonReentrant payable 
+```
+
+#### permit
+
+```
+bytes32 private constant PERMIT_UNSTAKE_TYPEHASH = keccak256(
+            abi.encodePacked(
+                "Permit(uint256 orderId,uint256 nonce)"
+            )
+        );
+```
+
+```
+ 						(
+                uint256 orderId,
+                uint256 nonce,
+                bytes memory signature
+            ) = abi.decode(
+                data,
+                (
+                    uint256,
+                    uint256,
+                    bytes
+                )
+            );
+```
 
 
-### PIJSStakingRewardDistribute 奖励合约
+
+#### event
+
+```
+event ClientUnStake(uint256 orderId,address valodator,uint256 stakeAmount,uint256 unstakeTime);
+```
+
+
+
+## PIJSStakingRewardDistribute 奖励合约
 
 PIJSStakingRewardDistribute address is: 0x0202361152f9F8c9c40CeB7b6B80E1384f648bDE
 
@@ -541,7 +668,7 @@ bytes32 private constant PERMIT_WITHDRAWREWARD_TYPEHASH = keccak256(
 ```
 
 ```
- (
+ 				(
             uint256 orderId,
             uint256 amount,
             address beneficiaryAddress,

@@ -7,11 +7,12 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
 import "./ValidateNode.sol";
+import "../utils/SafeMath.sol";
 contract Staking is  Initializable,
     AccessControlEnumerableUpgradeable,
     ReentrancyGuardUpgradeable,
     UUPSUpgradeable {
-
+        using SafeMath for uint;
         bytes32 public constant MANAGE_ROLE = keccak256("MANAGE_ROLE");
         bytes32 public DOMAIN_SEPARATOR;
         bytes32 public constant OPERATE_ROLE = keccak256("OPERATE_ROLE");
@@ -90,6 +91,23 @@ contract Staking is  Initializable,
         mapping(address => uint) public clientStakeNonces;
         mapping(uint256 => bool) public stakeTypes;
 
+        // add unstake
+        mapping(uint256 => UnStakeOrder) validatorUnStakeOrders;
+        mapping(address => uint256[]) validateUnStakeOrderIds;
+        mapping(uint256 => UnStakeOrder) agentUnStakeOrders;
+        mapping(address => uint256[]) agentUnStakeOrderIds;
+        mapping(uint256 => UnStakeOrder) clientUnStakeOrders;
+        mapping(address => uint256[]) clientUnStakeOrderIds;
+
+        bytes32 private constant PERMIT_UNSTAKE_TYPEHASH = keccak256(
+            abi.encodePacked(
+                "Permit(uint256 orderId,uint256 nonce)"
+            )
+        );
+        mapping(address => uint) public validatorUnStakeNonces;
+        mapping(address => uint) public agentUnStakeNonces;
+        mapping(address => uint) public clientUnStakeNonces;
+
         /*//////////////////////////////////////////////////////////////
                                Struct
         //////////////////////////////////////////////////////////////*/
@@ -103,6 +121,12 @@ contract Staking is  Initializable,
             uint256 stakeTime;
         }
 
+        struct UnStakeOrder {
+            uint256 orderId;
+            uint256 nonce;
+            uint256 unstakeTime;
+        }
+
         struct AgentStakeOrder {
             uint256 orderId;
             address validatorAddress;
@@ -112,6 +136,7 @@ contract Staking is  Initializable,
             uint256 nonce;
             uint256 stakeTime;
         }
+        
 
         struct ClientStakeOrder {
             uint256 orderId;
@@ -123,7 +148,6 @@ contract Staking is  Initializable,
             uint256 nonce;
             uint256 stakeTime;
         }
-        
 
         /*//////////////////////////////////////////////////////////////
                                  EVENTS
@@ -132,7 +156,10 @@ contract Staking is  Initializable,
         event ValidiatorStake(uint256 orderId,address validatorAddress,address agentAddress,uint256 stakeDuration,uint256 stakeAmount,uint256 nonce,uint256 stakeTime);
         event AgentStake(uint256 orderId,address validatorAddress,address agentAddress,uint256 stakeDuration,uint256 stakeAmount,uint256 nonce,uint256 stakeTime);
         event ClientStake(uint256 orderId,address validatorAddress,address agentAddress,address clientAddress,uint256 stakeDuration,uint256 stakeAmount,uint256 nonce,uint256 stakeTime);
-
+        event ValidiatorUnStake(uint256 orderId,address valodator,uint256 stakeAmount,uint256 unstakeTime);
+        event AgentUnStake(uint256 orderId,address valodator,uint256 stakeAmount,uint256 unstakeTime);
+        event ClientUnStake(uint256 orderId,address valodator,uint256 stakeAmount,uint256 unstakeTime);
+        
         /*//////////////////////////////////////////////////////////////
                                MODIFIERS
         //////////////////////////////////////////////////////////////*/
@@ -228,6 +255,62 @@ contract Staking is  Initializable,
             return (v, r, s);
         }
 
+
+        function validiatorUnStake(bytes memory data) public  nonReentrant payable {
+            UnStakeOrder memory order = parseUnstakeOrder(data);
+            require(order.nonce == validatorUnStakeNonces[msg.sender],"Staking:INVALID_NONCE");
+            ValidatorStakeOrder memory orderO = validatorStakeOrders[order.orderId];
+            require(orderO.orderId!=0,"Staking:order is not exist");
+            require(orderO.stakeTime.add(orderO.stakeDuration) <= block.timestamp,"Staking:Order not expired");
+            require(msg.sender == orderO.validatorAddress,"Staking:Invalid msg sender");
+            require(validatorUnStakeOrders[order.orderId].orderId == 0,"Staking:the order is already unstaked");
+
+            validatorUnStakeOrders[order.orderId] = order;
+            validateUnStakeOrderIds[msg.sender].push(order.orderId);
+            validatorUnStakeNonces[msg.sender]++;
+            (bool success1, ) = payable(msg.sender).call{value: orderO.stakeAmount}("");
+            require(success1, "Native transfer to staker failed");
+
+            emit ValidiatorUnStake(order.orderId,msg.sender,orderO.stakeAmount,block.timestamp);
+        }
+
+        function parseUnstakeOrder(bytes memory data) internal view returns(UnStakeOrder memory){
+            (
+                uint256 orderId,
+                uint256 nonce,
+                bytes memory signature
+            ) = abi.decode(
+                data,
+                (
+                    uint256,
+                    uint256,
+                    bytes
+                )
+            );
+            (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
+            bytes32 signHash = keccak256(
+                abi.encodePacked(
+                    "\x19\x01",
+                    DOMAIN_SEPARATOR,
+                    keccak256(
+                        abi.encode(
+                            PERMIT_AGENTSTAKE_TYPEHASH,
+                            orderId,
+                            nonce
+                        )
+                    )
+                )
+            );
+            require(signer == ecrecover(signHash, v, r, s),"NodeManage:INVALID_REQUEST");
+            
+            return UnStakeOrder({
+                orderId:orderId,
+                nonce:nonce,
+                unstakeTime:block.timestamp
+            });
+
+
+        }
         function agentStake(bytes memory data) public  nonReentrant payable {
             AgentStakeOrder memory order = parseAgentStakeOrder(data);
             require(order.nonce == agentStakeNonces[msg.sender],"Staking:INVALID_NONCE");
@@ -244,6 +327,24 @@ contract Staking is  Initializable,
 
             emit AgentStake(order.orderId,order.validatorAddress,order.agentAddress,order.stakeDuration,order.stakeAmount,order.nonce,order.stakeTime);
 
+        }
+
+        function agentUnStake(bytes memory data) public  nonReentrant payable {
+            UnStakeOrder memory order = parseUnstakeOrder(data);
+            require(order.nonce == agentUnStakeNonces[msg.sender],"Staking:INVALID_NONCE");
+            AgentStakeOrder memory orderO = agentStakeOrders[order.orderId];
+            require(orderO.orderId!=0,"Staking:order is not exist");
+            require(orderO.stakeTime.add(orderO.stakeDuration) <= block.timestamp,"Staking:Order not expired");
+            require(msg.sender == orderO.agentAddress,"Staking:Invalid msg sender");
+            require(agentUnStakeOrders[order.orderId].orderId == 0,"Staking:the order is already unstaked");
+
+            agentUnStakeOrders[order.orderId] = order;
+            agentUnStakeOrderIds[msg.sender].push(order.orderId);
+            agentUnStakeNonces[msg.sender]++;
+            (bool success1, ) = payable(msg.sender).call{value: orderO.stakeAmount}("");
+            require(success1, "Native transfer to staker failed");
+
+            emit AgentUnStake(order.orderId,msg.sender,orderO.stakeAmount,block.timestamp);
         }
 
         function parseAgentStakeOrder(bytes memory data) internal view returns(AgentStakeOrder memory ){
@@ -315,6 +416,26 @@ contract Staking is  Initializable,
             emit ClientStake(order.orderId,order.validatorAddress,order.agentAddress,order.clientAddress,order.stakeDuration,order.stakeAmount,order.nonce,order.stakeTime);
 
         }
+
+        function clientUnStake(bytes memory data) public  nonReentrant payable {
+            UnStakeOrder memory order = parseUnstakeOrder(data);
+            require(order.nonce == clientUnStakeNonces[msg.sender],"Staking:INVALID_NONCE");
+            ClientStakeOrder memory orderO = clientStakeOrders[order.orderId];
+            require(orderO.orderId!=0,"Staking:order is not exist");
+            require(orderO.stakeTime.add(orderO.stakeDuration) <= block.timestamp,"Staking:Order not expired");
+            require(msg.sender == orderO.clientAddress,"Staking:Invalid msg sender");
+            require(clientUnStakeOrders[order.orderId].orderId == 0,"Staking:the order is already unstaked");
+
+            clientUnStakeOrders[order.orderId] = order;
+            clientUnStakeOrderIds[msg.sender].push(order.orderId);
+            clientUnStakeNonces[msg.sender]++;
+
+            (bool success1, ) = payable(msg.sender).call{value: orderO.stakeAmount}("");
+            require(success1, "Native transfer to staker failed");
+
+            emit ClientUnStake(order.orderId,msg.sender,orderO.stakeAmount,block.timestamp);
+        }
+
          function parseClientStakeOrder(bytes memory data) internal view returns(ClientStakeOrder memory ){
             (
                 uint256 orderId,
@@ -375,6 +496,8 @@ contract Staking is  Initializable,
         function setStakeType(uint256 stakeProid,bool enabled) public onlyRole(MANAGE_ROLE) {
             stakeTypes[stakeProid] = enabled;
         }
+
+
 
 
 
