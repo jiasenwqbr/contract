@@ -294,7 +294,7 @@ contract Staking is  Initializable,
                     DOMAIN_SEPARATOR,
                     keccak256(
                         abi.encode(
-                            PERMIT_AGENTSTAKE_TYPEHASH,
+                            PERMIT_UNSTAKE_TYPEHASH,
                             orderId,
                             nonce
                         )

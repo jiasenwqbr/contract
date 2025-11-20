@@ -80,7 +80,23 @@ contract ValidateNode is  Initializable,
             address[] validatorNodeAddresses;
             address[] agentAddresses; 
         }
-
+        // @delete
+        struct ValidateNodeProduct {
+            uint8 productId;
+            uint8 nodeType; // 托管验证者 1、自建节点 2
+            uint256 purchaseDuration;
+            address payByTokenAddress;
+            uint256 payAmount;
+            bool enabled;
+        }
+        // @delete
+        struct AgentNodeProduct {
+            uint8 productId;
+            uint256 purchaseDuration;
+            address payByTokenAddress;
+            uint256 payAmount;
+            bool enabled;
+        }
        
 
         /*//////////////////////////////////////////////////////////////
@@ -90,6 +106,10 @@ contract ValidateNode is  Initializable,
         mapping(address => NodeInfo) public validiteNodes;   // nodeAddress => NodeInfo{...}
         mapping(address => AgentInfo) public agentInfos;   // agent address => AgentInfo{...}
         mapping(address => ClientInfo) public clientInfos; // client address => ClientInfo{...}
+        
+        // @delete
+        mapping(uint256 => ValidateNodeProduct) public validateNodeProducts;
+        mapping(uint256 => AgentNodeProduct) public agentNodeProducts;
         
 
 
@@ -243,15 +263,15 @@ contract ValidateNode is  Initializable,
                 }
 
                 if (agentAddress!= address(0)){
-                    bool isClientExist = false;
+                    bool isAgentExist = false;
                     for (uint256 i = 0;i < client.agentAddresses.length;i++){
                         if (client.agentAddresses[i] == clientAddress){
-                            isClientExist = true;
+                            isAgentExist = true;
                             break;
                         }
                     }
-                    if (isClientExist == false){
-                        clientInfos[clientAddress].agentAddresses.push(clientAddress);
+                    if (isAgentExist == false){
+                        clientInfos[clientAddress].agentAddresses.push(agentAddress);
                     }
                 }
             }

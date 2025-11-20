@@ -96,7 +96,7 @@ contract PIJSStakingRewardDistribute is
         emit GenerateRewards(msg.sender,yyyymmdd,msg.value,rewardRecords[yyyymmdd],block.timestamp);
     }
 
-    function withdrawReward(bytes memory data) public nonReentrant  onlyRole(OPERATE_ROLE) {
+    function withdrawReward(bytes memory data) public nonReentrant {
         WithdrawRewardOrder memory order = parseWithdrawReward(data);
         require(order.nonce == withdrawNonces[msg.sender],"StakingRewardDistribute:INVALID_NONCE");
         // require(msg.sender == order.beneficiaryAddress,"StakingRewardDistribute:invalid user address");

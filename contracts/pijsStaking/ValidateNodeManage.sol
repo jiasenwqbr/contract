@@ -379,10 +379,12 @@ contract ValidateNodeManage is  Initializable,
             
         }
 
+        
+
         /// registAgent
         function registAgent(bytes memory data) public payable nonReentrant {
             RegistAgentOrder memory order = parseRegistAgentOrder(data);
-            require(order.nonce == registValidateNodeNonces[msg.sender], "NodeManage:INVALID_NONCE");
+            require(order.nonce == renewAgentNonces[msg.sender], "NodeManage:INVALID_NONCE");
             require(registAgentOrders[order.orderId].purchaseDuration == 0,"NodeManage:order is exist");
             require(order.payAmount > 0,"NodeManage:payAmount >0");
             require(feeReceiver != address(0),"0 address");
@@ -393,7 +395,7 @@ contract ValidateNodeManage is  Initializable,
             require(agentNodeProducts[order.purchaseDuration].amount <= order.payAmount,"NodeManage:amount is not enough");
             registAgentOrders[order.orderId] = order;
             registAgentOrderIds[msg.sender].push(order.orderId);
-            registValidateNodeNonces[msg.sender]++;
+            renewAgentNonces[msg.sender]++;
             
             address[] memory validitorNodeAddresses;
             address[] memory clientAddresses;

@@ -9,8 +9,8 @@ async function main(){
     
     const args = [signer];
     const factory = await ethers.getContractFactory('PIJSStakingRewardDistribute');
-    const stakingRewardDistribute =  (await upgrades.deployProxy(factory,args,{kind:'uups'})) as PIJSStakingRewardDistribute;
-    // const stakingRewardDistribute = await upgrades.upgradeProxy('0x0202361152f9F8c9c40CeB7b6B80E1384f648bDE', factory, { kind: 'uups' });
+    // const stakingRewardDistribute =  (await upgrades.deployProxy(factory,args,{kind:'uups'})) as PIJSStakingRewardDistribute;
+    const stakingRewardDistribute = await upgrades.upgradeProxy('0x0202361152f9F8c9c40CeB7b6B80E1384f648bDE', factory, { kind: 'uups' });
     await stakingRewardDistribute.deployed();
     console.log("PIJSStakingRewardDistribute address is:",stakingRewardDistribute.address);
 
