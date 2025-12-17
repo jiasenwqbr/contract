@@ -172,17 +172,23 @@ async function main(){
 
   
         //    手续费
-    const tx = await tokenContract.setBuyFeeReceivers(
-        ['0x57F6384D434B1613eb80B26B6D74C49909372b11','0xf504551185c4b3ee73e9d96eea06e3fd4210e601'],
-        [10,15]
-    );
-    await tx.wait();
+    // const tx = await tokenContract.setBuyFeeReceivers(
+    //     ['0x57F6384D434B1613eb80B26B6D74C49909372b11','0xf504551185c4b3ee73e9d96eea06e3fd4210e601'],
+    //     [10,15]
+    // );
+    // await tx.wait();
 
-    const tx1 = await tokenContract.setSellFeeReceivers(
-         ['0x57F6384D434B1613eb80B26B6D74C49909372b11','0xf504551185c4b3ee73e9d96eea06e3fd4210e601'],
-         [10,15]
-    );
-    await tx1.wait();
+    // const tx1 = await tokenContract.setSellFeeReceivers(
+    //      ['0x57F6384D434B1613eb80B26B6D74C49909372b11','0xf504551185c4b3ee73e9d96eea06e3fd4210e601'],
+    //      [10,15]
+    // );
+    // await tx1.wait();
+
+
+    const tx22 = await tokenContract.updateTradingEnabled(false);
+    await tx22.wait();
+
+    console.log("getTradingEnabled:",await tokenContract.getTradingEnabled());
 
 
 }

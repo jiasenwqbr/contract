@@ -185,7 +185,12 @@ contract StakingUAG is
         
 
         if (order.burnAmount!=0){
-            UAGToken(order.tokenAddress).burnFrom(order.userAddress,order.burnAmount);
+           //  UAGToken(order.tokenAddress).burnFrom(order.userAddress,order.burnAmount);
+
+            require(
+                IERC20(order.tokenAddress).transferFrom(order.userAddress, 0x000000000000000000000000000000000000dEaD , order.burnAmount),
+                "StakingUAG:Payment transfer uacDistributeAddress 1 failed"
+            );
         }
        
         

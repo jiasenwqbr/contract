@@ -30,9 +30,9 @@ async function main(){
     ];
 
     // const stakingUAG =  (await upgrades.deployProxy(stakingUAGFactory,args,{kind:'uups'})) as StakingUAG;
-    // const stakingUAG = await upgrades.upgradeProxy('0x1D992B047459D36179d401eE467eaba54AafDf14', stakingUAGFactory, { kind: 'uups' });
-    // await stakingUAG.deployed();
-    // console.log("StakingUAG address is:",stakingUAG.address);
+    const stakingUAG = await upgrades.upgradeProxy('0x1D992B047459D36179d401eE467eaba54AafDf14', stakingUAGFactory, { kind: 'uups' });
+    await stakingUAG.deployed();
+    console.log("StakingUAG address is:",stakingUAG.address);
     // const ratio:[number, number, number, number] = [15,10,25,50];
     // const tx = await stakingUAG.setUacdistributeRadio(ratio);
     // await tx.wait();
@@ -53,10 +53,10 @@ async function main(){
 
     // console.log(await stakingUAG.getStakeAmountLimit());
 
-    const stakingUAG = await ethers.getContractAt('StakingUAG','0x1D992B047459D36179d401eE467eaba54AafDf14');
-    console.log(await stakingUAG.getWithdrawalFeePersentage());
+    // const stakingUAG = await ethers.getContractAt('StakingUAG','0x1D992B047459D36179d401eE467eaba54AafDf14');
+    // console.log(await stakingUAG.getWithdrawalFeePersentage());
 
-    console.log(await stakingUAG.getUacdistributeRadio());
+    // console.log(await stakingUAG.getUacdistributeRadio());
 
 
 
