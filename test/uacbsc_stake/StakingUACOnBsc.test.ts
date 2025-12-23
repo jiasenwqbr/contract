@@ -11,7 +11,7 @@ describe("StakingUACOnBsc test",() => {
     let user3:any;
     let uac:UACBSC;
     let stakingUACOnBsc:StakingUACOnBsc;
-    let uac_address = "0x710263567fD99E62c3D95772D4870b0948089191";
+    let uac_address = "0x4A20C6BE6d1952c1D6529b3CdB361D426c897231";
     let stakingUACOnBsc_address = "0x145d54E0BE098acfBb9EBdbC83C72e5e897f7d64";
 
     beforeEach(async () => {
@@ -113,10 +113,15 @@ describe("StakingUACOnBsc test",() => {
         // await tx1.wait();
         // console.log("StakingUACOnBsc balance is:",await uac.balanceOf(stakingUACOnBsc.address));
 
-        // const tx = await stakingUACOnBsc.connect(owner).calculateReward({
-        //     gasLimit: 1_000_000,
-        // });
-        // await tx.wait();
+        const tx = await stakingUACOnBsc.connect(owner).calculateReward({
+            gasLimit: 1_000_000,
+        });
+        await tx.wait();
+
+        const tx1 = await stakingUACOnBsc.connect(user1).calculateReward({
+            gasLimit: 1_000_000,
+        });
+        await tx1.wait();
 
         console.log("User info:",await stakingUACOnBsc.users(owner.address));
         console.log("Owner info:",await stakingUACOnBsc.users(owner.address));
@@ -143,7 +148,26 @@ describe("StakingUACOnBsc test",() => {
     });
 
     it("test withdraw reward",async () => {
+        const beforeBalance = await uac.balanceOf(owner.address);
+        console.log("before balance:",beforeBalance);
+        const tx = await stakingUACOnBsc.connect(owner).withDrawReward(uac_address,ethers.utils.parseEther("40"));
+        await tx.wait();
 
+        const afterBalance = await uac.balanceOf(owner.address);
+        console.log("after balance:",afterBalance);
+
+        expect(afterBalance).to.equal(beforeBalance.add(ethers.utils.parseEther("40")));
+
+
+    });
+
+    it("search",async () => {
+        console.log("User info:",await stakingUACOnBsc.users(owner.address));
+        console.log("Owner info:",await stakingUACOnBsc.users(owner.address));
+        console.log("User1 info:",await stakingUACOnBsc.users(user1.address));
+        console.log("Owner rewardBalance:", ethers.utils.formatEther((await stakingUACOnBsc.users(owner.address)).rewardBalance) );
+        console.log("User1 rewardBalance:", ethers.utils.formatEther((await stakingUACOnBsc.users(user1.address)).rewardBalance) );
+        console.log("getPerDays:",await stakingUACOnBsc.getPerDays(0,10));
     });
 
 
@@ -155,5 +179,6 @@ describe("StakingUACOnBsc test",() => {
 
 
 /**
- npx hardhat test ./test/uacbsc_stake/StakingUACOnBsc.test.ts --network ganache --grep "test calculate reward"
+npx hardhat test ./test/uacbsc_stake/StakingUACOnBsc.test.ts --network ganache --grep "test calculate reward"
+npx hardhat test ./test/uacbsc_stake/StakingUACOnBsc.test.ts --network ganache --grep "search"
  */

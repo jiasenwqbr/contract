@@ -9,6 +9,7 @@ const GANACHE_PRIVATE_KEYS = process.env.GANACHE_PRIVATE_KEYS?.split(",") || [];
 const PIJS_TEST_NET_KEYS = process.env.PIJS_TEST_NET_KEYS?.split(",") || []
 const PIJS_NET_KEYS = process.env.PIJS_NET_KEYS?.split(",") || []
 const UNI_NET_KEYS = process.env.UNI_NET_KEYS?.split(",") || []
+const BNB_TEST_NET_KEYS = process.env.BNB_TEST_NET_KEYS?.split(",") || []
 const config: HardhatUserConfig = {
   networks: {
     hardhat: {
@@ -45,6 +46,12 @@ const config: HardhatUserConfig = {
       chainId: 656898,
       accounts:UNI_NET_KEYS,
     },
+    bscTest:{
+      url: "https://data-seed-prebsc-1-s1.binance.org:8545/",
+      chainId: 97,
+      gasPrice: 20000000000, // 20 gwei
+      accounts:BNB_TEST_NET_KEYS,
+    }
   },
    mocha: {
     timeout: 1200000
@@ -87,7 +94,7 @@ const config: HardhatUserConfig = {
         }
       },
       {
-        version: "0.8.3",
+        version: "0.8.0",
         settings: {
           optimizer: {
             enabled: true,

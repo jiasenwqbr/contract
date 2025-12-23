@@ -3,7 +3,7 @@ import { ethers, upgrades } from "hardhat";
 import { UACBSC , StakingUACOnBsc } from  "../../typechain-types";
 async function main(){
     const [owner,user1,user2] = await ethers.getSigners();
-    const uac_address = "0x417efC3705EF574f698D0373d0f09B9C77dF2bBe";
+    const uac_address = "0xedCfa509a8E8F237738B346e44e54f78c7E0e5f4";
     const args = [uac_address];
     const factory = await ethers.getContractFactory('StakingUACOnBsc');
     const stakingUACOnBsc =  (await upgrades.deployProxy(factory,args,{kind:'uups'})) as StakingUACOnBsc;
@@ -14,9 +14,6 @@ async function main(){
     
     const tx1 = await uac.transfer("0x1a7844678b0e9aeb4133bcf35ae1f56b9353e481",ethers.utils.parseEther("10000000"));
     await tx1.wait();
-
-    //  const tx2 = await uac.transfer(owner.address,ethers.utils.parseEther("10000000"));
-    // await tx2.wait();
 
     console.log("0x1a7844678b0e9aeb4133bcf35ae1f56b9353e481 balance is:",await uac.balanceOf("0x1a7844678b0e9aeb4133bcf35ae1f56b9353e481"));
 
@@ -35,8 +32,8 @@ main().catch(
 /**
 
 
-npx hardhat run ./scripts/uacbsc_stake/01deploy_StakingUACOnBSC_testnet.ts --network bsc
+npx hardhat run ./scripts/uacbsc_stake/01deploy_StakingUACOnBSC_bsc_test.ts --network bscTest
 
-StakeUACOnBsc address is: 0xd1d34a96eEC01303100DE97c9e4E3C9d18bFACEF
+StakingUACOnBsc address is: 0x19B75A03dAFb6D6819e86F970d4e3354F02a3216
 
 */
