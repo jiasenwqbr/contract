@@ -4,12 +4,12 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract UACBSC is ERC20, Ownable {
-    constructor(address receiver,uint256 _totalSupply) ERC20("UAC", "UAC") {
+    constructor(address receiver,uint256 _totalSupply) ERC20("UAC", "UniAgent") {
         _mint(receiver, _totalSupply);
     }
-    function mint(address to, uint256 amount) external onlyOwner {
-        _mint(to, amount);
-    }
+    // function mint(address to, uint256 amount) external onlyOwner {
+    //     _mint(to, amount);
+    // }
 }
 
 

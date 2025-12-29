@@ -10,6 +10,7 @@ const PIJS_TEST_NET_KEYS = process.env.PIJS_TEST_NET_KEYS?.split(",") || []
 const PIJS_NET_KEYS = process.env.PIJS_NET_KEYS?.split(",") || []
 const UNI_NET_KEYS = process.env.UNI_NET_KEYS?.split(",") || []
 const BNB_TEST_NET_KEYS = process.env.BNB_TEST_NET_KEYS?.split(",") || []
+const BNB_MAIN_KEYS = process.env.BNB_MAIN_KEYS?.split(",") || []
 const config: HardhatUserConfig = {
   networks: {
     hardhat: {
@@ -51,6 +52,11 @@ const config: HardhatUserConfig = {
       chainId: 97,
       gasPrice: 20000000000, // 20 gwei
       accounts:BNB_TEST_NET_KEYS,
+    },
+    bscmainnet:{
+      url: "https://bsc-dataseed.binance.org/",
+      chainId: 56,
+      accounts:BNB_MAIN_KEYS,
     }
   },
    mocha: {

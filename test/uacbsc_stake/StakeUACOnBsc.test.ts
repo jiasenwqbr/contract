@@ -55,16 +55,16 @@ describe("StakingUACOnBsc test",() => {
 
         const countuser2 = await nft.balanceOf(user2.address);
         console.log("NFT countuser2:", countuser2.toString());
-        // for (let i = 0; i < countuser2.toNumber(); i++) {
-        //     const tokenId = await nft.tokenOfOwnerByIndex(user2.address, i);
-        //     console.log("Token ID:", tokenId.toString());
-        // }
+        for (let i = 0; i < countuser2.toNumber(); i++) {
+            const tokenId = await nft.tokenOfOwnerByIndex(user2.address, i);
+            console.log("Token ID:", tokenId.toString());
+        }
         const countuser3 = await nft.balanceOf(user3.address);
         console.log("NFT countuser3:", countuser3.toString());
-        // for (let i = 0; i < countuser3.toNumber(); i++) {
-        //     const tokenId = await nft.tokenOfOwnerByIndex(user3.address, i);
-        //     console.log("Token ID:", tokenId.toString());
-        // }
+        for (let i = 0; i < countuser3.toNumber(); i++) {
+            const tokenId = await nft.tokenOfOwnerByIndex(user3.address, i);
+            console.log("Token ID:", tokenId.toString());
+        }
 
     });
     it("test owner stake total is right",async () => {
@@ -317,6 +317,33 @@ describe("StakingUACOnBsc test",() => {
         console.log("getPerDays:",await stakeUACOnBsc.getPerDays(0,50));
     });
 
+    it("test Approve",async () => {
+        let tokenIds = 41;
+        const tx1 = await nft.connect(user2).approve(stakeUACOnBsc.address,tokenIds,{
+                 gasLimit: 6721975,
+        });
+
+        await tx1.wait();
+
+        console.log("is approved",await nft.connect(user2).getApproved(tokenIds));
+
+    });
+
+     it("test ApproveAll",async () => {
+       
+        // let tokenIds = 42;
+        // console.log("is approved",await nft.connect(user2).getApproved(tokenIds));
+        // const tx1 = await nft.connect(user2).setApprovalForAll(stakeUACOnBsc.address,true,{
+        //          gasLimit: 6721975,
+        // });
+
+        // await tx1.wait();
+
+        // console.log("is approved",await nft.connect(user2).getApproved(tokenIds));
+        console.log("is approved all",await nft.connect(user2).isApprovedForAll(user2.address,stakeUACOnBsc.address));
+
+    });
+
 
 
 
@@ -333,5 +360,7 @@ npx hardhat test ./test/uacbsc_stake/StakeUACOnBsc.test.ts --network ganache --g
 npx hardhat test ./test/uacbsc_stake/StakeUACOnBsc.test.ts --network ganache --grep "test owner stake batch total is right"
 npx hardhat test ./test/uacbsc_stake/StakeUACOnBsc.test.ts --network ganache --grep "test user1 stake batch total is right"
 npx hardhat test ./test/uacbsc_stake/StakeUACOnBsc.test.ts --network ganache --grep "test calculate reward"
+
+npx hardhat test ./test/uacbsc_stake/StakeUACOnBsc.test.ts --network ganache --grep "test Approve"
 
  */
