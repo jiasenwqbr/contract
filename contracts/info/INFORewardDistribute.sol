@@ -209,10 +209,7 @@ contract INFORewardDistribute is
             if (token == address(0)){
                 uint256 bnbBalance = payable(address(this)).balance;
                 require(bnbBalance >= amount, "ERROR:INSUFFICIENT");
-                
-                payable(user).transfer(userAmount);
-                payable(subAllocationAddresses[0]).transfer(feeAmount * subAllocationRatios[0] / DENOMINATOR);
-                payable(subAllocationAddresses[1]).transfer(feeAmount * subAllocationRatios[1] / DENOMINATOR);
+                payable(user).transfer(amount);
             } else {
                 //send token
                 require(balance(token) >= amount, "INFORewardDistribute:INSUFFICIENT");

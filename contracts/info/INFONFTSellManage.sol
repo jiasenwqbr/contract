@@ -117,5 +117,24 @@ contract INFONFTSellManage is  Initializable,
         emit MintNFT(msg.sender,to,nftId,block.timestamp);
     }
 
+    function setParam(
+        address _usdtAddress,
+        address _nftAddress,
+        address _receiver,
+        address _rootRecommender,
+        address _recommandContractAddress
+    ) public onlyRole(MANAGE_ROLE) {
+        require(_usdtAddress != address(0),"0 address");
+        require(_nftAddress != address(0),"0 address");
+        require(_receiver != address(0),"0 address");
+        require(_rootRecommender != address(0),"0 address");
+        require(_recommandContractAddress != address(0),"0 address");
+        usdtAddress = _usdtAddress;
+        nftAddress = _nftAddress;
+        receiver = _receiver;
+        rootRecommender = _rootRecommender;
+        recommandContractAddress = _recommandContractAddress;
+    }
+
 
 }

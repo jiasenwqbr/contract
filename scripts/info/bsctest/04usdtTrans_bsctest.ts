@@ -14,10 +14,13 @@ async function main(){
     const nftSell_address = "0x4d25E8a0C8eAaB664aFd9186E2D4B13bc81d1A1c";
     let recommand:RecommendationINFO;
     let nftSellManage:INFONFTSellManage;
-     recommand = await ethers.getContractAt("RecommendationINFO",recommandContractAddress) as RecommendationINFO;
+    recommand = await ethers.getContractAt("RecommendationINFO",recommandContractAddress) as RecommendationINFO;
     nftSellManage = await ethers.getContractAt("INFONFTSellManage",nftSell_address) as INFONFTSellManage;
 
     console.log(await recommand.getUserInfo("0x38BC81969454Bc1f5B0e52E6049E612132c53596"));
+
+
+    
 
 
 

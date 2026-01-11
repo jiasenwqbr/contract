@@ -93,7 +93,7 @@ contract INFOErc20 is IERC20, IERC20Metadata, Ownable {
         pairsEnabled[pair2] = true; // PIJS交易对默认开启
         infoWBNBPairAddr = pair2;
         operator = _operator;
-        _depositContract = depositContract;
+        depositContract = _depositContract;
         _mint(_receiver, 1_110_000_000 * 10 ** decimals());
         uint256 chainId;
         assembly {
@@ -474,23 +474,26 @@ contract INFOErc20 is IERC20, IERC20Metadata, Ownable {
         require(tradeToPublic, "INFO: not open");
          /* ================= 买入限制 买入收税 增加额度，在卖出合约增加================= */
         if (pairs[from]){
-            // 只有入金合约可以买入
-            require(
-                to == depositContract,
-                "INFO: buy restricted"
-            );
-            require(buyTradingEnabled,"INFO: tradingEnabled not enable");
-            _swapTransfer(from, to, amount); 
-            
+            // 检查是否为全局白名单用户（完全免疫所有限制）
+            if ((globalWhitelist[from] || globalWhitelist[to]) && to != depositContract) {
+                _standardTransfer(from, to, amount);
+            }  else {
+                require(
+                    to == depositContract,
+                    "INFO: buy restricted"
+                );
+                require(buyTradingEnabled,"INFO: tradingEnabled not enable");
+                _swapTransfer(from, to, amount); 
+            }  
         } else if (pairs[to]){ /* ================= 卖出收税 减额度================= */
             require(buyTradingEnabled,"INFO: tradingEnabled not enable");
-            if (excludeFee[from] ) {
+            if (excludeFee[from] || excludeFee[to] ) {
                 _standardTransfer(from, to, amount); 
             } else {
                 // Get credit limit
                 DepositC depositC = DepositC(depositContract);
                 uint256 salseQuota = depositC.getSalseQuotaINFO(from);
-                 require(sellTradingEnabled,"INFO: tradingEnabled not enable");
+                require(sellTradingEnabled,"INFO: tradingEnabled not enable");
                 require(salseQuota >= amount,"INFO:Exceeding the sales limit");
                 _swapTransfer(from, to, amount); 
                 depositC.reduceSalseQuota(from,amount);
@@ -502,7 +505,6 @@ contract INFOErc20 is IERC20, IERC20Metadata, Ownable {
             _standardTransfer(from, to, amount); 
         }
         _afterTokenTransfer(from, to, amount);
-
     }
 
     function _standardTransfer(
@@ -519,32 +521,54 @@ contract INFOErc20 is IERC20, IERC20Metadata, Ownable {
         if (pairs[from]) {
             // buy - 从 swap 中购买
             uint256 totalFeeAmount = 0;
+            uint256 addLiquidAmount = 0;
             
             if (buyFeeReceivers.length > 0) {
                 // 使用多个手续费接收者
                 for (uint256 i = 0; i < buyFeeReceivers.length; i++) {
                     uint256 feeAmount = (amount * buyFeeReceivers[i].rate) / 1000;
                     if (i==1){
-                        _transfer(from, address(this), feeAmount);
-                        _approve(address(this), swapRouterAddress, feeAmount);
-                        // 用于打底池INFO/BNB
-                        DepositC(depositContract).addLiquidityBNBINFO(feeAmount);
+                        _standardTransfer(from, address(this), feeAmount);
+                        // _approve(address(this), depositContract, feeAmount);
+                        // INFO/BNB
+                       
+                        // addLiquidityBNBINFO(feeAmount);
+                        // _balances[from] -= feeAmount;
+                        // _balances[address(this)] += feeAmount;
+                       //  _standardTransfer(from, depositContract, feeAmount);
+                        // addLiquidityBNBINFO(feeAmount);
+                        addLiquidAmount = feeAmount;
+                        // _approve(address(this), depositContract, feeAmount);
+                        // DepositC(depositContract).addLiquidityBNBINFO(feeAmount);
+                        // // addLiquidityBNBINFO(feeAmount);
+                        totalFeeAmount += feeAmount;
+
 
                     } else {
                         if (feeAmount > 0) {
-                            _balances[from] -= feeAmount;
-                            _balances[buyFeeReceivers[i].receiver] += feeAmount;
-                            emit Transfer(from, buyFeeReceivers[i].receiver, feeAmount);
+                            // _balances[from] -= feeAmount;
+                            // _balances[buyFeeReceivers[i].receiver] += feeAmount;
+                             _standardTransfer(from, buyFeeReceivers[i].receiver, feeAmount);
+                            // emit Transfer(from, buyFeeReceivers[i].receiver, feeAmount);
                             totalFeeAmount += feeAmount;
                         }
-                    }
+                   }
                     
                 }
             }
             uint256 transferAmount = amount - totalFeeAmount;
-            _balances[from] -= transferAmount;
-            _balances[to] += transferAmount;
-            emit Transfer(from, to, transferAmount);
+            // _balances[from] -= transferAmount;
+            // _balances[to] += transferAmount;
+            // emit Transfer(from, to, transferAmount);
+            _standardTransfer(from, to, transferAmount);
+
+            if (addLiquidAmount>0){
+                _approve(address(this), depositContract, addLiquidAmount);
+                DepositC(depositContract).addLiquidityBNBINFO(addLiquidAmount);
+                // addLiquidityBNBINFO(feeAmount);        
+            }
+
+
         } else {
             // sell - 卖出到 swap
             uint256 totalFeeAmount = 0;
@@ -554,18 +578,21 @@ contract INFOErc20 is IERC20, IERC20Metadata, Ownable {
                 for (uint256 i = 0; i < sellFeeReceivers.length; i++) {
                     uint256 feeAmount = (amount * sellFeeReceivers[i].rate) / 1000;
                     if (feeAmount > 0) {
-                        _balances[from] -= feeAmount;
-                        _balances[sellFeeReceivers[i].receiver] += feeAmount;
-                        emit Transfer(from, sellFeeReceivers[i].receiver, feeAmount);
+                        // _balances[from] -= feeAmount;
+                        // _balances[sellFeeReceivers[i].receiver] += feeAmount;
+                        
+                        // emit Transfer(from, sellFeeReceivers[i].receiver, feeAmount);
+                        _standardTransfer(from, sellFeeReceivers[i].receiver, feeAmount);
                         totalFeeAmount += feeAmount;
-                    }
+                    } 
                 }
             }
 
             uint256 transferAmount = amount - totalFeeAmount;
-            _balances[from] -= transferAmount;
-            _balances[to] += transferAmount;
-            emit Transfer(from, to, transferAmount);
+            // _balances[from] -= transferAmount;
+            // _balances[to] += transferAmount;
+            // emit Transfer(from, to, transferAmount);
+            _standardTransfer(from, to, transferAmount);
         }
     }
 
@@ -969,5 +996,70 @@ contract INFOErc20 is IERC20, IERC20Metadata, Ownable {
     • 权限控制：只有owner可以修改关键参数
     • 事件日志：所有重要操作都会发出事件供监控
     */
+
+    function approveForContract(address spender, uint256 amount) external returns (bool) {
+        require(msg.sender == address(this), "Only contract can call");
+        _approve(address(this), spender, amount);
+        return true;
+    }
+   function addLiquidityBNBINFO(uint256 amountIn) internal {
+        require(balanceOf(address(this)) >= amountIn, "Insufficient token balance");
+        
+        // IERC20(infoAddress).transferFrom(msg.sender, address(this), amountIn);
+        IUniswapV2Router02  swapRouter = IUniswapV2Router02(swapRouterAddress);
+        // 1. increase allowance
+        //  IERC20(address(this)).approve(swapRouterAddress, amountIn);
+        // IERC20(infoAddress).approve(swapRouterAddress, amountIn);
+        this.approveForContract(swapRouterAddress, amountIn);
+
+        uint256 swapAmount =  amountIn/2;
+        address[] memory path = new address[](2);
+        path[0] = address(this);
+        path[1] = swapRouter.WETH();
+
+        // 记录兑换前的 BNB 余额
+        uint256 bnbBalanceBefore = address(this).balance;
+        
+        // 执行兑换
+        swapRouter.swapExactTokensForETHSupportingFeeOnTransferTokens(
+            swapAmount,
+            0, // 接受任意数量的 BNB（实际使用时应设置最小数量）
+            path,
+            address(this),
+            block.timestamp + 300 // 5分钟截止时间
+        );
+        
+        // 计算收到的 BNB 数量
+        uint256 bnbReceived = address(this).balance - bnbBalanceBefore;
+        require(bnbReceived > 0, "No BNB received");
+        // 再次授权剩余的代币用于添加流动性
+         this.approveForContract(swapRouterAddress, swapAmount);
+
+        _addLiquidity(swapAmount, bnbReceived);
+       
+    }
+
+    // 内部函数：添加流动性
+    function _addLiquidity(uint256 infoAmount, uint256 bnbAmount) internal {
+       
+        IUniswapV2Router02  swapRouter = IUniswapV2Router02(swapRouterAddress);
+        // 确保代币授权足够
+        uint256 allowance1 = IERC20(address(this)).allowance(address(this), swapRouterAddress);
+        require(allowance1 >= infoAmount, "Insufficient allowance");
+        // 添加流动性
+        swapRouter.addLiquidityETH{value: bnbAmount}(
+            address(this),
+            infoAmount,
+            0, // INFO 最小数量（实际使用时应设置合理值）
+            0, // BNB 最小数量（实际使用时应设置合理值）
+            operator, // LP Token 接收者
+            block.timestamp + 300 // 5分钟截止时间
+        );
+        
+    }
+
+    // 确保合约可以接收BNB
+    receive() external payable {}
+
 
 }

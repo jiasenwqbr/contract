@@ -10,7 +10,9 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
-
+interface IRecommendation {
+    function getUserInfo(address user) external view returns (address referrer,uint256 registrationTime,address[] memory directReferrals,address[] memory referralChain);
+}
 library SafeMath {
     function mul(uint a,uint b) internal pure returns (uint){
         if (a == 0){
@@ -84,7 +86,8 @@ contract DepositContract is
     uint256[4] depositAllocationRatio;
     uint256 public constant DENOMINATOR = 1000; 
     mapping(address => uint256) salseQuota;
-
+    address public recommendContractAddress;
+    address public lpReceiverAddress;
 
 
     /*//////////////////////////////////////////////////////////////
@@ -92,23 +95,27 @@ contract DepositContract is
     //////////////////////////////////////////////////////////////*/
 
     event Deposit(address userAddress,address usdt,uint256 usdtAmount,uint256 bnbAmount,uint256 swapedBnbAmount,address receive0,uint256 infoAmount,address receiver1,uint256 receiver1Amount,address receiver2,uint256 receiver2Amount,address receiver3,uint256 receiver3Amount,uint256 usdValue,uint256 userSalseQuota,uint256 createTime);
-
+    event DepositaddLiquidity(uint256 amountIn,uint256 swapAmount,address lpReceiverAddress);
     /*//////////////////////////////////////////////////////////////
                             FUNCTIONS
     //////////////////////////////////////////////////////////////*/
 
     function deposit(address _usdt,uint256 amount,uint256 usdValue) public nonReentrant payable {
+        (address referAddress,,,) = IRecommendation(recommendContractAddress).getUserInfo(msg.sender);
+        require(referAddress != address(0),"referAddress is 0");
         require(usdValue > 0,"usdValue should > 0");
         uint256 bnbAmount;
         if (_usdt == address(0)){
             require(msg.value > 0,"amount should > 0");
             require(amount > 0,"amount should > 0");
             bnbAmount = amount;
+            // 获取bnb的usdt价值
+            usdValue = getbnb2USDT(usdValue);
         } else {
             require(_usdt == usdt,"Invalid usdt address");
+            require(amount ==  usdValue,"usdValue is invalid");
             bnbAmount = buyBNB(usdt, amount, 0);
         }
-
         // 50% buy INFO
         address receive0 = depositAllocation[0];
         uint256 infoAmount = swapINFO(bnbAmount.mul(depositAllocationRatio[0]).div(DENOMINATOR),receive0);
@@ -116,15 +123,21 @@ contract DepositContract is
         // 35% Treasury insurance pool (contract)
         address receiver1 = depositAllocation[1];
         uint256 receiver1Amount = bnbAmount.mul(depositAllocationRatio[1]).div(DENOMINATOR);
-        payable(receiver1).transfer(receiver1Amount);
+        (bool ok1, ) = receiver1.call{value: receiver1Amount}("");
+        require(ok1, "receiver1 BNB transfer failed");
+        // payable(receiver1).transfer(receiver1Amount);
         // 10% S1
         address receiver2 = depositAllocation[2];
         uint256 receiver2Amount = bnbAmount.mul(depositAllocationRatio[2]).div(DENOMINATOR);
-        payable(receiver2).transfer(receiver2Amount);
+        // payable(receiver2).transfer(receiver2Amount);
+        (bool ok2, ) = receiver2.call{value: receiver2Amount}("");
+        require(ok2, "receiver2 BNB transfer failed");
         // 5% Genesis Node Community Weighted Dividend
         address receiver3 = depositAllocation[3];
         uint256 receiver3Amount = bnbAmount.mul(depositAllocationRatio[3]).div(DENOMINATOR);
-        payable(receiver3).transfer(receiver3Amount);
+        // payable(receiver3).transfer(receiver3Amount);
+        (bool ok3, ) = receiver3.call{value: receiver3Amount}("");
+        require(ok3, "receiver3 BNB transfer failed");
 
         uint256 userSalseQuota = salseQuota[msg.sender].add(usdValue.mul(3));
         salseQuota[msg.sender] = userSalseQuota;
@@ -134,8 +147,28 @@ contract DepositContract is
     }
 
     function buyBNB(address usdtAddress, uint256 amountIn, uint256 amountOutMin) internal returns(uint256) {
-        // 1. 转入 usdt
-        IERC20(usdtAddress).transferFrom(msg.sender, address(this), amountIn);
+       
+       
+        
+        // 1. 先从用户拉 USDT
+        SafeERC20.safeTransferFrom(
+            IERC20(usdtAddress),
+            msg.sender,
+            address(this),
+            amountIn
+        );
+
+        // 2. 再授权 Router
+        SafeERC20.safeApprove(
+            IERC20(usdtAddress),
+            swapRouterAddress,
+            0
+        );
+        SafeERC20.safeApprove(
+            IERC20(usdtAddress),
+            swapRouterAddress,
+            amountIn
+        );
         IUniswapV2Router02 swapRouter = IUniswapV2Router02(swapRouterAddress);
         // 2. USDT -> WETH
         address[] memory path1 = new address[](2);
@@ -160,21 +193,24 @@ contract DepositContract is
     }
     function swapINFO(uint256 bnbAmount,address receive0Address) internal returns(uint256) {
         IUniswapV2Router02 swapRouter = IUniswapV2Router02(swapRouterAddress);
+        address factory = swapRouter.factory();
+        require(factory != address(0), "INVALID_ROUTER");
         // BNB -> INFO
         address[] memory path1 = new address[](2);
         path1[0] = swapRouter.WETH();
         path1[1] = infoAddress;
         uint256 beforeInfoBalance = IERC20(infoAddress).balanceOf(address(this));
-        swapRouter.swapExactTokensForETHSupportingFeeOnTransferTokens(
-            bnbAmount,
+        swapRouter.swapExactETHForTokensSupportingFeeOnTransferTokens{value: bnbAmount}(
             0,
             path1,
             address(this),
             block.timestamp + 300
         );
+
         uint256 afterInfoBalance = IERC20(infoAddress).balanceOf(address(this));
         uint256 infoAmount = afterInfoBalance.sub(beforeInfoBalance);
-
+        
+        require(infoAmount > 0, "NO_INFO_RECEIVED");
         IERC20(infoAddress).transfer(receive0Address,infoAmount);
         return infoAmount;
     }
@@ -185,6 +221,10 @@ contract DepositContract is
         swapRouterAddress = _swapRouterAddress;
         depositAllocation = _depositAllocation;
         depositAllocationRatio = _depositAllocationRatio;
+    }
+
+    function getParams() public view returns(address,address,address,address[4] memory,uint256[4] memory){
+        return (usdt,infoAddress,swapRouterAddress,depositAllocation,depositAllocationRatio);
     }
     function getDepositAllocation() public view returns(address,address,address,uint256[4] memory,address[4] memory) {
         return (usdt,infoAddress,swapRouterAddress,depositAllocationRatio,depositAllocation);
@@ -206,7 +246,28 @@ contract DepositContract is
         salseQuota[user] = salseQuota[user].sub(usdtAmount);
     }
 
-    function getInfo2USDT(uint256 infoAmount) internal view returns(uint256) {
+    function addSalseQuota(address user,uint256 infoAmount) public onlyRole(MANAGE_ROLE) {
+        uint256 usdtAmount = getInfo2USDT(infoAmount);
+        // require(usdtAmount <= salseQuota[user],"Exceeding the limit");
+        // reduce salse quota
+        salseQuota[user] = salseQuota[user].add(usdtAmount);
+    }
+
+    function getbnb2USDT(uint256 amount) public view returns(uint256) {
+        IUniswapV2Router02 swapRouter = IUniswapV2Router02(swapRouterAddress);
+        // bnb -> usdt
+        address[] memory path2 = new address[](2);
+        path2[0] = swapRouter.WETH();
+        path2[1] = usdt;
+
+        uint[] memory amounts2 = swapRouter.getAmountsOut(amount, path2);
+        uint256 usdtAmount = amounts2[1];
+        require(usdtAmount > 0, "BNB->USDT quote failed");
+        
+        return usdtAmount;
+    }
+
+    function getInfo2USDT(uint256 infoAmount) public view returns(uint256) {
         IUniswapV2Router02 swapRouter = IUniswapV2Router02(swapRouterAddress);
         // info -> bnb
         address[] memory path1 = new address[](2);
@@ -250,21 +311,25 @@ contract DepositContract is
 
      function addLiquidityBNBINFO(uint256 amountIn) external onlyRole(INFO_ROLE) {
         
-        IERC20(infoAddress).transferFrom(msg.sender, address(this), amountIn);
+        
+        IERC20(infoAddress).transferFrom(
+            msg.sender,
+            address(this),
+            amountIn
+        );
         IUniswapV2Router02  swapRouter = IUniswapV2Router02(swapRouterAddress);
         // 1. increase allowance
-        SafeERC20.safeIncreaseAllowance(IERC20(address(this)),swapRouterAddress, amountIn);
-
+        IERC20(infoAddress).approve(swapRouterAddress, amountIn);
         uint256 swapAmount =  amountIn/2;
         address[] memory path = new address[](2);
-        path[0] = address(this);
+        path[0] = infoAddress;
         path[1] = swapRouter.WETH();
 
         // 记录兑换前的 BNB 余额
         uint256 bnbBalanceBefore = address(this).balance;
         
         // 执行兑换
-        swapRouter.swapExactTokensForETH(
+        swapRouter.swapExactTokensForETHSupportingFeeOnTransferTokens(
             swapAmount,
             0, // 接受任意数量的 BNB（实际使用时应设置最小数量）
             path,
@@ -274,37 +339,86 @@ contract DepositContract is
         
         // 计算收到的 BNB 数量
         uint256 bnbReceived = address(this).balance - bnbBalanceBefore;
-        require(bnbReceived > 0, "No BNB received");
 
-        _addLiquidity(swapAmount, bnbReceived);
+         // _addLiquidity(amountIn - swapAmount, bnbReceived);
+       emit DepositaddLiquidity(amountIn,0,lpReceiverAddress);
+    }
+
+    function addLiquidityBNBINFO1(uint256 amountIn) public {
+        
+        IERC20(infoAddress).transferFrom(
+            msg.sender,
+            address(this),
+            amountIn
+        );
+        IUniswapV2Router02  swapRouter = IUniswapV2Router02(swapRouterAddress);
+        // 1. increase allowance
+        IERC20(infoAddress).approve(swapRouterAddress, amountIn);
+        uint256 swapAmount =  amountIn/2;
+        address[] memory path = new address[](2);
+        path[0] = infoAddress;
+        path[1] = swapRouter.WETH();
+
+        // 记录兑换前的 BNB 余额
+        uint256 bnbBalanceBefore = address(this).balance;
+        
+        // 执行兑换
+        swapRouter.swapExactTokensForETHSupportingFeeOnTransferTokens(
+            swapAmount,
+            0, // 接受任意数量的 BNB（实际使用时应设置最小数量）
+            path,
+            address(this),
+            block.timestamp + 300 // 5分钟截止时间
+        );
+        
+        // 计算收到的 BNB 数量
+        uint256 bnbReceived = address(this).balance - bnbBalanceBefore;
+        // require(bnbReceived > 0, "No BNB received");
+
+          _addLiquidity(amountIn - swapAmount, bnbReceived);
+       emit DepositaddLiquidity(amountIn,swapAmount,lpReceiverAddress);
     }
 
     // 内部函数：添加流动性
     function _addLiquidity(uint256 infoAmount, uint256 bnbAmount) internal {
         // 批准 Router 使用 INFO（如果之前没批准或额度不够）
-        IERC20(address(this)).approve(swapRouterAddress, infoAmount);
+        IERC20(infoAddress).approve(swapRouterAddress, infoAmount);
         IUniswapV2Router02  swapRouter = IUniswapV2Router02(swapRouterAddress);
         // 添加流动性
         swapRouter.addLiquidityETH{value: bnbAmount}(
-            address(this),
+            infoAddress,
             infoAmount,
             0, // INFO 最小数量（实际使用时应设置合理值）
             0, // BNB 最小数量（实际使用时应设置合理值）
-            msg.sender, // LP Token 接收者
+            lpReceiverAddress, // LP Token 接收者
             block.timestamp + 300 // 5分钟截止时间
         );
+        
     }
 
     function setPara( address _usdt,
-            address _infoAddress,
-            address _swapRouterAddress) external onlyRole(MANAGE_ROLE) {
-                require(_usdt != address(0));
-                require(_infoAddress != address(0));
-                require(_swapRouterAddress != address(0));
-                usdt = _usdt;
-                infoAddress = _infoAddress;
-                swapRouterAddress = _swapRouterAddress;
-            }
+        address _infoAddress,
+        address _swapRouterAddress,
+        address _recommendContractAddress,
+        address _lpReceiverAddress) external onlyRole(MANAGE_ROLE) {
+            require(_usdt != address(0),"0 address");
+            require(_infoAddress != address(0),"0 address");
+            require(_swapRouterAddress != address(0),"0 address");
+            require(_recommendContractAddress != address(0),"0 address");
+            require(_lpReceiverAddress != address(0),"0 address");
+            usdt = _usdt;
+            infoAddress = _infoAddress;
+            swapRouterAddress = _swapRouterAddress;
+            recommendContractAddress = _recommendContractAddress;
+            lpReceiverAddress = _lpReceiverAddress;
+    }
+
+    
+
+    receive() external payable {}
+
+    fallback() external payable {}
+
 
 
     

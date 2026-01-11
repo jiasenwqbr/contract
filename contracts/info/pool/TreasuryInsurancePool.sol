@@ -86,6 +86,7 @@ contract TreasuryInsurancePool  is  Initializable,
         require(_redeemToAddress!=address(0));
         redeemToAddress = _redeemToAddress;
     }
+    receive() external payable {}
 
 
 }

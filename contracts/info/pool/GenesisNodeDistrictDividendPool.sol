@@ -63,4 +63,5 @@ contract GenesisNodeDistrictDividendPool  is  Initializable,
         payable(to).transfer(amount);
         emit WithdrawBNB(msg.sender,to,amount,block.timestamp);
     }
+    receive() external payable {}
 }

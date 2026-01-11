@@ -1,7 +1,7 @@
 # 合约地址
 测试网USDT:
 
-USDTTest address is: 0x640f818613eBc0534BFA62Ff189996bc2bf26003
+USDTTest address is: 0x75A79414fcae320Ac6B063430239654b1a23A7Dd
 
 NFT:
 
@@ -19,9 +19,9 @@ INFONFTSellManage address is: 0x4d25E8a0C8eAaB664aFd9186E2D4B13bc81d1A1c
 
 INFO代币：
 
-INFOErc20 address is: 0x11d6ea3e3b363A9888859300EDF88533AE078e5b
+INFOErc20 address is: 0x414eC87C4c27fE1c382333b6838D571AbBd5C32c
 
-infoWBNBPair address is: 0x020D128C89e7BD887949bc89D4dAD4F262fc3096
+infoWBNBPair address is: 0x27ce628B4466a248BA6Cffcc0871013E4749eec1
 
 usdt/wbnb pair address: 0x4dCa7367AAc18865A95545ebD84703C91A6d1609
 
@@ -29,7 +29,7 @@ usdt/wbnb pair address: 0x4dCa7367AAc18865A95545ebD84703C91A6d1609
 
 入金合约：
 
-DepositContract address is: 0xDaD46aE3E421cBAE5539C56DeE6061b1709115a4
+DepositContract address is: 0x28EE3F1F088dB35B26024364B485063FdF7a7cE8
 
 入金池：
 
@@ -184,6 +184,30 @@ function getSalseQuotaINFO(address user)
 ```
 
 - User 用户地址
+
+### 获取INFO的usdt价格
+
+```
+function getInfo2USDT(uint256 infoAmount) public view returns(uint256) 
+```
+
+
+
+### 获取usdt兑换INFO的数量
+
+```
+ function getbnb2USDT(uint256 amount) public view returns(uint256)
+```
+
+### 获取bnb兑换INFO
+
+```
+function getbnb2USDT(uint256 amount) public view returns(uint256)
+```
+
+
+
+
 
 ## 入金池合约
 
