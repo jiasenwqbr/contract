@@ -6,7 +6,7 @@ async function main(){
     const usdt = await  ethers.getContractAt("USDTTest","0x640f818613eBc0534BFA62Ff189996bc2bf26003") as USDTTest;
     // const tx = await usdt.connect(owner).mint("0x80eAAC222F498242bc9aa607090b0769586C956D",ethers.utils.parseEther("10000000"));
     // await tx.wait();
-    const uusdt_address = "0x640f818613eBc0534BFA62Ff189996bc2bf26003";
+    const uusdt_address = "0x43Db2F7e34F8583b2eEd39681bC77C2699f15A6d";
     const nft_address = "0xA3Cb059d4c85164cA63433b5Dd59fE986DFf85F5";
     const receiver = user1.address;
     const rootRecommender = user2.address;

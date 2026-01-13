@@ -3,7 +3,7 @@ import { ethers, upgrades } from "hardhat";
 import { INFOErc20,DepositContract,INFORewardDistribute,IUniswapV2Router02,IUniswapV2Factory} from  "../../../typechain-types";
 
 async function main(){
-    const erc20_address = "0x6aF6c51D87F41f9964D9b5Fcf718105Da306044e";
+    const erc20_address = "0x1B9D597997DC0BC1b41786556a48C976866B5B64";
     const [owner,user1,user2] = await ethers.getSigners();
     // validate INFOErc20
     const erc20 = await ethers.getContractAt("INFOErc20",erc20_address) as INFOErc20;

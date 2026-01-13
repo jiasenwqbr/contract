@@ -3,11 +3,11 @@ import { ethers, upgrades } from "hardhat";
 import { INFOErc20,DepositContract,INFORewardDistribute,IUniswapV2Router02,IUniswapV2Factory,USDTTest,IUniswapV2Pair} from  "../../../typechain-types";
 
 async function main(){
-     const [owner,user1,user2] = await ethers.getSigners();
-    const infoerc20_address = "0xC67ACDfe21cf8cefb210941f919ab1bFb3904D2b";
+    const [owner,user1,user2] = await ethers.getSigners();
+    const infoerc20_address = "0x1B9D597997DC0BC1b41786556a48C976866B5B64";
     const usdt_test_address = "0x75A79414fcae320Ac6B063430239654b1a23A7Dd";
     const swapRouterAddress = "0xD99D1c33F9fC3444f8101754aBC46c52416550D1";
-    const depositC = "0x806Fd9c7e906F97627559f3F789fFE9B0b4e61a6";
+    const depositC = "0xc4f7F567838918610D4481cF875495Da241A352c";
 
 
 
@@ -33,13 +33,13 @@ async function main(){
     await tx003.wait();
 
     const deadline = Math.floor(Date.now() / 1000) + 60 * 10; // 10分钟
-    // // 添加流动性
+    // // // 添加流动性
     const tx21 = await info.connect(owner).approve(swapRouterAddress,ethers.utils.parseEther("1000000"));
     await tx21.wait();
     
     const tx = await swapRouter.connect(owner).addLiquidityETH(
         infoerc20_address,
-        ethers.utils.parseEther("500000"),
+        ethers.utils.parseEther("50000"),
         0, // 代币最小接收量（滑点保护）
         0, // ETH最小接收量
         owner.address,
@@ -57,7 +57,7 @@ async function main(){
 
 
 
-     // 移除流动性
+    //  // 移除流动性
     // const info_bnb_PairAddress = await factory.getPair(infoerc20_address,wbnb);
     // const pairAddress = info_bnb_PairAddress; // 之前创建的 INFO/WBNB 交易对
     // const pairContract = await ethers.getContractAt("IUniswapV2Pair", pairAddress);

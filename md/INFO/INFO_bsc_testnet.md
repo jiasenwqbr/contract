@@ -1,7 +1,7 @@
 # 合约地址
 测试网USDT:
 
-USDTTest address is: 0x75A79414fcae320Ac6B063430239654b1a23A7Dd
+USDTTest address is: 0x43Db2F7e34F8583b2eEd39681bC77C2699f15A6d
 
 NFT:
 
@@ -19,9 +19,9 @@ INFONFTSellManage address is: 0x4d25E8a0C8eAaB664aFd9186E2D4B13bc81d1A1c
 
 INFO代币：
 
-INFOErc20 address is: 0x414eC87C4c27fE1c382333b6838D571AbBd5C32c
+INFOErc20 address is: 0x1B9D597997DC0BC1b41786556a48C976866B5B64
 
-infoWBNBPair address is: 0x27ce628B4466a248BA6Cffcc0871013E4749eec1
+infoWBNBPair address is: 0x1D2c55FcD0a7DBf7AB6BF8E69A63eC0BAfd7703C
 
 usdt/wbnb pair address: 0x4dCa7367AAc18865A95545ebD84703C91A6d1609
 
@@ -29,12 +29,12 @@ usdt/wbnb pair address: 0x4dCa7367AAc18865A95545ebD84703C91A6d1609
 
 入金合约：
 
-DepositContract address is: 0x28EE3F1F088dB35B26024364B485063FdF7a7cE8
+DepositContract address is: 0xc4f7F567838918610D4481cF875495Da241A352c
 
 入金池：
 
 EcoMineralPool(50%) address is: 0x1375E91522Cbc110d6844c1187610869373D9ca4
-TreasuryInsurancePool(35%) address is: 0xc36268C3Fe6d574A329Ec0676031b6dFe407a7e2
+TreasuryInsurancePool(35%) address is: 0x886cEFa55C7E8F3F0E07a67Ca0aC841240580002
 S1Pool(10%) address is: 0x6eE5B70cf3652678134e6609C98892FDBA2262Dc
 GenesisNodeDistrictDividendPool(5%) address is: 0x3fB59162Cd615A1ab4DC8163cC7aC3e1Dd97cA10
 
@@ -43,6 +43,14 @@ GenesisNodeDistrictDividendPool(5%) address is: 0x3fB59162Cd615A1ab4DC8163cC7aC3
 INFORewardDistribute address is: 0xFd5577f62435Cf6c721461B7fE6cF73eBEc754cD
 
 签名者私钥（仅测试网使用）：0x843f834c0bd6cfd7a5253c509e41924b4eb5f0daeeca7bc4bbc28eb1971ef565
+
+0xcdDa4F2ADD39Db9F64Ee43e7A825655e5c865FFd
+
+
+
+0 地址：0x000000000000000000000000000000000000dEaD
+
+
 
 
 
@@ -200,6 +208,12 @@ function getInfo2USDT(uint256 infoAmount) public view returns(uint256)
 ```
 
 ### 获取bnb兑换INFO
+
+```
+function getbnb2USDT(uint256 amount) public view returns(uint256)
+```
+
+### 获取bnb兑换USDT
 
 ```
 function getbnb2USDT(uint256 amount) public view returns(uint256)

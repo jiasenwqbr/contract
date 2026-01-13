@@ -5,7 +5,7 @@ import { INFOErc20,DepositContract,INFORewardDistribute,IUniswapV2Router02,IUnis
 async function main(){
      const [owner,user1,user2] = await ethers.getSigners();
     const infoerc20_address = "0x414eC87C4c27fE1c382333b6838D571AbBd5C32c";
-    const usdt_test_address = "0x75A79414fcae320Ac6B063430239654b1a23A7Dd";
+    const usdt_test_address = "0x43Db2F7e34F8583b2eEd39681bC77C2699f15A6d";
     const swapRouterAddress = "0xD99D1c33F9fC3444f8101754aBC46c52416550D1";
 
 

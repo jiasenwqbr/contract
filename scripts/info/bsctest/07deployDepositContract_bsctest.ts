@@ -4,8 +4,8 @@ import { INFONFTSellManage ,INFOErc20,DepositContract,IUniswapV2Router02,IUniswa
 
 async function main(){
     const [owner,user1,user2,user3] = await ethers.getSigners();
-    const uusdt_address = "0x75A79414fcae320Ac6B063430239654b1a23A7Dd";
-    const infoAddress = "0xC67ACDfe21cf8cefb210941f919ab1bFb3904D2b";
+    const uusdt_address = "0x43Db2F7e34F8583b2eEd39681bC77C2699f15A6d";
+    const infoAddress = "0x1B9D597997DC0BC1b41786556a48C976866B5B64";
     const swapRouterAddress = "0xD99D1c33F9fC3444f8101754aBC46c52416550D1";
     const recommandAddress = "0xe1fE7Ff080f842D6cb25a820FBb2db6F082fa87E";
     const depositAllocation = [
@@ -20,7 +20,7 @@ async function main(){
     const args = [uusdt_address,infoAddress,swapRouterAddress,depositAllocation,depositAllocationRatio];
     const factory = await ethers.getContractFactory('DepositContract');
     // const depositContract =  (await upgrades.deployProxy(factory,args,{kind:'uups'})) as DepositContract;
-    const depositContract = await upgrades.upgradeProxy('0x806Fd9c7e906F97627559f3F789fFE9B0b4e61a6', factory, { kind: 'uups' });
+    const depositContract = await upgrades.upgradeProxy('0xc4f7F567838918610D4481cF875495Da241A352c', factory, { kind: 'uups' });
     await depositContract.deployed();
     console.log("DepositContract address is:",depositContract.address);
 
@@ -38,14 +38,14 @@ async function main(){
 
     // set INFOErc20 fee receiver
    const tx2 = await infoErc20.setBuyFeeReceivers([
-    user1.address,depositContract.address,user2.address,user2.address
+    user1.address,depositContract.address,user2.address,user3.address
    ],[
     20,160,10,10
    ]);
    await tx2.wait();
 
    const tx3 = await infoErc20.setSellFeeReceivers([
-    user1.address,depositContract.address,user2.address,user2.address
+    user1.address,depositContract.address,user2.address,user3.address
    ],[
     20,160,10,10
    ]);
@@ -64,10 +64,6 @@ async function main(){
 
    const tx5 = await infoErc20.updateGlobalWhitelist(info_bnb_PairAddress,true);
    await tx5.wait();
-
-   
-
-    
 
 }
 
@@ -93,8 +89,14 @@ user2: 0xb98E2E18259057076b3170c078F361978768d001
 user3: 0x3D57d0344a0e89566e336203B86A99B5371b4918
 ///////////////////////////////////////////////////////////
 
-INFOErc20 address is: 0xC67ACDfe21cf8cefb210941f919ab1bFb3904D2b
+INFOErc20 address is: 0xE62b1996E83c0Ac2C4552e9c097f5C8157e4093f
 DepositContract address is: 0x806Fd9c7e906F97627559f3F789fFE9B0b4e61a6
+factory address: 0x6725F303b657a9451d8BA641348b6761A6CC7a17
+wbnb address: 0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd
+///////////////////////////////////////////////////////////
+
+INFOErc20 address is: 0x1B9D597997DC0BC1b41786556a48C976866B5B64
+DepositContract address is: 0xc4f7F567838918610D4481cF875495Da241A352c
 factory address: 0x6725F303b657a9451d8BA641348b6761A6CC7a17
 wbnb address: 0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd
 

@@ -15,6 +15,7 @@ interface DepositC {
     function reduceSalseQuota(address user,uint256 infoAmount) external;
     function getSalseQuotaINFO(address user) external view  returns(uint256);
     function addLiquidityBNBINFO(uint256 amountIn) external  ;
+    function getInfo2USDT(uint256 infoAmount) external view returns(uint256);
 }
 
 contract INFOErc20 is IERC20, IERC20Metadata, Ownable {
@@ -33,7 +34,7 @@ contract INFOErc20 is IERC20, IERC20Metadata, Ownable {
     event TradingEnabledUpdated(bool enabled);
     event PairEnabledStatusUpdated(address indexed pair, bool enabled);
     
-    event SellToken(address token,address from,address to,uint256 amount,uint256 salseQuota,uint256 createTime);
+    event SellToken(address token,address from,address to,uint256 amount,uint256 salseQuota,uint256 usdAmount,uint256 createTime);
 
     mapping(address => uint256) private _balances;
 
@@ -497,7 +498,8 @@ contract INFOErc20 is IERC20, IERC20Metadata, Ownable {
                 require(salseQuota >= amount,"INFO:Exceeding the sales limit");
                 _swapTransfer(from, to, amount); 
                 depositC.reduceSalseQuota(from,amount);
-                emit SellToken(address(this),from,to,amount,salseQuota - amount,block.timestamp);
+                uint256 usdAmount = depositC.getInfo2USDT(amount);
+                emit SellToken(address(this),from,to,amount,salseQuota - amount,usdAmount,block.timestamp);
             }
             
         } else {
@@ -528,14 +530,13 @@ contract INFOErc20 is IERC20, IERC20Metadata, Ownable {
                 for (uint256 i = 0; i < buyFeeReceivers.length; i++) {
                     uint256 feeAmount = (amount * buyFeeReceivers[i].rate) / 1000;
                     if (i==1){
-                        _standardTransfer(from, address(this), feeAmount);
-                        // _approve(address(this), depositContract, feeAmount);
+                         _standardTransfer(from, address(this), feeAmount);
+                         // _approve(address(this), depositContract, feeAmount);
                         // INFO/BNB
-                       
                         // addLiquidityBNBINFO(feeAmount);
                         // _balances[from] -= feeAmount;
                         // _balances[address(this)] += feeAmount;
-                       //  _standardTransfer(from, depositContract, feeAmount);
+                       // _standardTransfer(from, depositContract, feeAmount);
                         // addLiquidityBNBINFO(feeAmount);
                         addLiquidAmount = feeAmount;
                         // _approve(address(this), depositContract, feeAmount);
@@ -562,11 +563,11 @@ contract INFOErc20 is IERC20, IERC20Metadata, Ownable {
             // emit Transfer(from, to, transferAmount);
             _standardTransfer(from, to, transferAmount);
 
-            if (addLiquidAmount>0){
-                _approve(address(this), depositContract, addLiquidAmount);
-                DepositC(depositContract).addLiquidityBNBINFO(addLiquidAmount);
-                // addLiquidityBNBINFO(feeAmount);        
-            }
+            // if (addLiquidAmount>0){
+            //     _approve(address(this), depositContract, addLiquidAmount);
+            //     DepositC(depositContract).addLiquidityBNBINFO(addLiquidAmount);
+            //     // addLiquidityBNBINFO(feeAmount);        
+            // }
 
 
         } else {
@@ -981,85 +982,15 @@ contract INFOErc20 is IERC20, IERC20Metadata, Ownable {
        - setTradeToPublic(true)                // 开放公开交易
        - updateTradingEnabled(true)            // 全局启用交易
     
-    === 功能说明 ===
-    
-    • 多元手续费系统：支持多个地址同时接收手续费，各自设置独立费率，总费率不超过100%
-    • 全局白名单：完全绣过所有限制，包括手续费、交易开关、交易对限制
-    • 交易白名单：交易关闭时仍可交易，但可设置购买上限
-    • 智能检测：swap交易会自动触发手续费收取逻辑
-    • 简洁高效：只保留必要功能，去除了冗余的单费率系统
-    
-    === 安全特性 ===
-    
-    • 费率保护：手续费率总和不超过100%，防止过度收费
-    • 地址验证：所有地址参数都会检查不为零地址
-    • 权限控制：只有owner可以修改关键参数
-    • 事件日志：所有重要操作都会发出事件供监控
     */
-
-    function approveForContract(address spender, uint256 amount) external returns (bool) {
-        require(msg.sender == address(this), "Only contract can call");
-        _approve(address(this), spender, amount);
-        return true;
-    }
-   function addLiquidityBNBINFO(uint256 amountIn) internal {
-        require(balanceOf(address(this)) >= amountIn, "Insufficient token balance");
-        
-        // IERC20(infoAddress).transferFrom(msg.sender, address(this), amountIn);
-        IUniswapV2Router02  swapRouter = IUniswapV2Router02(swapRouterAddress);
-        // 1. increase allowance
-        //  IERC20(address(this)).approve(swapRouterAddress, amountIn);
-        // IERC20(infoAddress).approve(swapRouterAddress, amountIn);
-        this.approveForContract(swapRouterAddress, amountIn);
-
-        uint256 swapAmount =  amountIn/2;
-        address[] memory path = new address[](2);
-        path[0] = address(this);
-        path[1] = swapRouter.WETH();
-
-        // 记录兑换前的 BNB 余额
-        uint256 bnbBalanceBefore = address(this).balance;
-        
-        // 执行兑换
-        swapRouter.swapExactTokensForETHSupportingFeeOnTransferTokens(
-            swapAmount,
-            0, // 接受任意数量的 BNB（实际使用时应设置最小数量）
-            path,
-            address(this),
-            block.timestamp + 300 // 5分钟截止时间
-        );
-        
-        // 计算收到的 BNB 数量
-        uint256 bnbReceived = address(this).balance - bnbBalanceBefore;
-        require(bnbReceived > 0, "No BNB received");
-        // 再次授权剩余的代币用于添加流动性
-         this.approveForContract(swapRouterAddress, swapAmount);
-
-        _addLiquidity(swapAmount, bnbReceived);
-       
-    }
-
-    // 内部函数：添加流动性
-    function _addLiquidity(uint256 infoAmount, uint256 bnbAmount) internal {
-       
-        IUniswapV2Router02  swapRouter = IUniswapV2Router02(swapRouterAddress);
-        // 确保代币授权足够
-        uint256 allowance1 = IERC20(address(this)).allowance(address(this), swapRouterAddress);
-        require(allowance1 >= infoAmount, "Insufficient allowance");
-        // 添加流动性
-        swapRouter.addLiquidityETH{value: bnbAmount}(
-            address(this),
-            infoAmount,
-            0, // INFO 最小数量（实际使用时应设置合理值）
-            0, // BNB 最小数量（实际使用时应设置合理值）
-            operator, // LP Token 接收者
-            block.timestamp + 300 // 5分钟截止时间
-        );
-        
-    }
 
     // 确保合约可以接收BNB
     receive() external payable {}
+
+    function transferFromContract(address to, uint256 amount) external  {
+        require(msg.sender == depositContract,"only depositcontract can do");
+        _transfer(address(this), to, amount);
+    }
 
 
 }

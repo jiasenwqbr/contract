@@ -13,6 +13,9 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgrad
 interface IRecommendation {
     function getUserInfo(address user) external view returns (address referrer,uint256 registrationTime,address[] memory directReferrals,address[] memory referralChain);
 }
+interface INFOC {
+    function transferFromContract(address to, uint256 amount) external;
+}
 library SafeMath {
     function mul(uint a,uint b) internal pure returns (uint){
         if (a == 0){
@@ -63,8 +66,6 @@ contract DepositContract is
             swapRouterAddress = _swapRouterAddress;
             depositAllocation = _depositAllocation;
             depositAllocationRatio = _depositAllocationRatio;
-
-
         }
         /// @custom:oz-upgrades-unsafe-allow constructor
         constructor() {
@@ -88,6 +89,7 @@ contract DepositContract is
     mapping(address => uint256) salseQuota;
     address public recommendContractAddress;
     address public lpReceiverAddress;
+    address public redeenAddress;
 
 
     /*//////////////////////////////////////////////////////////////
@@ -96,6 +98,7 @@ contract DepositContract is
 
     event Deposit(address userAddress,address usdt,uint256 usdtAmount,uint256 bnbAmount,uint256 swapedBnbAmount,address receive0,uint256 infoAmount,address receiver1,uint256 receiver1Amount,address receiver2,uint256 receiver2Amount,address receiver3,uint256 receiver3Amount,uint256 usdValue,uint256 userSalseQuota,uint256 createTime);
     event DepositaddLiquidity(uint256 amountIn,uint256 swapAmount,address lpReceiverAddress);
+    event AddLiquidityBNBINFO(uint256 beforeInfoBalance,uint256 afterInfoBalance,uint256 incr);
     /*//////////////////////////////////////////////////////////////
                             FUNCTIONS
     //////////////////////////////////////////////////////////////*/
@@ -116,9 +119,24 @@ contract DepositContract is
             require(amount ==  usdValue,"usdValue is invalid");
             bnbAmount = buyBNB(usdt, amount, 0);
         }
+        uint256 userSalseQuota = salseQuota[msg.sender].add(usdValue.mul(3));
+        salseQuota[msg.sender] = userSalseQuota;
+        salseQuota[address(this)] = salseQuota[address(this)].add(usdValue.mul(3));
         // 50% buy INFO
         address receive0 = depositAllocation[0];
+
+        uint256 beforeInfoBalance = IERC20(infoAddress).balanceOf(infoAddress);
         uint256 infoAmount = swapINFO(bnbAmount.mul(depositAllocationRatio[0]).div(DENOMINATOR),receive0);
+        uint256 afterInfoBalance = IERC20(infoAddress).balanceOf(infoAddress);
+        uint256 incr = afterInfoBalance - beforeInfoBalance;
+        if (incr > 0){
+            //IERC20(infoAddress).transferFrom(infoAddress,address(this),incr);
+            
+            INFOC(infoAddress).transferFromContract(address(this),incr);
+            addLiquidityBNBINFO2(incr); 
+        }
+
+        emit AddLiquidityBNBINFO(beforeInfoBalance,afterInfoBalance,incr);
     
         // 35% Treasury insurance pool (contract)
         address receiver1 = depositAllocation[1];
@@ -139,17 +157,13 @@ contract DepositContract is
         (bool ok3, ) = receiver3.call{value: receiver3Amount}("");
         require(ok3, "receiver3 BNB transfer failed");
 
-        uint256 userSalseQuota = salseQuota[msg.sender].add(usdValue.mul(3));
-        salseQuota[msg.sender] = userSalseQuota;
-
+        
         emit Deposit(msg.sender,_usdt,amount,msg.value,bnbAmount,receive0,infoAmount,receiver1,receiver1Amount,receiver2,receiver2Amount,receiver3,receiver3Amount,usdValue,userSalseQuota,block.timestamp);
 
     }
 
     function buyBNB(address usdtAddress, uint256 amountIn, uint256 amountOutMin) internal returns(uint256) {
        
-       
-        
         // 1. 先从用户拉 USDT
         SafeERC20.safeTransferFrom(
             IERC20(usdtAddress),
@@ -191,6 +205,8 @@ contract DepositContract is
         require(ethReceived > 0, "No ETH received");
         return ethReceived;
     }
+
+
     function swapINFO(uint256 bnbAmount,address receive0Address) internal returns(uint256) {
         IUniswapV2Router02 swapRouter = IUniswapV2Router02(swapRouterAddress);
         address factory = swapRouter.factory();
@@ -309,14 +325,15 @@ contract DepositContract is
         return infoAmount;
     }
 
-     function addLiquidityBNBINFO(uint256 amountIn) external onlyRole(INFO_ROLE) {
+    
+    function addLiquidityBNBINFO2(uint256 amountIn) internal{
         
         
-        IERC20(infoAddress).transferFrom(
-            msg.sender,
-            address(this),
-            amountIn
-        );
+        // IERC20(infoAddress).transferFrom(
+        //     msg.sender,
+        //     address(this),
+        //     amountIn
+        // );
         IUniswapV2Router02  swapRouter = IUniswapV2Router02(swapRouterAddress);
         // 1. increase allowance
         IERC20(infoAddress).approve(swapRouterAddress, amountIn);
@@ -336,48 +353,16 @@ contract DepositContract is
             address(this),
             block.timestamp + 300 // 5分钟截止时间
         );
-        
         // 计算收到的 BNB 数量
         uint256 bnbReceived = address(this).balance - bnbBalanceBefore;
-
-         // _addLiquidity(amountIn - swapAmount, bnbReceived);
-       emit DepositaddLiquidity(amountIn,0,lpReceiverAddress);
+        emit DepositaddLiquidity(amountIn,bnbReceived,lpReceiverAddress);
+        if (bnbReceived>0){
+             _addLiquidity(amountIn - swapAmount, bnbReceived);
+        }
+       
+       
     }
 
-    function addLiquidityBNBINFO1(uint256 amountIn) public {
-        
-        IERC20(infoAddress).transferFrom(
-            msg.sender,
-            address(this),
-            amountIn
-        );
-        IUniswapV2Router02  swapRouter = IUniswapV2Router02(swapRouterAddress);
-        // 1. increase allowance
-        IERC20(infoAddress).approve(swapRouterAddress, amountIn);
-        uint256 swapAmount =  amountIn/2;
-        address[] memory path = new address[](2);
-        path[0] = infoAddress;
-        path[1] = swapRouter.WETH();
-
-        // 记录兑换前的 BNB 余额
-        uint256 bnbBalanceBefore = address(this).balance;
-        
-        // 执行兑换
-        swapRouter.swapExactTokensForETHSupportingFeeOnTransferTokens(
-            swapAmount,
-            0, // 接受任意数量的 BNB（实际使用时应设置最小数量）
-            path,
-            address(this),
-            block.timestamp + 300 // 5分钟截止时间
-        );
-        
-        // 计算收到的 BNB 数量
-        uint256 bnbReceived = address(this).balance - bnbBalanceBefore;
-        // require(bnbReceived > 0, "No BNB received");
-
-          _addLiquidity(amountIn - swapAmount, bnbReceived);
-       emit DepositaddLiquidity(amountIn,swapAmount,lpReceiverAddress);
-    }
 
     // 内部函数：添加流动性
     function _addLiquidity(uint256 infoAmount, uint256 bnbAmount) internal {
@@ -414,6 +399,35 @@ contract DepositContract is
     }
 
     
+    function redeem(uint256 bnbAmount) external  payable  onlyRole(MANAGE_ROLE) returns(uint256){
+        
+        uint256 usdValue = getbnb2USDT(bnbAmount);
+        uint256 userSalseQuota = salseQuota[msg.sender].add(usdValue.mul(3));
+        salseQuota[msg.sender] = userSalseQuota;
+        salseQuota[address(this)] = salseQuota[address(this)].add(usdValue.mul(3));
+
+       
+        uint256 beforeInfoBalance = IERC20(infoAddress).balanceOf(infoAddress);
+        uint256 infoAmount = swapINFO(bnbAmount,redeenAddress);
+        uint256 afterInfoBalance = IERC20(infoAddress).balanceOf(infoAddress);
+        uint256 incr = afterInfoBalance - beforeInfoBalance;
+        if (incr > 0){
+            //IERC20(infoAddress).transferFrom(infoAddress,address(this),incr);
+            
+            INFOC(infoAddress).transferFromContract(address(this),incr);
+            addLiquidityBNBINFO2(incr); 
+        }
+
+        emit AddLiquidityBNBINFO(beforeInfoBalance,afterInfoBalance,incr);
+    
+        return infoAmount;
+       
+    }
+
+    function setRedeenAddress(address _redeemAddress) public onlyRole(MANAGE_ROLE) {
+        require(_redeemAddress != address(0),"0 address");
+        redeenAddress = _redeemAddress;
+    }
 
     receive() external payable {}
 

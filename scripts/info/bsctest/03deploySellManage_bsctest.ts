@@ -3,7 +3,7 @@ import { ethers, upgrades } from "hardhat";
 import { INFONFTSellManage ,RecommendationINFO,AsiaTelevisionINFONFT} from  "../../../typechain-types";
 async function main(){
     const [owner,user1,user2] = await ethers.getSigners();
-    const uusdt_address = "0x75A79414fcae320Ac6B063430239654b1a23A7Dd";
+    const uusdt_address = "0x43Db2F7e34F8583b2eEd39681bC77C2699f15A6d";
     const nft_address = "0xA3Cb059d4c85164cA63433b5Dd59fE986DFf85F5";
     const receiver = user1.address;
     const rootRecommender = user2.address;

@@ -38,12 +38,15 @@ main().catch(
  * 
 npx hardhat run ./scripts/info/bsctest/05deployINFOErc20_bsctest.ts --network bscTest
 
-INFOErc20 address is: 0x414eC87C4c27fE1c382333b6838D571AbBd5C32c
-infoWBNBPair address is: 0x9cD2884C3da4B85C94d4bF797F6CCAa3957C798E
+
+
+INFOErc20 address is: 0xE62b1996E83c0Ac2C4552e9c097f5C8157e4093f
+infoWBNBPair address is: 0x1D2c55FcD0a7DBf7AB6BF8E69A63eC0BAfd7703C
 owner.address: 0x23b6AEf6Ab0ED44d137256984A3fc8DA7E9C79F9
 
-INFOErc20 address is: 0xC67ACDfe21cf8cefb210941f919ab1bFb3904D2b
-infoWBNBPair address is: 0x500785f57727eF830f0Db70fd42620d77f4c0F22
+
+INFOErc20 address is: 0x1B9D597997DC0BC1b41786556a48C976866B5B64
+infoWBNBPair address is: 0x3f3395eF8c841BB8e89494ff081150b1a186b74c
 owner.address: 0x23b6AEf6Ab0ED44d137256984A3fc8DA7E9C79F9
 
  */
