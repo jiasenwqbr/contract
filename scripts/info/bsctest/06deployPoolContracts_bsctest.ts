@@ -15,6 +15,9 @@ async function main(){
     const info_address = "0x1B9D597997DC0BC1b41786556a48C976866B5B64";
     const router_Address = "0xD99D1c33F9fC3444f8101754aBC46c52416550D1";
     const depositContractAddress = "0xc4f7F567838918610D4481cF875495Da241A352c";
+    // const info_address = "0x462017B39ed4507585a92391D9c13b6031121c2f";
+    // const router_Address = "0xD99D1c33F9fC3444f8101754aBC46c52416550D1";
+    // const depositContractAddress = "0x0146e0D7A0d66b03D0658863317a09DC5588c1Ff";
     const args = [info_address,router_Address];
     const factory2 = await ethers.getContractFactory('TreasuryInsurancePool');
     // const treasuryInsurancePool =  (await upgrades.deployProxy(factory2,args,{kind:'uups'})) as TreasuryInsurancePool;
@@ -31,6 +34,8 @@ async function main(){
     await tx22.wait();
     const tx23 = await treasuryInsurancePool.setDepositContractAddress(depositContractAddress);
     await tx23.wait();
+    const tx24 = await treasuryInsurancePool.setInfoAddress(info_address);
+    await tx24.wait();
 
     const depositContract = await ethers.getContractAt("DepositContract",depositContractAddress);
     const tx33 = await depositContract.grantRole(await depositContract.MANAGE_ROLE(),treasuryInsurancePool.address);

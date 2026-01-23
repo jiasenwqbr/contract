@@ -13,6 +13,7 @@ import "./RecommendationINFO.sol";
 interface INFT {
     function mint(address receiver) external returns (uint256);
 }
+
 contract INFONFTSellManage is  Initializable,
     AccessControlEnumerableUpgradeable,
     ReentrancyGuardUpgradeable,

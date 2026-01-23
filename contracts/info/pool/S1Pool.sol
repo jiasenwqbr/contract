@@ -45,7 +45,7 @@ contract S1Pool  is  Initializable,
         address token,
         address to,
         uint256 amount
-    ) public onlyRole(MANAGE_ROLE) {
+    ) public onlyRole(MANAGE_ROLE) nonReentrant {
         uint256 tokenBalance = IERC20Upgradeable(token).balanceOf(
             address(this)
         );
@@ -57,7 +57,7 @@ contract S1Pool  is  Initializable,
     function withdrawBNB(
         address to,
         uint256 amount
-    ) public onlyRole(MANAGE_ROLE) {
+    ) public onlyRole(MANAGE_ROLE) nonReentrant {
         uint256 bnbBalance = payable(address(this)).balance;
         require(bnbBalance >= amount, "ERROR:INSUFFICIENT");
         payable(to).transfer(amount);

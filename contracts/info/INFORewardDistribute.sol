@@ -203,13 +203,15 @@ contract INFORewardDistribute is
             "ERROR:INVALID_REQUEST"
         );
         nonces[msg.sender]++;
-        if (rewardType == 3){
+        if (rewardType == 3 || rewardType == 1){
             uint256 feeAmount = amount * feeAllocationRatio / DENOMINATOR;
             uint256 userAmount = amount - feeAmount;
             if (token == address(0)){
                 uint256 bnbBalance = payable(address(this)).balance;
                 require(bnbBalance >= amount, "ERROR:INSUFFICIENT");
                 payable(user).transfer(amount);
+                // payable(subAllocationAddresses[0]).transfer( feeAmount * subAllocationRatios[0] / DENOMINATOR);
+                // payable(subAllocationAddresses[1]).transfer(feeAmount * subAllocationRatios[1] / DENOMINATOR);
             } else {
                 //send token
                 require(balance(token) >= amount, "INFORewardDistribute:INSUFFICIENT");
@@ -252,4 +254,6 @@ contract INFORewardDistribute is
 
         return (v, r, s);
     }
+
+    receive() external payable {}
 }

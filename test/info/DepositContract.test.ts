@@ -18,6 +18,7 @@ describe("DepositContract.test",()=>{
     let user1:any;
     let user2:any;
     let user3:any;
+    let user4:any;
     const recommandContractAddress = "0xe1fE7Ff080f842D6cb25a820FBb2db6F082fa87E";
     let recommend:RecommendationINFO;
     let iNFORewardDistributeAddress = "0xFd5577f62435Cf6c721461B7fE6cF73eBEc754cD";
@@ -26,9 +27,10 @@ describe("DepositContract.test",()=>{
     let factoryAddress:any;
     let factory:IUniswapV2Factory;
     let wbnb:any;
+    let rootRecommender:any;
     const depositAllocation = [
         "0x1375E91522Cbc110d6844c1187610869373D9ca4",
-        "0xc36268C3Fe6d574A329Ec0676031b6dFe407a7e2",
+        "0x886cEFa55C7E8F3F0E07a67Ca0aC841240580002",
         "0x6eE5B70cf3652678134e6609C98892FDBA2262Dc",
         "0x3fB59162Cd615A1ab4DC8163cC7aC3e1Dd97cA10"];
     const depositAllocationRatio = [500,350,100,50];
@@ -37,7 +39,7 @@ describe("DepositContract.test",()=>{
     let treasurePool:TreasuryInsurancePool;
  
     beforeEach(async () => {
-        [owner,user1,user2,user3] = await ethers.getSigners();
+        [owner,user1,user2,user3,user4] = await ethers.getSigners();
         infoERC20 = await ethers.getContractAt("INFOErc20",infor_address) as INFOErc20;
         depositContract = await ethers.getContractAt("DepositContract",deposit_address) as DepositContract;
         usdt = await ethers.getContractAt("USDTTest",usdt_address) as USDTTest;
@@ -50,6 +52,7 @@ describe("DepositContract.test",()=>{
         lpReceiveAddress = await depositContract.lpReceiverAddress();
 
         treasurePool = await ethers.getContractAt("TreasuryInsurancePool",treasurePoolAddress) as TreasuryInsurancePool;
+        rootRecommender = user2.address;
 
 
 
@@ -97,7 +100,7 @@ describe("DepositContract.test",()=>{
         const tx00 = await  infoERC20.setExcludeFee(owner.address,true);
         await tx00.wait();
 
-        // const tx0001 = await await infoERC20.setExcludeFee(deposit_address,true);
+        // const tx0001 = await await infoERC20.setExcludeFee(deposit_address,false);
         // await tx0001.wait();
         // const tx0003 = await await infoERC20.setExcludeFee(infor_address,true);
         // await tx0003.wait();
@@ -251,11 +254,6 @@ describe("DepositContract.test",()=>{
         console.log("sellFeeReceiver3BNBBalanceAfter After:",sellFeeReceiver3BNBBalanceAfter);
 
 
-        
-
-
-
-
        // info balance
         const buyFeeReceiver0INFAfter = await infoERC20.balanceOf(buyFeeReceiver0);
         const buyFeeReceiver1INFAfter = await infoERC20.balanceOf(buyFeeReceiver1);
@@ -370,8 +368,158 @@ describe("DepositContract.test",()=>{
     });
 
     it("etherTrans",async () => {
-        console.log(ethers.utils.formatEther("94737502311706198855"));
+        console.log(ethers.utils.formatEther("100573420000000000"));
+        console.log(ethers.utils.formatEther(await ethers.provider.getBalance("0x886cEFa55C7E8F3F0E07a67Ca0aC841240580002")));
+        console.log(await depositContract.getParams());
     });
+    it("usdtTrans",async () => {
+        const tx2 = await usdt.connect(owner).mint("0x1a7844678B0E9aEb4133bCf35ae1f56B9353e481",ethers.utils.parseEther("10000000"));
+        await tx2.wait(2);
+    });
+
+    it("testSell transfer",async () => {
+        //  ### 普通用户转账
+        // console.log("user4 address is:",user4.address,"  Before tranfered balance of user4 is:",await infoERC20.balanceOf(user4.address));
+        // const tx = await infoERC20.connect(owner).transfer(user4.address,ethers.utils.parseEther("1000"));
+        // await tx.wait(2);
+        // console.log("user4 address is:",user4.address,"  After tranfered balance of user4 is:",await infoERC20.balanceOf(user4.address));
+
+        
+    });
+
+    it("testSell swap transfer",async () => {
+        // 绑定用户
+        // const tx = await recommend.connect(user4).bindRelationShip(rootRecommender,{
+        //  gasLimit:6721975
+        // });
+        // await tx.wait();
+        console.log("binder info:",await recommend.getUserInfo(user4.address));
+        // 购买节点
+
+        // 入金
+        // const tx = await infoERC20.connect(owner).transfer(user4.address,ethers.utils.parseEther("1000"));
+        // await tx.wait(2);
+        // console.log("",ethers.utils.formatEther(await infoERC20.balanceOf(user4.address)));
+
+        // const tx2 = await usdt.connect(owner).transfer(user4.address,ethers.utils.parseEther("1000"));
+        // await tx2.wait(2);
+        // console.log("",ethers.utils.formatEther(await usdt.balanceOf(user4.address)));
+
+        // const tx3 = await usdt.connect(user4).approve(deposit_address,ethers.utils.parseEther("100"));
+        // await tx3.wait();
+        // const tx4 =  await depositContract.connect(user4).deposit(usdt_address,ethers.utils.parseEther("100"),ethers.utils.parseEther("100"));
+       
+        // try {
+        //     const resp =  await tx4.wait();
+        //     console.log("txhash:",resp.transactionHash);
+        // } catch (err) {
+        //     console.error(err); 
+        // }
+
+
+
+
+
+        // 卖出info
+        // ### 通过swap卖出
+        const user4BNBBalanceBeforeSwap = await ethers.provider.getBalance(user4.address);
+        console.log("user4BNBBalanceBeforeSwap:",user4BNBBalanceBeforeSwap);
+        const tx00 = await infoERC20.connect(user4).approve(swapRouter.address, ethers.utils.parseEther("100"));
+        const wbnb = await swapRouter.WETH();
+        const path = [infor_address, wbnb];
+        const deadline = Math.floor(Date.now() / 1000) + 60 * 10; // 10分钟
+        const tx = await swapRouter.connect(user4).swapExactTokensForETHSupportingFeeOnTransferTokens(
+            ethers.utils.parseEther("100"),
+            0,
+            path,
+            user4.address,
+            deadline,
+            {
+                gasLimit: 600_000
+            }
+        );
+        const receipent = await tx.wait(2);
+        console.log("receipent hash:",receipent.transactionHash);
+
+        const user4BNBBalanceAfterSwap = await ethers.provider.getBalance(user4.address);
+        console.log("user4BNBBalanceAfterSwap:",user4BNBBalanceAfterSwap);
+
+        console.log("user4 bnb increasement:",user4.address,"     ",user4BNBBalanceAfterSwap.sub(user4BNBBalanceBeforeSwap));
+        
+        const info_bnb_Pair_address =  await factory.getPair(infor_address,wbnb);
+        
+        const isUser4ExcloudeFee = await infoERC20.excludeFee(user4.address);
+        const isPairExcludeFee = await infoERC20.excludeFee(info_bnb_Pair_address);
+        const isOwnerExcludeFee = await infoERC20.excludeFee(owner.address);
+        console.log("isUser4ExcloudeFee:",isUser4ExcloudeFee);
+        console.log("isPairExcludeFee:",isPairExcludeFee);
+        console.log("isOwnerExcludeFee:",isOwnerExcludeFee);
+
+
+     });
+    it("getbnb2usdt",async () => {
+        console.log("",ethers.utils.formatEther(await depositContract.getbnb2USDT(ethers.utils.parseEther("0.0008"))));
+     });
+
+     it("TreasuryInsurancePool",async () => {
+        const treasuryInsurancePool = await ethers.getContractAt("TreasuryInsurancePool","0xc36268C3Fe6d574A329Ec0676031b6dFe407a7e2");
+        const balance = await ethers.provider.getBalance("0xc36268C3Fe6d574A329Ec0676031b6dFe407a7e2");
+        console.log("before withdraw:",ethers.utils.formatEther(balance));
+        console.log("before withdraw to:",ethers.utils.formatEther(await ethers.provider.getBalance("0x886cEFa55C7E8F3F0E07a67Ca0aC841240580002")));
+        // const tx = await treasuryInsurancePool.connect(owner).withdrawBNB(user2.address,balance);
+        // await tx.wait(2);
+        const tx = await user2.sendTransaction({
+            to: "0x886cEFa55C7E8F3F0E07a67Ca0aC841240580002",
+            value: ethers.utils.parseEther("0.012585492801558694"), 
+        });
+        
+
+        await tx.wait(2);
+
+        console.log("tx hash:", tx.hash);
+
+        console.log("after withdraw:",ethers.utils.formatEther(await ethers.provider.getBalance("0xc36268C3Fe6d574A329Ec0676031b6dFe407a7e2")));
+        console.log("after withdraw to:",ethers.utils.formatEther(await ethers.provider.getBalance("0x886cEFa55C7E8F3F0E07a67Ca0aC841240580002")));
+
+
+     });
+
+     it("getQuata",async () => {
+        console.log("min is :",ethers.utils.formatEther(await depositContract.depositLimit(0)),"max is:",ethers.utils.formatEther(await depositContract.depositLimit(1)));
+     });
+
+     it("testDepostContract",async () => {
+        // 入金合约设置成交易白名单 // 用户只能卖出不能买入
+        const tx0001 = await await infoERC20.setExcludeFee(deposit_address,true);
+        await tx0001.wait();
+
+        const tx0002 = await infoERC20.updateGlobalWhitelist(deposit_address,true);
+        await tx0002.wait();
+
+        const tx0003 = await await infoERC20.setExcludeFee("0x3f3395eF8c841BB8e89494ff081150b1a186b74c",true);
+        await tx0003.wait();
+
+        const tx0004 = await infoERC20.updateGlobalWhitelist("0x3f3395eF8c841BB8e89494ff081150b1a186b74c",true);
+        await tx0004.wait();
+
+        const tx0005 = await await infoERC20.setExcludeFee("0x1B9D597997DC0BC1b41786556a48C976866B5B64",true);
+        await tx0005.wait();
+
+        const tx0006 = await infoERC20.updateGlobalWhitelist("0x1B9D597997DC0BC1b41786556a48C976866B5B64",true);
+        await tx0006.wait();
+
+
+        const tx0007 = await await infoERC20.setExcludeFee(swapRouterAddress,true);
+        await tx0007.wait();
+
+        const tx0008 = await infoERC20.updateGlobalWhitelist(swapRouterAddress,true);
+        await tx0008.wait();
+
+        // 
+
+
+     });
+
 
 });
 
@@ -388,6 +536,16 @@ npx hardhat test ./test/info/DepositContract.test --network bscTest --grep "INFO
 
 npx hardhat test ./test/info/DepositContract.test --network bscTest --grep "treasurePool"
 
+npx hardhat test ./test/info/DepositContract.test --network bscTest --grep "getbnb2usdt"
+
+npx hardhat test ./test/info/DepositContract.test --network bscTest --grep "testSell swap transfer"
+
 npx hardhat test ./test/info/DepositContract.test --network bscTest --grep "etherTrans"
- 
+
+npx hardhat test ./test/info/DepositContract.test --network bscTest --grep "TreasuryInsurancePool"
+
+npx hardhat test ./test/info/DepositContract.test --network bscTest --grep "getQuata"
+
+npx hardhat test ./test/info/DepositContract.test --network bscTest --grep "testDepostContract"
+
 */

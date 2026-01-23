@@ -10,7 +10,7 @@ async function main(){
     const recommandAddress = "0xe1fE7Ff080f842D6cb25a820FBb2db6F082fa87E";
     const depositAllocation = [
         "0x1375E91522Cbc110d6844c1187610869373D9ca4",
-        "0xc36268C3Fe6d574A329Ec0676031b6dFe407a7e2",
+        "0x886cEFa55C7E8F3F0E07a67Ca0aC841240580002",
         "0x6eE5B70cf3652678134e6609C98892FDBA2262Dc",
         "0x3fB59162Cd615A1ab4DC8163cC7aC3e1Dd97cA10"];
     const depositAllocationRatio = [500,350,100,50];
@@ -28,8 +28,12 @@ async function main(){
     const tx1 = await depositContract.grantRole(await depositContract.INFO_ROLE(),infoAddress);
     await tx1.wait();
 
-    const tx11 = await depositContract.setPara( uusdt_address,infoAddress,swapRouterAddress,recommandAddress,lpReceiveAddress);
+    const tx11 = await depositContract.setParams( uusdt_address,infoAddress,swapRouterAddress,
+        depositAllocation,depositAllocationRatio);
     await tx11.wait();
+
+    const tx12 = await depositContract.setDepositLimit(ethers.utils.parseEther("10"),ethers.utils.parseEther("2000"));
+    await tx12.wait();
 
     // // set INFOErc20 contract 
     const infoErc20 = await ethers.getContractAt("INFOErc20",infoAddress);
@@ -51,9 +55,10 @@ async function main(){
    ]);
    await tx3.wait();
 
+
    // set INFO globleWiteList
    const tx4 = await infoErc20.updateGlobalWhitelist(swapRouterAddress,true);
-   await tx.wait();
+   await tx4.wait();
    const swapRouter = await ethers.getContractAt("IUniswapV2Router02",swapRouterAddress) as IUniswapV2Router02;
     const factoryAddress = await swapRouter.factory();
     console.log("factory address:",factoryAddress);

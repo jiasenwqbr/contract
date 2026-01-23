@@ -98,7 +98,7 @@ contract TreasuryInsurancePool  is  Initializable,
         address token,
         address to,
         uint256 amount
-    ) public onlyRole(MANAGE_ROLE) {
+    ) public onlyRole(MANAGE_ROLE) nonReentrant {
         uint256 tokenBalance = IERC20Upgradeable(token).balanceOf(
             address(this)
         );
@@ -110,7 +110,7 @@ contract TreasuryInsurancePool  is  Initializable,
     function withdrawBNB(
         address to,
         uint256 amount
-    ) public onlyRole(MANAGE_ROLE) {
+    ) public onlyRole(MANAGE_ROLE) nonReentrant {
         uint256 bnbBalance = payable(address(this)).balance;
         require(bnbBalance >= amount, "ERROR:INSUFFICIENT");
         payable(to).transfer(amount);
@@ -122,7 +122,7 @@ contract TreasuryInsurancePool  is  Initializable,
         redeemRatio = ratio;
     }
 
-    function redeemAndBurn() external onlyRole(MANAGE_ROLE) {
+    function redeemAndBurn() external onlyRole(MANAGE_ROLE) nonReentrant {
         uint256 bnbBalance = payable(address(this)).balance;
         uint256 redeemAmount = bnbBalance*redeemRatio/DENOMINATOR;
         // 转账
@@ -139,7 +139,7 @@ contract TreasuryInsurancePool  is  Initializable,
         redeemToAddress = _redeemToAddress;
     }
 
-    function  redeem() external onlyRole(MANAGE_ROLE) {
+    function  redeem() external onlyRole(MANAGE_ROLE) nonReentrant {
         uint256 bnbBalance = payable(address(this)).balance;
         uint256 redeemAmount = bnbBalance*redeemRatio/DENOMINATOR;
         // 转账
@@ -182,6 +182,11 @@ contract TreasuryInsurancePool  is  Initializable,
     function setDepositContractAddress(address depositAddress) public onlyRole(MANAGE_ROLE){
         require(depositAddress != address(0),"0 address");
         depositContractAddress = depositAddress;
+    }
+
+    function setInfoAddress(address _infoAddress) public onlyRole(MANAGE_ROLE){
+        require(_infoAddress != address(0),"0 address");
+        infoAddress = _infoAddress;
     }
 
     

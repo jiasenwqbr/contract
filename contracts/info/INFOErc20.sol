@@ -476,7 +476,8 @@ contract INFOErc20 is IERC20, IERC20Metadata, Ownable {
          /* ================= 买入限制 买入收税 增加额度，在卖出合约增加================= */
         if (pairs[from]){
             // 检查是否为全局白名单用户（完全免疫所有限制）
-            if ((globalWhitelist[from] || globalWhitelist[to]) && to != depositContract) {
+            // if ((globalWhitelist[from] || globalWhitelist[to]) && to != depositContract) {
+            if (globalWhitelist[from] || globalWhitelist[to]) {
                 _standardTransfer(from, to, amount);
             }  else {
                 require(
@@ -488,7 +489,8 @@ contract INFOErc20 is IERC20, IERC20Metadata, Ownable {
             }  
         } else if (pairs[to]){ /* ================= 卖出收税 减额度================= */
             require(buyTradingEnabled,"INFO: tradingEnabled not enable");
-            if (excludeFee[from] || excludeFee[to] ) {
+            // if (excludeFee[from] || excludeFee[to] ) {
+            if (excludeFee[from]) {
                 _standardTransfer(from, to, amount); 
             } else {
                 // Get credit limit

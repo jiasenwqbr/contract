@@ -90,6 +90,7 @@ contract DepositContract is
     address public recommendContractAddress;
     address public lpReceiverAddress;
     address public redeenAddress;
+    uint256[2] public depositLimit; 
 
 
     /*//////////////////////////////////////////////////////////////
@@ -99,6 +100,7 @@ contract DepositContract is
     event Deposit(address userAddress,address usdt,uint256 usdtAmount,uint256 bnbAmount,uint256 swapedBnbAmount,address receive0,uint256 infoAmount,address receiver1,uint256 receiver1Amount,address receiver2,uint256 receiver2Amount,address receiver3,uint256 receiver3Amount,uint256 usdValue,uint256 userSalseQuota,uint256 createTime);
     event DepositaddLiquidity(uint256 amountIn,uint256 swapAmount,address lpReceiverAddress);
     event AddLiquidityBNBINFO(uint256 beforeInfoBalance,uint256 afterInfoBalance,uint256 incr);
+    event TestSwapINFO(uint256 bnbamount,address receiver);
     /*//////////////////////////////////////////////////////////////
                             FUNCTIONS
     //////////////////////////////////////////////////////////////*/
@@ -111,14 +113,15 @@ contract DepositContract is
         if (_usdt == address(0)){
             require(msg.value > 0,"amount should > 0");
             require(amount > 0,"amount should > 0");
-            bnbAmount = amount;
+            bnbAmount = msg.value;
             // 获取bnb的usdt价值
-            usdValue = getbnb2USDT(usdValue);
+            usdValue = getbnb2USDT(msg.value);
         } else {
             require(_usdt == usdt,"Invalid usdt address");
             require(amount ==  usdValue,"usdValue is invalid");
             bnbAmount = buyBNB(usdt, amount, 0);
         }
+        require(usdValue >= depositLimit[0] && usdValue <= depositLimit[1],"usdValue should >= min and <= max");
         uint256 userSalseQuota = salseQuota[msg.sender].add(usdValue.mul(3));
         salseQuota[msg.sender] = userSalseQuota;
         salseQuota[address(this)] = salseQuota[address(this)].add(usdValue.mul(3));
@@ -126,6 +129,7 @@ contract DepositContract is
         address receive0 = depositAllocation[0];
 
         uint256 beforeInfoBalance = IERC20(infoAddress).balanceOf(infoAddress);
+        emit TestSwapINFO(bnbAmount.mul(depositAllocationRatio[0]).div(DENOMINATOR),receive0);
         uint256 infoAmount = swapINFO(bnbAmount.mul(depositAllocationRatio[0]).div(DENOMINATOR),receive0);
         uint256 afterInfoBalance = IERC20(infoAddress).balanceOf(infoAddress);
         uint256 incr = afterInfoBalance - beforeInfoBalance;
@@ -267,6 +271,13 @@ contract DepositContract is
         // require(usdtAmount <= salseQuota[user],"Exceeding the limit");
         // reduce salse quota
         salseQuota[user] = salseQuota[user].add(usdtAmount);
+    }
+    function addSalseQuotaUSDT(address user,uint256 usdtAmount) public onlyRole(MANAGE_ROLE) {
+        salseQuota[user] = salseQuota[user].add(usdtAmount);
+    }
+
+    function reduceSalseQuotaUSDT(address user,uint256 usdtAmount) public onlyRole(MANAGE_ROLE) {
+        salseQuota[user] = salseQuota[user].sub(usdtAmount);
     }
 
     function getbnb2USDT(uint256 amount) public view returns(uint256) {
@@ -427,6 +438,11 @@ contract DepositContract is
     function setRedeenAddress(address _redeemAddress) public onlyRole(MANAGE_ROLE) {
         require(_redeemAddress != address(0),"0 address");
         redeenAddress = _redeemAddress;
+    }
+
+    function setDepositLimit(uint256 _min,uint256 _max)  public onlyRole(MANAGE_ROLE) {
+        depositLimit[0] = _min;
+        depositLimit[1] = _max;
     }
 
     receive() external payable {}

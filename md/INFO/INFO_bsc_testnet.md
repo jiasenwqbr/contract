@@ -19,9 +19,9 @@ INFONFTSellManage address is: 0x4d25E8a0C8eAaB664aFd9186E2D4B13bc81d1A1c
 
 INFO代币：
 
-INFOErc20 address is: 0x1B9D597997DC0BC1b41786556a48C976866B5B64
+INFOErc20 address is: 0x56d0a2a75fA6F733Df20CEb8D7e987134c05C96b
 
-infoWBNBPair address is: 0x1D2c55FcD0a7DBf7AB6BF8E69A63eC0BAfd7703C
+infoWBNBPair address is: 0x8687CfCcc6D4Aa3d3E8d298F069E5eadBa59Bb2A
 
 usdt/wbnb pair address: 0x4dCa7367AAc18865A95545ebD84703C91A6d1609
 
@@ -29,22 +29,23 @@ usdt/wbnb pair address: 0x4dCa7367AAc18865A95545ebD84703C91A6d1609
 
 入金合约：
 
-DepositContract address is: 0xc4f7F567838918610D4481cF875495Da241A352c
+DepositContract address is: 0x0146e0D7A0d66b03D0658863317a09DC5588c1Ff
 
 入金池：
 
-EcoMineralPool(50%) address is: 0x1375E91522Cbc110d6844c1187610869373D9ca4
-TreasuryInsurancePool(35%) address is: 0x886cEFa55C7E8F3F0E07a67Ca0aC841240580002
-S1Pool(10%) address is: 0x6eE5B70cf3652678134e6609C98892FDBA2262Dc
-GenesisNodeDistrictDividendPool(5%) address is: 0x3fB59162Cd615A1ab4DC8163cC7aC3e1Dd97cA10
+EcoMineralPool(50%) address is: 0x68a0176956709C57a775afE9Ce34Fe318aedf2B6
+
+TreasuryInsurancePool(35%) address is: 0x7c3EDDc77f37ECec6ea04B6D86c61B90e9deF9c3
+
+S1Pool(10%) address is: 0x228b5959B21E12151A094ee5F985bEd494445298
+
+GenesisNodeDistrictDividendPool(5%) address is: 0x0473b7D0F4eEF4b0f761533040c4e4fe714cd729
 
 奖励领取合约：
 
-INFORewardDistribute address is: 0xFd5577f62435Cf6c721461B7fE6cF73eBEc754cD
+INFORewardDistribute address is: 0xDe8eF37E83EBCb08A54D5F663C3C45486960D3D8
 
-签名者私钥（仅测试网使用）：0x843f834c0bd6cfd7a5253c509e41924b4eb5f0daeeca7bc4bbc28eb1971ef565
-
-0xcdDa4F2ADD39Db9F64Ee43e7A825655e5c865FFd
+签名者（仅测试网使用）：0x98ade8368090031b8a0185383d3dfde4eab076d0
 
 
 
@@ -219,80 +220,259 @@ function getbnb2USDT(uint256 amount) public view returns(uint256)
 function getbnb2USDT(uint256 amount) public view returns(uint256)
 ```
 
+### 售出 sellInfo
 
+```
+function sellInfo(address tokenAddress,uint256 amount)
+```
+
+- tokenAddress INFO代币地址
+- amount 售出的数量
+
+事件：
+
+```
+ event SellInfo(address userAddr,uint256 infoAmount,uint256 bnbReceived,uint256 addLiquidityAmount,uint256 info2usdtAmount,uint256 userRemainUSDTQuota,uint256 userRemainINFOQuota,uint256 createTime);
+   
+```
+
+- userAddr  出售者地址
+- infoAmount 出售的INFO数量
+- bnbReceived 购买到的BNB数量
+- addLiquidityAmount 用于添加流动性的INFO数量
+-  info2usdtAmount 本次购买扣除的通证数量（USDT）
+- userRemainUSDTQuota 本次购买之后剩余的额度（USDT计算）
+- userRemainINFOQuota 本次购买之后剩余的额度（INFO计算）
+- createTime 创建时间
 
 
 
 ## 入金池合约
 
-EcoMineralPool(50%) address is: 0x1375E91522Cbc110d6844c1187610869373D9ca4
-TreasuryInsurancePool(35%) address is: 0xc36268C3Fe6d574A329Ec0676031b6dFe407a7e2
-S1Pool(10%) address is: 0x6eE5B70cf3652678134e6609C98892FDBA2262Dc
-GenesisNodeDistrictDividendPool(5%) address is: 0x3fB59162Cd615A1ab4DC8163cC7aC3e1Dd97cA10
+### EcoMineralPool(50%)
 
-### withdrawErc20
-
-#### 入参
+#### domain
 
 ```
-function withdrawErc20(
-        address token,
-        address to,
-        uint256 amount
-    ) public onlyRole(MANAGE_ROLE) 
-```
-
-- token 要提取的token地址
-- to 转移的地址
-- amount 数量
-
-#### 事件
-
-```
-event WithdrawErc20(address token,address operator,address to,uint256 amount,uint256 createTime);
+DOMAIN_SEPARATOR = keccak256(
+            abi.encode(
+                keccak256(
+                    "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+                ),
+                keccak256(bytes("EcoMineralPool")),
+                keccak256(bytes("1")),
+                chainId,
+                address(this)
+            )
+        );
 ```
 
 
 
-- token erc20地址
-- operator 操作人地址
-- amount erc20的数量
-- createTime 创建时间
+#### withdrawBNBToReward 提取bnb到奖励合约
 
-
-
-### withdrawBNB
-
-#### 入参
+方法：
 
 ```
-function withdrawBNB(
-        address to,
-        uint256 amount
-    )
+function withdrawBNBToReward(
+        bytes memory data
+    ) public onlyRole(OPERATOR_ROLE) nonReentrant
 ```
 
-#### 事件
+permit
 
 ```
-WithdrawBNB(address operator,address to,uint256 amount,uint256 createTime)
+bytes32 private constant PERMIT_TYPEHASH_BNB =
+        keccak256(
+            abi.encodePacked(
+                "Permit(uint256 amount,uint256 nonce)"
+            )
+        );
+
 ```
 
 
 
-### balance 查询合约余额
+```
+(
+            address token,
+            uint256 amount,
+            uint256 nonce,
+            bytes memory signature
+        ) = abi.decode(
+                data,
+                (address,uint256, uint256, bytes)
+            );
+```
+
+事件：
 
 ```
-function balance(address token) public view returns (uint256)
+event WithdrawBNBToReward(address userAddr,uint256 amount,address rewardAddress,uint256 createTime);
 ```
 
-- Token erc20地址，  返回数量，本币传0地址
+
+
+#### withdrawErc20ToReward 提取erc20到奖励合约
+
+方法：
+
+```
+function withdrawErc20ToReward(
+        bytes memory data
+    ) public onlyRole(OPERATOR_ROLE)
+```
+
+permit
+
+```
+bytes32 private constant PERMIT_TYPEHASH_ERC20 =
+        keccak256(
+            abi.encodePacked(
+                "Permit(address token,uint256 amount,uint256 nonce)"
+            )
+        );
+```
 
 
 
-## TreasuryInsurancePool
+```
+ (
+            address token,
+            uint256 amount,
+            uint256 nonce,
+            bytes memory signature
+        ) = abi.decode(
+                data,
+                (address,uint256, uint256, bytes)
+            );
+```
 
-### 回购
+事件：
+
+```
+event WithdrawErc20ToReward(address userAddr,address token,uint256 amount,address rewardAddress,uint256 createTime);
+```
+
+
+
+### TreasuryInsurancePool(35%)
+
+#### domain
+
+```
+ DOMAIN_SEPARATOR = keccak256(
+                abi.encode(
+                    keccak256(
+                        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+                    ),
+                    keccak256(bytes("TreasuryInsurancePool")),
+                    keccak256(bytes("1")),
+                    chainId,
+                    address(this)
+                )
+            );
+```
+
+
+
+#### withdrawBNBToReward 提取bnb到奖励合约
+
+方法：
+
+```
+function withdrawBNBToReward(
+        bytes memory data
+    ) public onlyRole(OPERATOR_ROLE) nonReentrant
+```
+
+permit
+
+```
+bytes32 private constant PERMIT_TYPEHASH_BNB =
+        keccak256(
+            abi.encodePacked(
+                "Permit(uint256 amount,uint256 nonce)"
+            )
+        );
+
+```
+
+
+
+```
+(
+            address token,
+            uint256 amount,
+            uint256 nonce,
+            bytes memory signature
+        ) = abi.decode(
+                data,
+                (address,uint256, uint256, bytes)
+            );
+```
+
+事件：
+
+```
+event WithdrawBNBToReward(address userAddr,uint256 amount,address rewardAddress,uint256 createTime);
+```
+
+
+
+#### withdrawErc20ToReward 提取erc20到奖励合约
+
+方法：
+
+```
+function withdrawErc20ToReward(
+        bytes memory data
+    ) public onlyRole(OPERATOR_ROLE)
+```
+
+permit
+
+```
+bytes32 private constant PERMIT_TYPEHASH_ERC20 =
+        keccak256(
+            abi.encodePacked(
+                "Permit(address token,uint256 amount,uint256 nonce)"
+            )
+        );
+```
+
+
+
+```
+ (
+            address token,
+            uint256 amount,
+            uint256 nonce,
+            bytes memory signature
+        ) = abi.decode(
+                data,
+                (address,uint256, uint256, bytes)
+            );
+```
+
+
+
+事件：
+
+```
+event WithdrawErc20ToReward(address userAddr,address token,uint256 amount,address rewardAddress,uint256 createTime);
+```
+
+
+
+
+
+
+
+
+
+
+#### 回购
 
 ```
 function redeem() 
@@ -308,6 +488,228 @@ event Redeem(address operator,uint256 bnbBalance,uint256 redeemAmount,uint256 cr
 - bnbBalance 回购前合约内bnb余额
 - redeemAmount 回购的数量
 - createTime 创建时间
+
+
+
+### S1Pool(10%) 
+
+#### domain
+
+```
+DOMAIN_SEPARATOR = keccak256(
+                abi.encode(
+                    keccak256(
+                        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+                    ),
+                    keccak256(bytes("S1Pool")),
+                    keccak256(bytes("1")),
+                    chainId,
+                    address(this)
+                )
+            );
+```
+
+
+
+#### withdrawBNBToReward 提取bnb到奖励合约
+
+方法：
+
+```
+function withdrawBNBToReward(
+        bytes memory data
+    ) public onlyRole(OPERATOR_ROLE) nonReentrant
+```
+
+permit
+
+```
+bytes32 private constant PERMIT_TYPEHASH_BNB =
+        keccak256(
+            abi.encodePacked(
+                "Permit(uint256 amount,uint256 nonce)"
+            )
+        );
+
+```
+
+
+
+```
+(
+            address token,
+            uint256 amount,
+            uint256 nonce,
+            bytes memory signature
+        ) = abi.decode(
+                data,
+                (address,uint256, uint256, bytes)
+            );
+```
+
+事件：
+
+```
+event WithdrawBNBToReward(address userAddr,uint256 amount,address rewardAddress,uint256 createTime);
+```
+
+
+
+#### withdrawErc20ToReward 提取erc20到奖励合约
+
+方法：
+
+```
+function withdrawErc20ToReward(
+        bytes memory data
+    ) public onlyRole(OPERATOR_ROLE)
+```
+
+permit
+
+```
+bytes32 private constant PERMIT_TYPEHASH_ERC20 =
+        keccak256(
+            abi.encodePacked(
+                "Permit(address token,uint256 amount,uint256 nonce)"
+            )
+        );
+```
+
+
+
+```
+ (
+            address token,
+            uint256 amount,
+            uint256 nonce,
+            bytes memory signature
+        ) = abi.decode(
+                data,
+                (address,uint256, uint256, bytes)
+            );
+```
+
+
+
+事件：
+
+```
+event WithdrawErc20ToReward(address userAddr,address token,uint256 amount,address rewardAddress,uint256 createTime);
+```
+
+
+
+
+
+### GenesisNodeDistrictDividendPool(5%) 
+
+#### domain
+
+```
+DOMAIN_SEPARATOR = keccak256(
+                abi.encode(
+                    keccak256(
+                        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+                    ),
+                    keccak256(bytes("GenesisNodeDistrictDividendPool")),
+                    keccak256(bytes("1")),
+                    chainId,
+                    address(this)
+                )
+            );
+```
+
+
+
+#### withdrawBNBToReward 提取bnb到奖励合约
+
+方法：
+
+```
+function withdrawBNBToReward(
+        bytes memory data
+    ) public onlyRole(OPERATOR_ROLE) nonReentrant
+```
+
+permit
+
+```
+bytes32 private constant PERMIT_TYPEHASH_BNB =
+        keccak256(
+            abi.encodePacked(
+                "Permit(uint256 amount,uint256 nonce)"
+            )
+        );
+
+```
+
+
+
+```
+(
+            address token,
+            uint256 amount,
+            uint256 nonce,
+            bytes memory signature
+        ) = abi.decode(
+                data,
+                (address,uint256, uint256, bytes)
+            );
+```
+
+
+
+#### withdrawErc20ToReward 提取erc20到奖励合约
+
+方法：
+
+```
+function withdrawErc20ToReward(
+        bytes memory data
+    ) public onlyRole(OPERATOR_ROLE)
+```
+
+permit
+
+```
+bytes32 private constant PERMIT_TYPEHASH_ERC20 =
+        keccak256(
+            abi.encodePacked(
+                "Permit(address token,uint256 amount,uint256 nonce)"
+            )
+        );
+```
+
+
+
+```
+ (
+            address token,
+            uint256 amount,
+            uint256 nonce,
+            bytes memory signature
+        ) = abi.decode(
+                data,
+                (address,uint256, uint256, bytes)
+            );
+```
+
+事件：
+
+```
+event WithdrawErc20ToReward(address userAddr,address token,uint256 amount,address rewardAddress,uint256 createTime);
+```
+
+
+
+
+
+
+
+
+
+
 
 
 
